@@ -63,7 +63,7 @@
   </div>
 
   {#if !hasNfc}
-    x No NFC API
+    x No NFC API. Try using Chrome on Android.
   {:else if !isSecureContext}
     x Is not secure context
   {:else}
