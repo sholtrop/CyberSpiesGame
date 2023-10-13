@@ -1,0 +1,13 @@
+{
+  "name": "amogus_irl_server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "license": "MIT",
+  "dependencies": {
+    "socket.io": "^4.7.2"
+  },
+  "scripts": {
+    "start": "node index.js"
+  }
+}
