@@ -46,7 +46,7 @@
   let numbers = makeNumberListWith100Sum(numbersInMinigame);
   let firstSelectedNumber: number | null = null;
   let message = ``;
-  let wins = 2;
+  let wins = 0;
 </script>
 
 <div class="flex flex-col items-center mt-10 text-base">
