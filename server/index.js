@@ -5,17 +5,25 @@ const server = http.createServer();
 
 const io = new Server(server, { cors: "*" });
 
-io.on("connection", (client) => {
-  console.debug(`Client connected`);
+io.on(
+  "connection",
 
-  client.on("event", (data) => {
-    console.debug(`Got event:\n${JSON.stringify(data, null, 4)}`);
-  });
+  (client) => {
+    console.debug(`Client connected`);
 
-  client.on("disconnect", () => {
-    console.debug(`Client disconnected`);
-  });
-});
+    client.on("nfcScanned", (nfcTag) => {
+      console.debug(`NFC tag has been scanned with number: ${nfcTag.number}`);
+    });
+
+    client.on("playerKilled", (data) => {
+      client.broadcast(`playerKilled`, { playerName: `lochyin` });
+    });
+
+    client.on("disconnect", () => {
+      console.debug(`Client disconnected`);
+    });
+  }
+);
 
 const port = 3000;
 console.debug(`Listening on ${port}`);

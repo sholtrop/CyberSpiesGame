@@ -1,0 +1,88 @@
+<script lang="ts">
+  import Header from "$lib/Header.svelte";
+  import { makeNumberListWith100Sum } from "$lib/util";
+  import { createEventDispatcher } from "svelte";
+
+  // How many times the minigame has to be repeated before completing
+  export let nRepeats = 3;
+  export let numbersInMinigame = 12;
+
+  const dispatch = createEventDispatcher();
+
+  function resetNumbers() {
+    numbers = makeNumberListWith100Sum(numbersInMinigame);
+  }
+
+  // Return whether a and b sum to 100
+  function numbersSumTo100(a: number, b: number): boolean {
+    return a + b === 100;
+  }
+
+  function clearNumber() {
+    firstSelectedNumber = null;
+  }
+
+  // Remember the pressed number
+  function selectNumber(n: number) {
+    if (firstSelectedNumber == null) firstSelectedNumber = n;
+    else {
+      const correctAnswer = numbersSumTo100(firstSelectedNumber, n);
+      if (!correctAnswer) {
+        message = `❌ That is the wrong answer. Try again.`;
+        clearNumber();
+        return;
+      }
+
+      wins += 1;
+      if (wins === nRepeats) {
+        dispatch(`taskComplete`);
+      } else {
+        resetNumbers();
+        firstSelectedNumber = null;
+      }
+    }
+  }
+
+  let numbers = makeNumberListWith100Sum(numbersInMinigame);
+  let firstSelectedNumber: number | null = null;
+  let message = ``;
+  let wins = 2;
+</script>
+
+<div class="flex flex-col items-center mt-10 text-base">
+  <Header>Select two numbers that sum up to 100</Header>
+
+  <div class="grid grid-rows-4 grid-cols-3 w-full mt-10">
+    {#each numbers as n}
+      <button
+        on:click={() => selectNumber(n)}
+        class="border border-gray-500 p-2 m-1.5 font-semibold text-lg rounded-md transition-colors duration-200"
+        class:bg-gray-400={firstSelectedNumber === n}>{n}</button
+      >
+    {/each}
+  </div>
+
+  <div class=" mt-10">
+    <button
+      on:click={clearNumber}
+      class="border border-gray-500 px-10 py-3 bg-gray-800">Clear</button
+    >
+  </div>
+
+  <!-- Grid that displays how many times the player won the minigame already, and how many they have left to go-->
+  <div class="mt-10 flex space-x-3">
+    {#each { length: nRepeats } as _, i}
+      <div
+        class="border border-gray-400 w-10 h-10 text-xl flex items-baseline pt-0.5 justify-center"
+      >
+        {#if wins > i}
+          ✔
+        {/if}
+      </div>
+    {/each}
+  </div>
+
+  <div class="mt-10 w-2/3">
+    {message}
+  </div>
+</div>

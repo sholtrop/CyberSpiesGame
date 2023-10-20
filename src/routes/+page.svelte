@@ -43,9 +43,14 @@
   }
 
   function initSocketIO() {
-    socketIO.connect(`http://localhost:3000`).on("connect", () => {
-      console.debug(`Connected to socketIO`);
-    });
+    const socket = socketIO
+      .connect(`http://localhost:3000`)
+      .on("connect", () => {
+        console.debug(`Connected to socketIO`);
+      })
+      .on("message", (data) => {
+        msg = "Got event:" + JSON.stringify(data);
+      });
   }
 
   function goFullScreen() {
@@ -53,10 +58,7 @@
   }
 </script>
 
-<div
-  bind:this={mainDiv}
-  class="text-white bg-black min-h-screen flex flex-col items-center pt-20"
->
+<div bind:this={mainDiv} class="pt-20">
   <div>{msg}</div>
   <div>
     {nfcMessage}
