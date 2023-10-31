@@ -1,77 +1,30 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import * as socketIO from "socket.io-client";
+  import { dev } from "$app/environment";
+  import MainButton from "$lib/MainButton.svelte";
+  import { getSocketIO } from "$lib/websocket";
+  let deviceSupported: boolean;
 
-  let hasNfc = false;
-  let isSecureContext = false;
-  let msg = `Web NFC test`;
-  let mainDiv: HTMLDivElement;
-  let nfcMessage = ``;
+  function deviceIsSupported(): boolean {
+    return ("NDEFReader" in window && window.isSecureContext) || dev;
+  }
+
+  function createLobby() {
+    getSocketIO();
+  }
 
   onMount(() => {
-    if ("NDEFReader" in window) hasNfc = true;
-    if (window.isSecureContext) isSecureContext = true;
-    initSocketIO();
+    deviceSupported = deviceIsSupported();
   });
-
-  function log(message: string) {
-    msg = message;
-  }
-
-  async function startNfc() {
-    try {
-      const ndef = new NDEFReader();
-      await ndef.scan();
-      log(`Scanning...`);
-      ndef.onreadingerror = (err) =>
-        log(`Cannot read data from the NFC tag: ${err}`);
-
-      ndef.onreading = (event) => {
-        let msg = ``;
-        event.message.records.forEach((m) => {
-          const textDecoder = new TextDecoder();
-          msg += textDecoder.decode(m.data);
-        });
-        log(`Got msg from NFC tag:`);
-        nfcMessage = msg;
-      };
-      return true;
-    } catch (err) {
-      if (err instanceof Error) log(err.toString());
-      else log(`> Unknown error occurred while activating NFC reader`);
-    }
-  }
-
-  function initSocketIO() {
-    const socket = socketIO
-      .connect(`http://localhost:3000`)
-      .on("connect", () => {
-        console.debug(`Connected to socketIO`);
-      })
-      .on("message", (data) => {
-        msg = "Got event:" + JSON.stringify(data);
-      });
-  }
-
-  function goFullScreen() {
-    mainDiv.requestFullscreen();
-  }
 </script>
 
-<div bind:this={mainDiv} class="pt-20">
-  <div>{msg}</div>
-  <div>
-    {nfcMessage}
-  </div>
-
-  {#if !hasNfc}
-    x No NFC API. Try using Chrome on Android.
-  {:else if !isSecureContext}
-    x Is not secure context
+<div class="min-h-screen flex flex-col justify-between items-center py-10 px-2">
+  {#if deviceSupported}
+    <div class="text-5xl">Cyber Spy</div>
+    <div>
+      <MainButton on:click={() => createLobby()}>Create Lobby</MainButton>
+    </div>
   {:else}
-    <button
-      class="border-2 py-3 px-8 mt-4"
-      on:click={async () => (await startNfc()) && goFullScreen()}>Scan</button
-    >
+    Your device is not supported.<br />Try Google Chrome on Android.
   {/if}
 </div>

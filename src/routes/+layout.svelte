@@ -2,6 +2,8 @@
   import "../app.postcss";
 </script>
 
-<div class="bg-black min-h-screen flex flex-col items-center text-white">
+<div
+  class="bg-black min-h-screen flex flex-col items-center text-white font-mono"
+>
   <slot />
 </div>
