@@ -3,6 +3,7 @@
   import { dev } from "$app/environment";
   import MainButton from "$lib/MainButton.svelte";
   import { getSocketIO } from "$lib/websocket";
+  import { goto } from "$app/navigation";
   let deviceSupported: boolean;
 
   function deviceIsSupported(): boolean {
@@ -11,6 +12,7 @@
 
   function createLobby() {
     getSocketIO();
+    goto("/lobby", {replaceState: true});
   }
 
   onMount(() => {
