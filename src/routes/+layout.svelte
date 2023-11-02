@@ -3,7 +3,7 @@
 </script>
 
 <div
-  class="bg-black min-h-screen flex flex-col items-center text-white font-mono"
+  class="bg-black h-screen flex flex-col items-center text-white font-mono py-10 px-2"
 >
   <slot />
 </div>

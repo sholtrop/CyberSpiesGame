@@ -33,3 +33,43 @@ export function shuffleArray(array: number[]) {
     [array[i], array[j]] = [array[j], array[i]];
   }
 }
+
+// Halt execution for `timeMs` miliseconds.
+export function asyncSleep(timeMs: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, timeMs);
+  });
+}
+
+// Start the phone's NFC scanner and give the user `timeoutSecs` seconds to scan an NFC tag.
+// Returns the contents of the NFC tag as a string, or null if the user did not scan a tag in time.
+export async function scanNfc(timeoutSecs = 10): Promise<string | null> {
+  try {
+    const ndef = new NDEFReader();
+    await ndef.scan();
+    console.debug(`NFC Scanner activated`);
+    return new Promise((resolve, reject) => {
+      ndef.onreadingerror = (err) => {
+        console.error(`Cannot read data from the NFC tag: ${err}`);
+        reject();
+      };
+      ndef.onreading = (event) => {
+        let msg = ``;
+        const textDecoder = new TextDecoder();
+        event.message.records.forEach((m) => {
+          msg += textDecoder.decode(m.data);
+        });
+        // Got a message from an NFC tag, so return the message
+        resolve(msg);
+      };
+      // Keep scanning for `timeoutSecs` seconds, then resolve to null as we did not scan something within the time limit
+      asyncSleep(timeoutSecs * 1000).then(() => resolve(null));
+    });
+  } catch (err) {
+    if (err instanceof Error) console.error(err.toString());
+    else console.error(`Unknown error occurred while activating NFC reader`);
+    return null;
+  }
+}

@@ -11,9 +11,9 @@
     return ("NDEFReader" in window && window.isSecureContext) || dev;
   }
 
-  function createLobby() {
+  function joinLobby() {
     getSocketIO();
-    goto("/lobby", {replaceState: true});
+    goto("/lobby", { replaceState: true });
   }
 
   onMount(() => {
@@ -23,9 +23,9 @@
 
 <div class="h-full flex flex-col justify-between items-center">
   {#if deviceSupported}
-    <Title></Title>
+    <Title />
     <div>
-      <MainButton on:click={() => createLobby()}>Create Lobby</MainButton>
+      <MainButton on:click={() => joinLobby()}>Join Lobby</MainButton>
     </div>
   {:else}
     Your device is not supported.<br />Try Google Chrome on Android.
