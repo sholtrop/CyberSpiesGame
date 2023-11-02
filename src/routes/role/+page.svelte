@@ -6,7 +6,7 @@
     let roleContainer: HTMLElement;
 
     function isSpy() {
-        let spy: boolean = true;
+        let spy: boolean = false;
         return spy;
     }
 

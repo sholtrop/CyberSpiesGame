@@ -1,5 +1,10 @@
 <script lang="ts">
+  import MainButton from "$lib/MainButton.svelte";
+    import { onMount } from "svelte";
   let mainDiv: HTMLDivElement;
+  let taskListDiv: HTMLUListElement;
+  let tasks: {name: string, room: string}[] = [];
+
   function goFullScreen() {
     mainDiv.requestFullscreen();
   }
@@ -27,6 +32,44 @@
         console.debug(`> Unknown error occurred while activating NFC reader`);
     }
   }
+
+  function scanNFC() {
+
+  }
+
+  function addTask(name: string, room: string) {
+    onMount(() => {
+      let taskItem = document.createElement("li");
+      let taskNameSpan = document.createElement("span");
+      let taskRoomSpan = document.createElement("span");
+      taskNameSpan.innerText = name + " ";
+      taskRoomSpan.innerText = room;
+      taskItem.appendChild(taskNameSpan);
+      taskItem.appendChild(taskRoomSpan);
+      taskListDiv.appendChild(taskItem);
+    });
+  }
+
+  function getTasks() {
+    let task = {name: "Strengthen firewall", room: "Room 302/304"}
+    tasks.push(task);
+  }
+
+  function addTaskList() {
+    getTasks();
+    tasks.forEach(({name, room}) => addTask(name, room));
+  }
+
+  addTaskList();
 </script>
 
-<div bind:this={mainDiv}>x</div>
+<div bind:this={mainDiv} class="min-h-full h-1x flex flex-col justify-between">
+    <div>
+      <p class="text-lg">Tasks:</p>
+      <ul bind:this={taskListDiv} class="list-disc list-inside">
+      </ul>
+    </div>
+    <div class="self-center">
+      <MainButton on:click={() => scanNFC()}>Scan</MainButton>
+    </div>
+</div>
