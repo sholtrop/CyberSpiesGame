@@ -1,9 +1,10 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { dev } from "$app/environment";
-  import MainButton from "$lib/MainButton.svelte";
   import { getSocketIO } from "$lib/websocket";
   import { goto } from "$app/navigation";
+  import MainButton from "$lib/MainButton.svelte";
+  import Title from "$lib/Title.svelte";
   let deviceSupported: boolean;
 
   function deviceIsSupported(): boolean {
@@ -20,9 +21,9 @@
   });
 </script>
 
-<div class="min-h-screen flex flex-col justify-between items-center py-10 px-2">
+<div class="h-full flex flex-col justify-between items-center">
   {#if deviceSupported}
-    <div class="text-5xl">Cyber Spy</div>
+    <Title></Title>
     <div>
       <MainButton on:click={() => createLobby()}>Create Lobby</MainButton>
     </div>

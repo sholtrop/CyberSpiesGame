@@ -1,7 +1,14 @@
 <script lang="ts">
   import {onMount} from 'svelte';
+  import { getSocketIO } from "$lib/websocket";
+  import { goto } from "$app/navigation";
+  import MainButton from "$lib/MainButton.svelte";
+  import Title from "$lib/Title.svelte";
 
   let container: HTMLElement;
+  let linkContainer: HTMLElement;
+  let qrContainer: HTMLElement;
+  let roomLink: string;
   const players = [
     { name: "Lochyin", color: "green" },
     { name: "Salih", color: "blue" },
@@ -16,6 +23,19 @@
     green: "bg-green-600",
     blue: "bg-blue-600",
   } as { [key: string]: string };
+
+  function getRoomLink(): string {
+    let link: string = "https://test.com";
+    return link;
+  }
+
+  function showRoomLink() {
+    onMount(() => {
+      let link: string = getRoomLink();
+      linkContainer.innerText = "Roomlink: \n" + link;
+    });
+  }
+
 
   function addPlayer(playerName: string, color: string) {
     onMount(() => {   
@@ -35,14 +55,32 @@
     });
   }
 
+  function startGame() {
+    getSocketIO();
+    goto("/game", {replaceState: true});
+  }
+
+  showRoomLink();
+
   for (let i in players) {
     addPlayer(players[i]["name"], players[i]["color"]);
   }
 
-</script>
 
-<div bind:this={container}>
-  <div class="title text-5xl my-5">Cyber Spy</div>
+</script>
+<div class="min-h-full h-1x flex flex-col justify-between">
+  <div>
+    <Title></Title>
+    <div class="my-10">
+      <p bind:this={linkContainer}>Roomlink: </p>
+      <div bind:this={qrContainer}></div>
+    </div>
+    <div>
+      <h2>Players:</h2>
+      <div bind:this={container}></div>
+    </div>
+  </div>
+  <MainButton on:click={() => startGame()}>Start Game</MainButton>
 </div>
 
 <style lang="scss">
