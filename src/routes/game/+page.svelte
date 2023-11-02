@@ -1,9 +1,9 @@
 <script lang="ts">
+  import { dev } from "$app/environment";
   import MainButton from "$lib/MainButton.svelte";
-    import { onMount } from "svelte";
   let mainDiv: HTMLDivElement;
   let taskListDiv: HTMLUListElement;
-  let tasks: {name: string, room: string}[] = [];
+  let tasks: { name: string; room: string }[] = [];
 
   function goFullScreen() {
     mainDiv.requestFullscreen();
@@ -33,43 +33,29 @@
     }
   }
 
-  function scanNFC() {
-
-  }
+  function scanNFC() {}
 
   function addTask(name: string, room: string) {
-    onMount(() => {
-      let taskItem = document.createElement("li");
-      let taskNameSpan = document.createElement("span");
-      let taskRoomSpan = document.createElement("span");
-      taskNameSpan.innerText = name + " ";
-      taskRoomSpan.innerText = room;
-      taskItem.appendChild(taskNameSpan);
-      taskItem.appendChild(taskRoomSpan);
-      taskListDiv.appendChild(taskItem);
-    });
+    tasks = [...tasks, { name: name, room: room }];
   }
 
-  function getTasks() {
-    let task = {name: "Strengthen firewall", room: "Room 302/304"}
-    tasks.push(task);
+  function addFakeTasks() {
+    addTask("Strengthen firewall", "Room 302/304");
   }
 
-  function addTaskList() {
-    getTasks();
-    tasks.forEach(({name, room}) => addTask(name, room));
-  }
-
-  addTaskList();
+  if (dev) addFakeTasks();
 </script>
 
-<div bind:this={mainDiv} class="min-h-full h-1x flex flex-col justify-between">
-    <div>
-      <p class="text-lg">Tasks:</p>
-      <ul bind:this={taskListDiv} class="list-disc list-inside">
-      </ul>
-    </div>
-    <div class="self-center">
-      <MainButton on:click={() => scanNFC()}>Scan</MainButton>
-    </div>
+<div bind:this={mainDiv} class="min-h-full flex flex-col justify-between">
+  <div>
+    <p class="text-lg">Tasks:</p>
+    <ul bind:this={taskListDiv} class="list-disc list-inside">
+      {#each tasks as task}
+        <li><span>{task.name}</span> <span>{task.room}</span></li>
+      {/each}
+    </ul>
+  </div>
+  <div class="self-center">
+    <MainButton on:click={() => scanNFC()}>Scan</MainButton>
+  </div>
 </div>
