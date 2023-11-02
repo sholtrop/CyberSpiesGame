@@ -37,22 +37,8 @@
   }
 
 
-  function addPlayer(playerName: string, color: string) {
-    onMount(() => {   
-      let child: HTMLElement = document.createElement('div');
-      child.classList.add("flex", "items-baseline", "space-x-1.5");
-  
-      let grandchild1: HTMLElement = document.createElement('div');
-      grandchild1.classList.add("w-3", "h-3");
-      grandchild1.classList.add(colors[color]);
-      child.appendChild(grandchild1);
-      
-      let grandchild2: HTMLElement = document.createElement('div');
-      grandchild2.textContent = playerName;
-      child.appendChild(grandchild2);
-  
-      container.appendChild(child);
-    });
+  function addPlayer(name: string, color: string) {
+    players.push({name, color});
   }
 
   function startGame() {
@@ -61,10 +47,6 @@
   }
 
   showRoomLink();
-
-  for (let i in players) {
-    addPlayer(players[i]["name"], players[i]["color"]);
-  }
 
 
 </script>
@@ -77,7 +59,14 @@
     </div>
     <div>
       <h2>Players:</h2>
-      <div bind:this={container}></div>
+      <div bind:this={container}>
+        {#each players as player}
+        <div class="flex items-baseline space-x-1.5">
+          <div class={colors[player.color] + " w-3 h-3"} />
+          <div>{player.name}</div>
+        </div>
+      {/each}
+      </div>
     </div>
   </div>
   <MainButton on:click={() => startGame()}>Start Game</MainButton>
