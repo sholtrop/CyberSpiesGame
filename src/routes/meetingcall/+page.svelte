@@ -3,21 +3,18 @@
 
   let meetingCall: string;
 
-  function scanNFC() {
-
-  }
+  function scanNFC() {}
 
   function bodyFound(): boolean {
-    let body: boolean = true;
+    let body = true;
     return body;
   }
 
   function setMeetingReason() {
-    meetingCall = bodyFound() ? "A body has beend found!" : "Rendezvous called!";
+    meetingCall = bodyFound() ? "A body has been found!" : "Rendezvous called!";
   }
 
   setMeetingReason();
-
 </script>
 
 <div class="h-full flex flex-col justify-between">

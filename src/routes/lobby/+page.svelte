@@ -1,14 +1,18 @@
 <script lang="ts">
-  import { onMount } from "svelte";
   import { getSocketIO } from "$lib/websocket";
   import { goto } from "$app/navigation";
   import MainButton from "$lib/MainButton.svelte";
   import Title from "$lib/Title.svelte";
+  import QrCode from "$lib/QrCode.svelte";
+  import { onMount } from "svelte";
 
-  let container: HTMLElement;
-  let linkContainer: HTMLElement;
-  let qrContainer: HTMLElement;
+  let lobbyCode = `placeholder_lobbycode`;
   let roomLink: string;
+
+  onMount(() => {
+    roomLink = getRoomLink();
+  });
+
   const players = [
     { name: "Lochyin", color: "green" },
     { name: "Salih", color: "blue" },
@@ -27,15 +31,9 @@
   } as { [key: string]: string };
 
   function getRoomLink(): string {
-    let link: string = "https://test.com";
+    // TODO: Get roomcode from the server, then make the link like /lobby?code={your lobby code here}
+    let link: string = window.location.origin + `/lobby?code=${lobbyCode}`;
     return link;
-  }
-
-  function showRoomLink() {
-    onMount(() => {
-      let link: string = getRoomLink();
-      linkContainer.innerText = "Roomlink: \n" + link;
-    });
   }
 
   function addPlayer(name: string, color: string) {
@@ -43,34 +41,26 @@
   }
 
   function startGame() {
-    getSocketIO();
     goto("/role", { replaceState: true });
   }
-
-  showRoomLink();
 </script>
 
-<div class="min-h-full h-1x flex flex-col justify-between">
+<div class="min-h-full flex flex-col justify-between">
   <div>
     <Title />
     <div class="my-10">
-      <p bind:this={linkContainer}>Roomlink:</p>
-      <div bind:this={qrContainer} />
+      <p>Roomlink: {roomLink}</p>
+      <QrCode />
     </div>
     <div>
       <h2>Players:</h2>
-      <div bind:this={container}>
-        {#each players as player}
-          <div class="flex items-baseline space-x-1.5">
-            <div class={colors[player.color] + " w-3 h-3"} />
-            <div>{player.name}</div>
-          </div>
-        {/each}
-      </div>
+      {#each players as player}
+        <div class="flex items-baseline space-x-1.5">
+          <div class={colors[player.color] + " w-3 h-3"} />
+          <div>{player.name}</div>
+        </div>
+      {/each}
     </div>
   </div>
   <MainButton on:click={() => startGame()}>Start Game</MainButton>
 </div>
-
-<style lang="scss">
-</style>
