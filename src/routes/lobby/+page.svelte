@@ -57,7 +57,7 @@
 
   function startGame() {
     getSocketIO();
-    goto("/game", {replaceState: true});
+    goto("/role", {replaceState: true});
   }
 
   showRoomLink();
