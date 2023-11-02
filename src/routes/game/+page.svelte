@@ -2,7 +2,6 @@
   import { dev } from "$app/environment";
   import MainButton from "$lib/MainButton.svelte";
   let mainDiv: HTMLDivElement;
-  let taskListDiv: HTMLUListElement;
   let tasks: { name: string; room: string }[] = [];
 
   function goFullScreen() {
@@ -36,7 +35,7 @@
   function scanNFC() {}
 
   function addTask(name: string, room: string) {
-    tasks = [...tasks, { name: name, room: room }];
+    tasks = [...tasks, { name, room }];
   }
 
   function addFakeTasks() {
@@ -49,7 +48,7 @@
 <div bind:this={mainDiv} class="min-h-full flex flex-col justify-between">
   <div>
     <p class="text-lg">Tasks:</p>
-    <ul bind:this={taskListDiv} class="list-disc list-inside">
+    <ul class="list-disc list-inside">
       {#each tasks as task}
         <li><span>{task.name}</span> <span>{task.room}</span></li>
       {/each}
