@@ -46,10 +46,10 @@
 </script>
 
 <div class="min-h-full flex flex-col justify-between">
-  <div>
+  <div class="flex flex-col items-center">
     <Title />
-    <div class="my-10">
-      <p>Roomlink: {roomLink}</p>
+    <div class="my-10 flex flex-col items-center">
+      <p class="text-center mb-3">Roomlink: {roomLink}</p>
       <QrCode />
     </div>
     <div>
