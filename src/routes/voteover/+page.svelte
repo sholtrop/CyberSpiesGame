@@ -10,9 +10,9 @@
 
   function gotoGame() {
     setTimeout(() => {
-        if (browser) {
-            goto("/game", {replaceState: true});
-        }
+      if (browser) {
+          goto("/game", {replaceState: true});
+      }
     }, 5000);
   }
 
