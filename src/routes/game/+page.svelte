@@ -13,12 +13,14 @@
   let spy: boolean = true; // TODO: store this info from role after receiving it on the role page.
   let taskProgress: number;
 
+
+  // just died and dead to show whether the player was killed after the previous meeting or before.
   const players = [
     { name: "Lochyin", color: "green", status: "alive" },
     { name: "Salih", color: "blue", status: "alive" },
-    { name: "Amber", color: "yellow", status: "dead" },
-    { name: "Steef", color: "white", status: "dead" },
-    { name: "Sjors", color: "red", status: "-" },
+    { name: "Amber", color: "yellow", status: "just died" },
+    { name: "Steef", color: "white", status: "just died" },
+    { name: "Sjors", color: "red", status: "dead" },
   ];
 
   const colors = {
