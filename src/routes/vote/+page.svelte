@@ -6,12 +6,13 @@
   import TaskBar from "$lib/TaskBar.svelte";
   import { onMount, type ComponentProps, SvelteComponent } from "svelte";
   import { browser } from '$app/environment';
+  import { goto } from "$app/navigation";
 
   let taskProgress: number = 50;
   let playerPick: string;
   $: voted = false;
   $: resultsShown = false;
-  let voteTime = 50;
+  let voteTime = 5; // voting duration
   $: timer = voteTime;
 
   const players = [
@@ -55,6 +56,11 @@
       if (timer <= 0) {
         clearInterval(interval);
         showResults();
+        setTimeout(() => {
+          if (browser) {
+            goto("/voteover")
+      }
+    }, 5000);
       }
     }, 1000);
   }
