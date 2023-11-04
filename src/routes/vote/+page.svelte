@@ -8,6 +8,8 @@
   import { browser } from '$app/environment';
 
   let taskProgress: number = 50;
+  let playerPick: string;
+  $: voted = false;
 
   const players = [
     { name: "Lochyin", color: "green", status: "alive" },
@@ -19,6 +21,17 @@
 
   function updateTaskBar(value: number) {
     taskProgress = value;
+  }
+
+  function handlePlayerPick(event: any) {
+    playerPick = event.target.textContent;
+  }
+
+  function voteHandler() {
+    if (playerPick && !voted) {
+      // register vote to server
+      voted = true;
+    }
   }
 </script>
 
@@ -37,23 +50,19 @@
         {/each}
       </div>
     </div>
-    <div class="flex flex-col gap-5">
+    <div class="flex flex-col gap-5 item-center">
       <p class="font-bold text-lg">Vote off the spy!</p>
       {#each players as player}
         {#if player.status == "alive"}
-          <div class="border border-green-600 px-6 py-4 text-center text-md">
+          <div on:click={handlePlayerPick} class="border border-green-600 px-6 py-4 text-center text-md {player.name == playerPick ? "bg-green-600" : ""}">
             {player.name}
           </div>
         {/if}        
       {/each}
+      <div on:click={handlePlayerPick} class="border border-green-600 px-6 py-4 text-center text-md  {"Skip" == playerPick ? "bg-green-600" : ""}">Skip</div>
     </div>
   </div>
-  <div class="flex justify-between">
-    <div>
-      <MainButton>Vote</MainButton>
-    </div>
-    <div> 
-      <MainButton>Skip</MainButton>
-    </div>
+  <div class="text-center">
+    <button on:click={voteHandler} class="border px-6 py-4 mb-10 text-lg border-green-600 {voted ? "bg-gray-500" : ""}">Vote</button>
   </div>
 </div>
