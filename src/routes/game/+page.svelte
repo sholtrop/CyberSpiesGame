@@ -2,6 +2,7 @@
   import { dev } from "$app/environment";
   import MainButton from "$lib/MainButton.svelte";
   import SmallButton from "$lib/SmallButton.svelte";
+  import TaskBar from "$lib/TaskBar.svelte";
   import { onMount } from "svelte";
   import { browser } from '$app/environment';
   import { swipe } from 'svelte-gestures';
@@ -10,14 +11,14 @@
   let spyDiv: HTMLDivElement;
   let tasks: { name: string; room: string }[] = [];
   let spy: boolean = true; // TODO: store this info from role after receiving it on the role page.
-  let taskProgress: number = 50 ;
+  let taskProgress: number;
 
   const players = [
     { name: "Lochyin", color: "green", status: "alive" },
     { name: "Salih", color: "blue", status: "alive" },
-    { name: "Amber", color: "yellow", status: "hacked" },
-    { name: "Steef", color: "white", status: "hacked" },
-    { name: "Sjors", color: "red", status: "dead" },
+    { name: "Amber", color: "yellow", status: "dead" },
+    { name: "Steef", color: "white", status: "dead" },
+    { name: "Sjors", color: "red", status: "-" },
   ];
 
   const colors = {
@@ -57,23 +58,23 @@
     if (event.detail.direction == 'bottom') scrollUp();
   }
 
-  function updateTaskBar(value: number) {
-    taskProgress = value;
-  }
-
   function updatePlayerStatus(player: number, status: string) {
     players[player]["status"] = status;
   }
 
   if (dev) addFakeTasks();
+
+  function updateTaskBar(value: number) {
+    taskProgress = value;
+  }
+
 </script>
 
 <div bind:this={mainDiv} use:swipe={{ timeframe: 300, minSwipeDistance: 100}} on:swipe={swipeHandler} class="mainDiv min-h-full overflow-hidden whitespace-nowrap">
   <div class="h-full w-screen flex flex-col justify-between items-center">
     <div>
       <div class="mb-10">
-        <label for="taskbar">Catching the spies...</label>
-        <progress id="taskbar" value={taskProgress} max="100"></progress>
+        <TaskBar {taskProgress}></TaskBar>
       </div>
       <div>
         <p class="text-lg">Tasks:</p>
