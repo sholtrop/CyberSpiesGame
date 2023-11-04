@@ -10,6 +10,7 @@
   let spyDiv: HTMLDivElement;
   let tasks: { name: string; room: string }[] = [];
   let spy: boolean = true; // TODO: store this info from role after receiving it on the role page.
+  let taskProgress: number = 50 ;
 
   const players = [
     { name: "Lochyin", color: "green", status: "alive" },
@@ -43,7 +44,6 @@
     addTask("Strengthen firewall", "Room 302/304");
   }
 
-  // TODO: scroll completely with one swipe with minimum distance
   function scrollDown() {
     mainDiv.scroll({ top: mainDiv.scrollHeight, behavior: 'smooth'});
   }
@@ -57,18 +57,28 @@
     if (event.detail.direction == 'bottom') scrollUp();
   }
 
+  function updateTaskBar(value: number) {
+    taskProgress = value;
+  }
+
   if (dev) addFakeTasks();
 </script>
 
 <div bind:this={mainDiv} use:swipe={{ timeframe: 300, minSwipeDistance: 100}} on:swipe={swipeHandler} class="mainDiv min-h-full overflow-hidden whitespace-nowrap">
   <div class="h-full w-screen flex flex-col justify-between items-center">
     <div>
-      <p class="text-lg">Tasks:</p>
-      <ul class="list-disc list-inside">
-        {#each tasks as task}
-          <li><span>{task.name}</span> <span>{task.room}</span></li>
-        {/each}
-      </ul>
+      <div class="mb-10">
+        <label for="taskbar">Catching the spies...</label>
+        <progress id="taskbar" value={taskProgress} max="100"></progress>
+      </div>
+      <div>
+        <p class="text-lg">Tasks:</p>
+        <ul class="list-disc list-inside">
+          {#each tasks as task}
+            <li><span>{task.name}</span> <span>({task.room})</span></li>
+          {/each}
+        </ul>
+      </div>
     </div>
     <div class="self-center">
       <MainButton on:click={() => scanNFC()}>Scan</MainButton>
