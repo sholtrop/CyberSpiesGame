@@ -61,6 +61,10 @@
     taskProgress = value;
   }
 
+  function updatePlayerStatus(player: number, status: string) {
+    players[player]["status"] = status;
+  }
+
   if (dev) addFakeTasks();
 </script>
 
