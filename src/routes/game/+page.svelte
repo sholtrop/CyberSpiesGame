@@ -93,6 +93,7 @@
     <div bind:this={spyDiv} class="h-full px-10 flex flex-col gap-10">
       <div>
         <p class="font-bold text-2xl">Status Report</p>
+        <!-- I'm not making a component for a player list because I plan to style them all differently -->
         {#each players as player}
           <div class="flex items-baseline space-x-1.5">
             <div class={colors[player.color] + " w-3 h-3"} />
