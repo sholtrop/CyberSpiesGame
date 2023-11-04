@@ -6,7 +6,7 @@
     let roleContainer: HTMLElement;
 
     function isSpy() {
-        let spy: boolean = false;
+        let spy: boolean = true;
         return spy;
     }
 
@@ -36,4 +36,7 @@
 
 <div class="flex flex-col justify-center">
     <p>Your role is: <span bind:this={roleContainer}></span></p>
+    {#if isSpy()}
+        <p>Your tasks are fake. Swipe up to see your special powers.</p>
+    {/if}
 </div>

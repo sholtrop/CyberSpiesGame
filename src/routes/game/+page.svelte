@@ -2,7 +2,12 @@
   import { dev } from "$app/environment";
   import MainButton from "$lib/MainButton.svelte";
   import SmallButton from "$lib/SmallButton.svelte";
+  import { onMount } from "svelte";
+  import { browser } from '$app/environment';
+  import { swipe } from 'svelte-gestures';
+  
   let mainDiv: HTMLDivElement;
+  let spyDiv: HTMLDivElement;
   let tasks: { name: string; room: string }[] = [];
   let spy: boolean = true; // TODO: store this info from role after receiving it on the role page.
 
@@ -39,11 +44,23 @@
   }
 
   // TODO: scroll completely with one swipe with minimum distance
+  function scrollDown() {
+    mainDiv.scroll({ top: mainDiv.scrollHeight, behavior: 'smooth'});
+  }
+
+  function scrollUp() {
+    mainDiv.scroll({ top: 0, behavior: 'smooth'});
+  }
+
+  function swipeHandler(event: any) {
+    if (event.detail.direction == 'top') scrollDown();
+    if (event.detail.direction == 'bottom') scrollUp();
+  }
 
   if (dev) addFakeTasks();
 </script>
 
-<div bind:this={mainDiv} class="mainDiv min-h-full overflow-auto whitespace-nowrap">
+<div bind:this={mainDiv} use:swipe={{ timeframe: 300, minSwipeDistance: 100}} on:swipe={swipeHandler} class="mainDiv min-h-full overflow-hidden whitespace-nowrap">
   <div class="h-full w-screen flex flex-col justify-between items-center">
     <div>
       <p class="text-lg">Tasks:</p>
@@ -59,7 +76,7 @@
   </div>
 
   {#if spy}
-    <div class="h-full px-10 flex flex-col gap-10">
+    <div bind:this={spyDiv} class="h-full px-10 flex flex-col gap-10">
       <div>
         <p class="font-bold text-2xl">Status Report</p>
         {#each players as player}
