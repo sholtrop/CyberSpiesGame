@@ -3,7 +3,7 @@
     import { browser } from '$app/environment';
 
     function isSpy() {
-        let spy: boolean = false;
+        let spy: boolean = true;
         return spy;
     }
 
