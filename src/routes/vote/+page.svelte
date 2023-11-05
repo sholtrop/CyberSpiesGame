@@ -10,10 +10,10 @@
 
   let taskProgress: number = 50;
   let playerPick: string;
-  $: voted = false;
-  $: resultsShown = false;
-  let voteTime = 5; // voting duration
-  $: timer = voteTime;
+  let voted: boolean = false;
+  let resultsShown = false;
+  let voteTime: number = 5; // voting duration
+  let timer:number = voteTime;
 
   const players = [
     { name: "Lochyin", color: "green", status: "alive" },
@@ -59,8 +59,8 @@
         setTimeout(() => {
           if (browser) {
             goto("/voteover")
-      }
-    }, 5000);
+          }
+        }, 5000);
       }
     }, 1000);
   }
@@ -97,6 +97,6 @@
     </div>
   </div>
   <div class="text-center">
-    <button on:click={voteHandler} class="border px-6 py-4 mb-10 text-lg border-green-600 {voted ? "bg-gray-500" : ""}">Vote</button>
+    <button on:click={voteHandler} class="border px-6 py-4 mb-10 text-lg border-green-600 { (voted || resultsShown) ? "bg-gray-500" : ""}">Vote</button>
   </div>
 </div>
