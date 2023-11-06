@@ -8,22 +8,20 @@
   import NameInput from "$lib/NameInput.svelte";
   let deviceSupported: boolean;
 
-  let playerName:string = "";
-  let showError:boolean = false;
+  let playerName = "";
+  let showError = false;
 
   function deviceIsSupported(): boolean {
     return ("NDEFReader" in window && window.isSecureContext) || dev;
   }
 
-  function emitPlayerName() {
-
-  }
+  function emitPlayerName() {}
 
   function createLobby() {
     if (playerName) {
       getSocketIO();
       emitPlayerName();
-      goto("/lobby", {replaceState: true});
+      goto("/lobby", { replaceState: true });
     } else {
       showError = true;
     }
@@ -36,9 +34,9 @@
 
 <div class="h-full flex flex-col justify-between items-center">
   {#if deviceSupported}
-    <Title></Title>
-    <NameInput bind:playerName bind:showError></NameInput>
-    <div>
+    <Title />
+    <NameInput bind:playerName bind:showError />
+    <div class="mb-10">
       <MainButton on:click={() => createLobby()}>Create Lobby</MainButton>
     </div>
   {:else}

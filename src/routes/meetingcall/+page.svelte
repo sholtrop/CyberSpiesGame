@@ -22,7 +22,7 @@
     <p class="text-2xl">{meetingCall}</p>
     <p>Go to the meeting room now.</p>
   </div>
-  <div class="self-center">
+  <div class="self-center mb-10">
     <MainButton on:click={() => scanNFC()}>Scan</MainButton>
   </div>
 </div>

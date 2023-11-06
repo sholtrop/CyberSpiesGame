@@ -3,18 +3,15 @@
   import MainButton from "$lib/MainButton.svelte";
   import SmallButton from "$lib/SmallButton.svelte";
   import TaskBar from "$lib/TaskBar.svelte";
-  import { onMount } from "svelte";
-  import { browser } from '$app/environment';
-  import { swipe } from 'svelte-gestures';
-  
+  import { swipe } from "svelte-gestures";
+
   let mainDiv: HTMLDivElement;
   let spyDiv: HTMLDivElement;
   let tasks: { name: string; room: string }[] = [];
-  let spy: boolean = true; // TODO: store this info from role after receiving it on the role page.
+  let spy = true; // TODO: store this info from role after receiving it on the role page.
   let taskProgress: number;
   let killCD: number;
   let sabotageCD: number;
-
 
   // just died and dead to show whether the player was killed after the previous meeting or before.
   const players = [
@@ -50,16 +47,16 @@
   }
 
   function scrollDown() {
-    mainDiv.scroll({ top: mainDiv.scrollHeight, behavior: 'smooth'});
+    mainDiv.scroll({ top: mainDiv.scrollHeight, behavior: "smooth" });
   }
 
   function scrollUp() {
-    mainDiv.scroll({ top: 0, behavior: 'smooth'});
+    mainDiv.scroll({ top: 0, behavior: "smooth" });
   }
 
   function swipeHandler(event: any) {
-    if (event.detail.direction == 'top') scrollDown();
-    if (event.detail.direction == 'bottom') scrollUp();
+    if (event.detail.direction == "top") scrollDown();
+    if (event.detail.direction == "bottom") scrollUp();
   }
 
   function updatePlayerStatus(player: number, status: string) {
@@ -80,7 +77,7 @@
   }
 
   function setKillCD() {
-    let cd:number = 5;
+    let cd = 5;
     killCD = cd;
     startKillCD();
   }
@@ -92,22 +89,26 @@
     }, 1000);
   }
 
-  function setSabotageCD() { 
-    let cd: number = 7;
+  function setSabotageCD() {
+    let cd = 7;
     sabotageCD = cd;
     startSabotageCD();
   }
 
   setKillCD();
   setSabotageCD();
-
 </script>
 
-<div bind:this={mainDiv} use:swipe={{ timeframe: 300, minSwipeDistance: 100}} on:swipe={swipeHandler} class="mainDiv min-h-full overflow-hidden whitespace-nowrap">
+<div
+  bind:this={mainDiv}
+  use:swipe={{ timeframe: 300, minSwipeDistance: 100 }}
+  on:swipe={swipeHandler}
+  class="mainDiv min-h-full overflow-hidden whitespace-nowrap"
+>
   <div class="h-full w-screen flex flex-col justify-between items-center">
     <div>
       <div class="mb-10">
-        <TaskBar {taskProgress}></TaskBar>
+        <TaskBar {taskProgress} />
       </div>
       <div>
         <p class="text-lg">Tasks:</p>
@@ -118,7 +119,7 @@
         </ul>
       </div>
     </div>
-    <div class="self-center">
+    <div class="self-center mb-10">
       <MainButton on:click={() => scanNFC()}>Scan</MainButton>
     </div>
   </div>
@@ -136,7 +137,9 @@
         {/each}
       </div>
       <div class="flex flex-col">
-        <p class="font-bold text-2xl">Sabotage ({sabotageCD ? "CD: " + sabotageCD : "Ready"})</p>
+        <p class="font-bold text-2xl">
+          Sabotage ({sabotageCD ? "CD: " + sabotageCD : "Ready"})
+        </p>
         <!-- TODO: grey out buttons when cd is up -->
         <SmallButton>Sabotage 1</SmallButton>
         <SmallButton>Sabotage 2</SmallButton>
@@ -154,7 +157,6 @@
     </div>
   {/if}
 </div>
-
 
 <style>
   .mainDiv::-webkit-scrollbar {
