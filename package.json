@@ -27,6 +27,7 @@
   },
   "type": "module",
   "dependencies": {
-    "socket.io-client": "^4.7.2"
+    "socket.io-client": "^4.7.2",
+    "svelte-gestures": "^1.5.2"
   }
 }

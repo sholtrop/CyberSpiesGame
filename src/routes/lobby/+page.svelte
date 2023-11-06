@@ -32,7 +32,7 @@
 
   function getRoomLink(): string {
     // TODO: Get roomcode from the server, then make the link like /lobby?code={your lobby code here}
-    let link: string = window.location.origin + `/lobby?code=${lobbyCode}`;
+    let link = window.location.origin + `/lobby?code=${lobbyCode}`;
     return link;
   }
 
@@ -46,10 +46,10 @@
 </script>
 
 <div class="min-h-full flex flex-col justify-between">
-  <div>
+  <div class="flex flex-col items-center">
     <Title />
-    <div class="my-10">
-      <p>Roomlink: {roomLink}</p>
+    <div class="my-10 flex flex-col items-center">
+      <p class="text-center mb-3">Roomlink: {roomLink}</p>
       <QrCode />
     </div>
     <div>
@@ -62,5 +62,7 @@
       {/each}
     </div>
   </div>
-  <MainButton on:click={() => startGame()}>Start Game</MainButton>
+  <div class="mb-10">
+    <MainButton on:click={() => startGame()}>Start Game</MainButton>
+  </div>
 </div>
