@@ -80,7 +80,7 @@
   }
 
   function setKillCD() {
-    let cd:number = 10;
+    let cd:number = 5;
     killCD = cd;
     startKillCD();
   }
@@ -93,7 +93,7 @@
   }
 
   function setSabotageCD() { 
-    let cd: number = 20;
+    let cd: number = 7;
     sabotageCD = cd;
     startSabotageCD();
   }
@@ -136,7 +136,7 @@
         {/each}
       </div>
       <div class="flex flex-col">
-        <p class="font-bold text-2xl">Sabotage {sabotageCD ? "(CD: " + sabotageCD + ")" : ""}</p>
+        <p class="font-bold text-2xl">Sabotage ({sabotageCD ? "CD: " + sabotageCD : "Ready"})</p>
         <!-- TODO: grey out buttons when cd is up -->
         <SmallButton>Sabotage 1</SmallButton>
         <SmallButton>Sabotage 2</SmallButton>
