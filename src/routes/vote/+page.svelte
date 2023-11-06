@@ -52,7 +52,7 @@
 
   function startTimer() {
     let interval = setInterval(() => {
-      if (browser) timer--;
+      timer--;
       if (timer <= 0) {
         clearInterval(interval);
         showResults();

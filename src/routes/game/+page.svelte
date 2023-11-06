@@ -12,6 +12,8 @@
   let tasks: { name: string; room: string }[] = [];
   let spy: boolean = true; // TODO: store this info from role after receiving it on the role page.
   let taskProgress: number;
+  let killCD: number;
+  let sabotageCD: number;
 
 
   // just died and dead to show whether the player was killed after the previous meeting or before.
@@ -70,6 +72,35 @@
     taskProgress = value;
   }
 
+  function startKillCD() {
+    let interval = setInterval(() => {
+      killCD--;
+      if (killCD <= 0) clearInterval(interval);
+    }, 1000);
+  }
+
+  function setKillCD() {
+    let cd:number = 10;
+    killCD = cd;
+    startKillCD();
+  }
+
+  function startSabotageCD() {
+    let interval = setInterval(() => {
+      sabotageCD--;
+      if (sabotageCD <= 0) clearInterval(interval);
+    }, 1000);
+  }
+
+  function setSabotageCD() { 
+    let cd: number = 20;
+    sabotageCD = cd;
+    startSabotageCD();
+  }
+
+  setKillCD();
+  setSabotageCD();
+
 </script>
 
 <div bind:this={mainDiv} use:swipe={{ timeframe: 300, minSwipeDistance: 100}} on:swipe={swipeHandler} class="mainDiv min-h-full overflow-hidden whitespace-nowrap">
@@ -105,7 +136,8 @@
         {/each}
       </div>
       <div class="flex flex-col">
-        <p class="font-bold text-2xl">Sabotage</p>
+        <p class="font-bold text-2xl">Sabotage {sabotageCD ? "(CD: " + sabotageCD + ")" : ""}</p>
+        <!-- TODO: grey out buttons when cd is up -->
         <SmallButton>Sabotage 1</SmallButton>
         <SmallButton>Sabotage 2</SmallButton>
         <SmallButton>Sabotage 3</SmallButton>
@@ -115,6 +147,9 @@
         <SmallButton>Power 1</SmallButton>
         <SmallButton>Power 2</SmallButton>
         <SmallButton>Power 3</SmallButton>
+      </div>
+      <div>
+        <p>Ready to kill{killCD ? " in " + killCD : ""}.</p>
       </div>
     </div>
   {/if}
