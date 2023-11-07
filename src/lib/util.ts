@@ -1,3 +1,5 @@
+import { dev } from "$app/environment";
+
 // Return an array of `amount` numbers of which AT LEAST two sum up to 100
 export function makeNumberListWith100Sum(amount: number): number[] {
   const firstPart = getRandomInt(1, 99);
@@ -72,4 +74,8 @@ export async function scanNfc(timeoutSecs = 10): Promise<string | null> {
     else console.error(`Unknown error occurred while activating NFC reader`);
     return null;
   }
+}
+
+export function deviceIsSupported(): boolean {
+  return ("NDEFReader" in window && window.isSecureContext) || dev;
 }

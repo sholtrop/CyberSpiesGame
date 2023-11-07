@@ -1,19 +1,15 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { dev } from "$app/environment";
   import { getSocketIO } from "$lib/websocket";
   import { goto } from "$app/navigation";
   import MainButton from "$lib/MainButton.svelte";
   import Title from "$lib/Title.svelte";
   import NameInput from "$lib/NameInput.svelte";
+  import { deviceIsSupported } from "$lib/util";
   let deviceSupported: boolean;
 
   let playerName = "";
   let showError = false;
-
-  function deviceIsSupported(): boolean {
-    return ("NDEFReader" in window && window.isSecureContext) || dev;
-  }
 
   function emitPlayerName() {}
 
