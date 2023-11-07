@@ -5,7 +5,8 @@
   "type": "module",
   "license": "MIT",
   "dependencies": {
-    "socket.io": "^4.7.2"
+    "socket.io": "^4.7.2",
+    "nanoid": "^4"
   },
   "scripts": {
     "start": "node index.js"
