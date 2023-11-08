@@ -6,18 +6,19 @@
   import Title from "$lib/Title.svelte";
   import NameInput from "$lib/NameInput.svelte";
   import { deviceIsSupported } from "$lib/util";
+  import type { Socket } from "socket.io-client";
+  import { lobbyStore } from "$lib/lobbyStore";
   let deviceSupported: boolean;
 
   let playerName = "";
   let showError = false;
+  let socket: Socket;
 
   function emitPlayerName() {}
 
   function createLobby() {
     if (playerName) {
-      getSocketIO();
-      emitPlayerName();
-      goto("/lobby", { replaceState: true });
+      socket.emit("createLobby", { name: playerName });
     } else {
       showError = true;
     }
@@ -25,6 +26,21 @@
 
   onMount(() => {
     deviceSupported = deviceIsSupported();
+    socket = getSocketIO();
+    // TODO: Display the error to the user somehow
+    socket.on("error", console.error);
+    socket.on("joinedLobby", ({ lobby }) => {
+      console.debug({ lobby });
+      lobbyStore.set(lobby);
+      goto(`/lobby?id=${lobby.id}`, { replaceState: true });
+    });
+
+    // From `onMount` we can return a cleanup function that Svelte runs whenever a component unmounts (disappears).
+    // At the very least, we need to unsub from socketIO events that only this page needs.
+    return () => {
+      socket.removeAllListeners("error");
+      socket.removeAllListeners("joinedLobby");
+    };
   });
 </script>
 
