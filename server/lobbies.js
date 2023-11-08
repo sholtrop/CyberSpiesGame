@@ -47,13 +47,15 @@ export function removePlayer(lobbyId, playerName) {
   const lobby = lobbies[lobbyId];
   if (lobby == null) return null;
   const playerIdx = lobby.players.findIndex(({ name }) => name === playerName);
-  lobby.players.splice(playerIdx, 1); // Delete player from array of players
   console.debug(`Player ${playerName} left lobby ${lobbyId}`);
+  // Remove lobby entirely if no players are left
   if (lobby.players.length === 0) {
-    delete lobbies[lobbyId]; // Remove lobby entirely if no players are left
+    delete lobbies[lobbyId];
     console.debug(`Remove lobby ${lobbyId} because it has no players left`);
     return null;
   }
+  // Remove the player from the list of players
+  lobby.players.splice(playerIdx, 1); // Delete player from array of players
   return lobby;
 }
 
