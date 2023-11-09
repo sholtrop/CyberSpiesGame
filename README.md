@@ -35,3 +35,19 @@ npm run build
 You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+
+## Game
+
+### NFC Tags
+
+This is an overview of the NFC tags that are used in the game. To have an NFC tag play a certain role, it must contain the associated tag contents in string format.
+
+| Role           | Tag contents      | Amount                | Description                                                                                  |
+| -------------- | ----------------- | --------------------- | -------------------------------------------------------------------------------------------- |
+| Player Blue    | `"player:blue"`   | 2 (one per shoulder)  |                                                                                              |
+| Player Red     | `"player:red"`    | 2 (one per shoulder)  |                                                                                              |
+| Player White   | `"player:white"`  | 2 (one per shoulder)  |                                                                                              |
+| Player Green   | `"player:green"`  | 2 (one per shoulder)  |                                                                                              |
+| Player Yellow  | `"player:yellow"` | 2 (one per shoulder)  |                                                                                              |
+| Task `n`       | `"task:n"`        | 7 (one for each task) | Where `n` is the number of task, ranging from 0 to 6.                                        |
+| Meeting button | `"meeting:button` | 1                     | Players must scan this to confirm attendance at a meeting, and to start an emergency meeting |

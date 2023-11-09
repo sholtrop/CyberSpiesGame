@@ -1,10 +1,6 @@
-import { Server } from "socket.io";
-import http from "http";
-import { createLobby, joinLobby, removePlayer } from "./lobbies.js";
-
-const server = http.createServer();
-
-const io = new Server(server, { cors: "*" });
+import { io } from "./socketio.js";
+import { createLobby, getLobby, joinLobby, removePlayer } from "./lobbies.js";
+import { nfcAction } from "./nfc.js";
 
 function playerNameValid(name) {
   if (name.length < 3)
@@ -25,7 +21,7 @@ io.on(
   (client) => {
     console.debug(`Client connected`);
     // Player does not have a name until they choose one and create/join a lobby
-    let playerName = null;
+    let currentPlayer = null;
     let playerLobbyId = null;
 
     client.on("createLobby", ({ name }) => {
@@ -34,13 +30,13 @@ io.on(
         client.emit("error", error);
         return;
       }
-      const lobby = createLobby(name);
-      playerName = name;
+      const { lobby, player } = createLobby(name);
+      currentPlayer = player;
       playerLobbyId = lobby.id;
       client.join(playerLobbyId);
-      client.emit("joinedLobby", { lobby });
-
-      console.debug(`${playerName} created lobby ${playerLobbyId}`);
+      client.join(player.id);
+      client.emit("joinedLobby", { lobby, player });
+      console.debug(`${player.name} created lobby ${playerLobbyId}`);
     });
 
     client.on("joinLobby", ({ name, lobbyId }) => {
@@ -55,31 +51,34 @@ io.on(
         client.emit("error", joinResult);
         return;
       }
-      const lobby = joinResult;
+      const { lobby, player } = joinResult;
       playerLobbyId = lobby.id;
-      playerName = name;
+      currentPlayer = player;
       // Let the lobby know a new player joined
-      client.to(playerLobbyId).emit("lobbyUpdate", { lobby });
+      lobby.synchronize();
       client.join(playerLobbyId);
-      client.emit("joinedLobby", { lobby });
+      client.emit("joinedLobby", { lobby, player });
 
       console.debug(`${name} joined lobby ${lobbyId}`);
     });
 
-    client.on("nfcScanned", (nfcTag) => {
-      console.debug(`NFC tag has been scanned with number: ${nfcTag.number}`);
+    client.on("nfcScanned", ({ nfcTag }) => {
+      nfcAction(currentPlayer, playerLobbyId, nfcTag);
     });
 
-    client.on("playerKilled", (data) => {
-      client.broadcast(`playerKilled`, { playerName: `lochyin` });
+    client.on("gameStatusChange", ({ status }) => {
+      const lobby = getLobby(playerLobbyId);
+      lobby.status = status;
+      lobby.synchronize();
     });
 
     client.on("disconnect", () => {
-      console.debug(`Client disconnected`);
+      console.debug(
+        `Client disconnected ${currentPlayer ? currentPlayer.name : ""}`
+      );
       if (playerLobbyId != null) {
-        const lobby = removePlayer(playerLobbyId, playerName);
-        if (lobby != null)
-          client.to(playerLobbyId).emit("lobbyUpdate", { lobby });
+        const lobby = removePlayer(playerLobbyId, currentPlayer.name);
+        if (lobby != null) lobby.synchronize();
       }
     });
   }

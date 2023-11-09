@@ -1,23 +1,46 @@
 import { nanoid } from "nanoid";
 import { MAX_PLAYERS } from "./consts.js";
+import { io } from "./socketio.js";
+import { Player } from "./player.js";
 
 // Mapping of lobbyId -> lobby
 const lobbies = {};
 
-// Create lobby, return the lobby object
-export function createLobby(creatorName) {
-  const id = nanoid();
+class Lobby {
+  constructor({ id, players, creator, status }) {
+    this.id = id;
+    this.players = players;
+    this.creator = creator;
+    this.status = status;
+  }
 
-  lobbies[id] = {
-    id,
-    players: [{ name: creatorName, color: randomPlayerColor() }],
-    creator: creatorName,
-    status: "notStarted",
-  };
-  return lobbies[id];
+  // Emit the current lobby status to all players in the lobby
+  synchronize() {
+    io.to(this.id).emit("lobbyUpdate", { lobby: this });
+  }
 }
 
-// Join an existing lobby, return [false `error string`] or [true, lobby object]
+// Create lobby, return {lobby: lobby object, player: player object }
+export function createLobby(creatorName) {
+  const player = new Player({
+    id: nanoid(),
+    name: creatorName,
+    status: "alive",
+    connection: "connected",
+    role: "undecided",
+  });
+  const lobbyId = nanoid();
+  const lobby = new Lobby({
+    id: lobbyId,
+    players: [player],
+    creator: creatorName,
+    status: "notStarted",
+  });
+  lobbies[lobbyId] = lobby;
+  return { lobby, player };
+}
+
+// Join an existing lobby, return [false, `error string`] or [true, {lobby: lobby object, player: player object}]
 export function joinLobby(lobbyId, playerName) {
   const lobby = lobbies[lobbyId];
   if (lobby == null) return [false, `Lobby with id ${lobbyId} does not exist`];
@@ -34,11 +57,16 @@ export function joinLobby(lobbyId, playerName) {
   while (players.find(({ usedColor }) => usedColor === color) != null) {
     color = randomPlayerColor();
   }
+  const player = {
+    name: playerName,
+    color,
+    status: "connected",
+  };
   players.push({
     name: playerName,
     color,
   });
-  return [true, lobby];
+  return [true, { lobby, player }];
 }
 
 // Remove player from an existing lobby. Also remove the lobby if this was the last player left.
@@ -59,9 +87,12 @@ export function removePlayer(lobbyId, playerName) {
   return lobby;
 }
 
-const colors = ["green", "blue", "yellow", "white", "red"];
+export function getLobby(lobbyId) {
+  return lobbies[lobbyId];
+}
 
-function randomPlayerColor() {
-  const randInt = Math.floor(Math.random() * colors.length);
-  return colors[randInt];
+export function killPlayer(lobbyId, playerColor) {
+  const players = lobbies[lobbyId];
+  if (!players) return [false, `Lobby with id ${lobbyId} does not exist`];
+  players.find((player) => player.color === playerColor);
 }
