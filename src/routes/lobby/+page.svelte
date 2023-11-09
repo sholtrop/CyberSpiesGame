@@ -9,6 +9,7 @@
   import InviteLink from "$lib/InviteLink.svelte";
   import type { Socket } from "socket.io-client";
   import { COLORS, MINIMUM_N_PLAYERS } from "$lib/consts";
+  import { dev } from "$app/environment";
 
   let socket: Socket;
   let roomLink: string;
@@ -47,12 +48,11 @@
 
   // Game can only be started by the creator after enough playes are present
   $: enoughPlayers = $lobbyStore?.players.length === MINIMUM_N_PLAYERS;
-  $: playerIsCreator = $lobbyStore?.creatorName === $playerStore?.name;
-  $: canStartGame = enoughPlayers && playerIsCreator;
+  $: playerIsCreator = $lobbyStore?.creator === $playerStore?.name;
+  $: canStartGame = (enoughPlayers && playerIsCreator) || dev;
 </script>
 
 {#if $lobbyStore != null}
-  {$playerStore?.name} and {$lobbyStore?.creatorName}
   <div class="min-h-full flex flex-col justify-between">
     <div class="flex flex-col items-center">
       <Title />
@@ -78,7 +78,7 @@
     <div class="mb-10 flex justify-center">
       <MainButton disabled={!canStartGame} on:click={() => startGame()}>
         {#if canStartGame}
-          Start Game
+          Start Game {#if dev}<span class="text-sm">(dev mode)</span>{/if}
         {:else if !playerIsCreator}<span class="text-base">
             Waiting for host to start game</span
           >

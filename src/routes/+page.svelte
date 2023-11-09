@@ -26,11 +26,12 @@
 
   onMount(() => {
     deviceSupported = deviceIsSupported();
+    if (!deviceIsSupported) return;
     socket = getSocketIO();
     // TODO: Display the error to the user somehow
     socket.on("error", console.error);
     socket.on("joinedLobby", ({ lobby, player }) => {
-      console.debug({ lobby });
+      console.debug({ lobby, player });
       playerStore.set(player);
       lobbyStore.set(lobby);
       goto(`/lobby?id=${lobby.id}`, { replaceState: true });

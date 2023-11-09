@@ -12,7 +12,7 @@ function playerNameValid(name) {
       false,
       `Name ${name} contains invalid characters. Only use alphanumeric characters.`,
     ];
-  return [true, ``];
+  return [true];
 }
 
 io.on(

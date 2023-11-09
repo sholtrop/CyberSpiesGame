@@ -94,5 +94,8 @@ export function getLobby(lobbyId) {
 export function killPlayer(lobbyId, playerColor) {
   const players = lobbies[lobbyId];
   if (!players) return [false, `Lobby with id ${lobbyId} does not exist`];
-  players.find((player) => player.color === playerColor);
+  const playerToKill = players.find((player) => player.color === playerColor);
+  playerToKill.status = "dead";
+  playerToKill.synchronize();
+  return [true];
 }

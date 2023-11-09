@@ -2,7 +2,7 @@ import { writable } from "svelte/store";
 
 type Lobby = {
   id: string;
-  creatorName: string;
+  creator: string;
   players: Player[];
   status:
     | "started"

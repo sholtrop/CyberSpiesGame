@@ -1,4 +1,3 @@
-import { nanoid } from "nanoid";
 import { io } from "./socketio.js";
 
 export class Player {
