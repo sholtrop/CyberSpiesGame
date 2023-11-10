@@ -1,5 +1,3 @@
-import { io } from "./socketio.js";
-
 export class Player {
   constructor({ name, connection, status, role, id }) {
     this.name = name;
@@ -8,11 +6,6 @@ export class Player {
     this.role = role;
     this.color = randomPlayerColor();
     this.id = id;
-  }
-
-  // Emit the current player status to that specific player
-  synchronize() {
-    io.to(this.id).emit("playerUpdate", { player: this });
   }
 }
 
