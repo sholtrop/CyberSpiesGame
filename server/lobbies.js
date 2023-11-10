@@ -190,7 +190,6 @@ class Lobby {
 // Create lobby, return {lobby: lobby object, player: player object }
 export function createLobby(creatorName) {
   const player = new Player({
-    id: nanoid(),
     name: creatorName,
     status: "alive",
     connection: "connected",
@@ -224,11 +223,13 @@ export function joinLobby(lobbyId, playerName) {
   while (players.find(({ usedColor }) => usedColor === color) != null) {
     color = randomPlayerColor();
   }
-  const player = {
+  const player = new Player({
     name: playerName,
-    color,
-    status: "connected",
-  };
+    status: "alive",
+    connection: "connected",
+    role: "undecided",
+  });
+
   players.push({
     name: playerName,
     color,
