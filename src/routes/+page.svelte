@@ -30,9 +30,8 @@
     socket = getSocketIO();
     // TODO: Display the error to the user somehow
     socket.on("error", console.error);
-    socket.on("joinedLobby", ({ lobby, player }) => {
-      console.debug({ lobby, player });
-      playerStore.set(player);
+    socket.on("joinedLobby", ({ lobby }) => {
+      console.debug({ lobby });
       lobbyStore.set(lobby);
       goto(`/lobby?id=${lobby.id}`, { replaceState: true });
     });

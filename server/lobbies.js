@@ -1,23 +1,56 @@
 import { nanoid } from "nanoid";
-import { MAX_PLAYERS, TASK_PROGRESSION_VICTORY_AMOUNT } from "./consts.js";
+import {
+  MAX_PLAYERS,
+  N_IMPOSTORS,
+  ROLE_DISPLAY_SECS,
+  TASK_PROGRESSION_VICTORY_AMOUNT,
+} from "./consts.js";
 import { io } from "./socketio.js";
 import { Player } from "./player.js";
+import { randInt } from "./util.js";
 
 // Mapping of lobbyId -> lobby
 const lobbies = {};
 
 class Lobby {
-  constructor({ id, players, creator, status }) {
+  constructor({ id, players, creator, status, rooms }) {
     this.id = id;
     this.players = players;
     this.creator = creator;
     this.status = status;
     this.taskProgression = 0;
+    this.rooms = rooms;
+    this.activeEffects = [];
   }
 
   // Emit the current lobby status to all players in the lobby
   synchronize() {
     io.to(this.id).emit("lobbyUpdate", { lobby: this });
+  }
+
+  // A light-weight synchronize that synchronizes ONLY the current countdown.
+  // If the current lobby status does not have a countdown, this does nothing.
+  synchronizeCountDown() {
+    if (this.status.countDown != null)
+      io.to(this.id).emit("countDown", { count: this.status.countDown });
+  }
+
+  // Start the game for this lobby. Will decide a role for each player and show
+  // them information about this role for `ROLE_DISPLAY_SECS`, then start the actual game.
+  startGame() {
+    this.#assignRolesRandomly();
+    this.status = { state: "roleExplanation", countDown: ROLE_DISPLAY_SECS };
+    this.synchronize();
+
+    const cancel = setInterval(() => {
+      this.synchronizeCountDown();
+      this.status.countDown -= 1;
+      if (this.status.countDown === 0) {
+        clearInterval(cancel);
+        this.status = { state: "started" };
+        this.synchronize();
+      }
+    }, 1000);
   }
 
   // Start a meeting in this lobby, depending on which type of meeting was previously called.
@@ -41,7 +74,7 @@ class Lobby {
     // Meeting ends when the countdown reaches 0, or when all players have voted
     const cancel = setInterval(() => {
       this.synchronize();
-      this.status.countdown -= 1;
+      this.status.countDown -= 1;
       const nVotes = Object.values(this.status.votes).length;
       if (this.status.countDown === 0 || nVotes === this.status.nVoters) {
         clearInterval(cancel);
@@ -154,7 +187,8 @@ class Lobby {
   // After a vote result has been announced and displayed for VOTE_RESULT_DISPLAY_SECS seconds,
   // a new round starts.
   #startNewRound() {
-    // TODO set the state and synchronize
+    this.status = { state: "started" };
+    this.synchronize();
   }
 
   // Determine whether the game in its current state should end, and who the victors are.
@@ -184,6 +218,24 @@ class Lobby {
   #endGame(victors) {
     this.status = { state: "gameEnded", victors };
     this.synchronize();
+  }
+
+  #assignRolesRandomly() {
+    // First make everyone crew
+    for (const player of this.players) {
+      player.role = "crew";
+    }
+
+    // Determine impostors
+    const impostorIndices = new Set();
+    while (impostorIndices.size < N_IMPOSTORS)
+      impostorIndices.add(randInt(0, this.players.length));
+
+    // Set the selected players to impostor
+    for (const impostorIdx of impostorIndices) {
+      this.players[impostorIdx].role = "impostor";
+    }
+    console.log(`Player roles decided`, JSON.stringify(this.players, null, 4));
   }
 }
 
@@ -220,6 +272,7 @@ export function joinLobby(lobbyId, playerName) {
 
   // Give player a random, non-used color
   let color = randomPlayerColor();
+  // Loop until we find a color that is not in use yet
   while (players.find(({ usedColor }) => usedColor === color) != null) {
     color = randomPlayerColor();
   }
@@ -244,14 +297,14 @@ export function removePlayer(lobbyId, playerName) {
   if (lobby == null) return null;
   const playerIdx = lobby.players.findIndex(({ name }) => name === playerName);
   console.debug(`Player ${playerName} left lobby ${lobbyId}`);
-  // Remove lobby entirely if no players are left
-  if (lobby.players.length === 0) {
+  // Remove lobby entirely if this is the last player left
+  if (lobby.players.length === 1) {
     delete lobbies[lobbyId];
     console.debug(`Remove lobby ${lobbyId} because it has no players left`);
     return null;
   }
   // Remove the player from the list of players
-  lobby.players.splice(playerIdx, 1); // Delete player from array of players
+  lobby.players.splice(playerIdx, 1);
   return lobby;
 }
 

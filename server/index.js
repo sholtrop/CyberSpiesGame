@@ -20,7 +20,7 @@ io.on("connection", (client) => {
     playerLobbyId = lobby.id;
     client.join(playerLobbyId);
     client.join(player.id);
-    client.emit("joinedLobby", { lobby, player });
+    client.emit("joinedLobby", { lobby });
     console.debug(`${player.name} created lobby ${playerLobbyId}`);
   });
 
@@ -42,7 +42,7 @@ io.on("connection", (client) => {
     // Let the lobby know a new player joined
     lobby.synchronize();
     client.join(playerLobbyId);
-    client.emit("joinedLobby", { lobby, player });
+    client.emit("joinedLobby", { lobby });
 
     console.debug(`${name} joined lobby ${lobbyId}`);
   });
@@ -51,10 +51,9 @@ io.on("connection", (client) => {
     nfcAction(currentPlayer, playerLobbyId, nfcTag);
   });
 
-  client.on("gameStatusChange", ({ status }) => {
+  client.on("startGame", () => {
     const lobby = getLobby(playerLobbyId);
-    lobby.status = status;
-    lobby.synchronize();
+    lobby.startGame();
   });
 
   client.on("disconnect", () => {

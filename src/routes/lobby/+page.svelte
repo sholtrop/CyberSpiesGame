@@ -22,19 +22,34 @@
     roomLink = getRoomLink();
     socket = getSocketIO();
 
+    // The 'lobbyUpdate' event sends the entire state of the lobby to all players
     socket.on("lobbyUpdate", ({ lobby }) => {
       lobbyStore.set(lobby);
     });
-    socket.on("playerUpdate", ({ player }) => {
-      playerStore.set(player);
+
+    // The 'countDown' event sends only the current countDown (if there is any),
+    // making it a more light-weight update
+    socket.on("countDown", ({ count }) => {
+      lobbyStore.update((lobby) => {
+        if (lobby != null && "countDown" in lobby.status) {
+          lobby.status.countDown = count;
+          return lobby;
+        }
+        return null;
+      });
     });
 
-    // From `onMount` we can return a cleanup function that Svelte runs whenever a component unmounts (disappears).
-    // At the very least, we need to unsub from socketIO events that only this page needs.
-    return () => {
-      socket.removeAllListeners("lobbyUpdate");
-      socket.removeAllListeners("playerUpdate");
-    };
+    // `subscribe` allows us to react to some change in the lobby state.
+    // In this case, we want to navigate to /game when the game starts.
+    // `subscribe` returns an unsubscribe function so that we can stop listening for events at some point.
+    const unsubscribe = lobbyStore.subscribe((lobby) => {
+      if (lobby?.status.state === "roleExplanation") goto("/role");
+    });
+
+    // When this component unmounts, the unsubscribe method
+    // will be called by Svelte, freeing resources.
+    // We only unsubscribe from the lobbyStore here, but NOT from the socketIO events.
+    return unsubscribe;
   });
 
   function getRoomLink(): string {
@@ -43,7 +58,7 @@
   }
 
   function startGame() {
-    goto("/role", { replaceState: true });
+    socket.emit("startGame");
   }
 
   // Game can only be started by the creator after enough playes are present

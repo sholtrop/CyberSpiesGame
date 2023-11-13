@@ -8,7 +8,7 @@
   import NameInput from "$lib/NameInput.svelte";
   import { deviceIsSupported } from "$lib/util";
   import type { Socket } from "socket.io-client";
-  import { lobbyStore, playerStore } from "$lib/lobbyStore";
+  import { lobbyStore } from "$lib/lobbyStore";
 
   let socket: Socket;
   let joinCode: string;
@@ -32,9 +32,8 @@
     else joinCode = urlCode;
     socket = getSocketIO();
     socket.on("error", console.error);
-    socket.on("joinedLobby", ({ lobby, player }) => {
+    socket.on("joinedLobby", ({ lobby }) => {
       console.debug({ lobby });
-      playerStore.set(player);
       lobbyStore.set(lobby);
       goto(`/lobby?id=${lobby.id}`, { replaceState: true });
     });
