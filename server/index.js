@@ -7,7 +7,7 @@ io.on("connection", (client) => {
   console.debug(`Client connected`);
   // Player does not have a name until they choose one and create/join a lobby
   let currentPlayer = null;
-  let playerLobbyId = null;
+  let playerLobby = null;
 
   client.on("createLobby", ({ name }) => {
     const [nameValid, error] = playerNameValid(name);
@@ -17,11 +17,16 @@ io.on("connection", (client) => {
     }
     const { lobby, player } = createLobby(name);
     currentPlayer = player;
-    playerLobbyId = lobby.id;
-    client.join(playerLobbyId);
+    playerLobby = lobby;
+    client.join(playerLobby.id);
     client.join(player.id);
     client.emit("joinedLobby", { lobby });
-    console.debug(`${player.name} created lobby ${playerLobbyId}`);
+    console.debug(`${player.name} created lobby ${playerLobby.id}`);
+  });
+
+  client.on("addRooms", ({ rooms }) => {
+    if (currentPlayer == null || playerLobby == null) return;
+    playerLobby.addRooms(rooms);
   });
 
   client.on("joinLobby", ({ name, lobbyId }) => {
@@ -37,31 +42,30 @@ io.on("connection", (client) => {
       return;
     }
     const { lobby, player } = joinResult;
-    playerLobbyId = lobby.id;
+    playerLobby = lobby;
     currentPlayer = player;
     // Let the lobby know a new player joined
     lobby.synchronize();
-    client.join(playerLobbyId);
+    client.join(lobby.id);
     client.emit("joinedLobby", { lobby });
 
-    console.debug(`${name} joined lobby ${lobbyId}`);
+    console.debug(`${name} joined lobby ${lobby.id}`);
   });
 
   client.on("nfcScanned", ({ nfcTag }) => {
-    nfcAction(currentPlayer, playerLobbyId, nfcTag);
+    nfcAction(currentPlayer, playerLobby, nfcTag);
   });
 
   client.on("startGame", () => {
-    const lobby = getLobby(playerLobbyId);
-    lobby.startGame();
+    if (playerLobby != null) playerLobby.startGame();
   });
 
   client.on("disconnect", () => {
     console.debug(
       `Client disconnected ${currentPlayer ? currentPlayer.name : ""}`
     );
-    if (playerLobbyId != null) {
-      const lobby = removePlayer(playerLobbyId, currentPlayer.name);
+    if (playerLobby != null) {
+      const lobby = removePlayer(playerLobby.id, currentPlayer.name);
       if (lobby != null) lobby.synchronize();
     }
   });

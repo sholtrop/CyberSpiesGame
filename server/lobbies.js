@@ -13,13 +13,13 @@ import { randInt } from "./util.js";
 const lobbies = {};
 
 class Lobby {
-  constructor({ id, players, creator, status, rooms }) {
+  constructor({ id, players, creator, status }) {
     this.id = id;
     this.players = players;
     this.creator = creator;
     this.status = status;
     this.taskProgression = 0;
-    this.rooms = rooms;
+    this.rooms = [];
     this.activeEffects = [];
   }
 
@@ -43,14 +43,48 @@ class Lobby {
     this.synchronize();
 
     const cancel = setInterval(() => {
-      this.synchronizeCountDown();
       this.status.countDown -= 1;
+      this.synchronizeCountDown();
       if (this.status.countDown === 0) {
         clearInterval(cancel);
         this.status = { state: "started" };
         this.synchronize();
       }
     }, 1000);
+  }
+
+  // Start a meeting call for a certain `type` of meeting: "emergency" or "bodyFound"
+  // The color of the player that called the meeting must be passed in `initiatorColor`.
+  startMeetingCall(type, initiatorColor) {
+    // Meetings can only be called when the game is running
+    if (this.status.state !== "started") return;
+    if (type !== "emergency" && type !== "bodyFound")
+      throw Error(`Meeting type invalid: ${type}`);
+    this.status.state = {
+      state: "meetingCalled",
+      type,
+      presentPlayers: new Set(),
+    };
+    // If the meeting is an emergency meeting, the initiator just scanned
+    // the meeting point, and is therefore already present.
+    if (type === "emergency")
+      this.status.state.presentPlayers.add(initiatorColor);
+
+    // TODO calling a meeting is special, and it interrupts/disables a lot of things:
+    // - Tasks are cancelled and left uncompleted
+    // - Killing is not possible
+    // - Hacks are cleared
+    // - Sabotages are paused?
+    // - New hacks/sabotages cannot be performed
+    this.synchronize();
+  }
+
+  addPlayerToMeeting(playerColor) {
+    if (this.status.state !== "meetingCalled") return;
+    const presentPlayers = this.status.state.presentPlayers;
+    presentPlayers.add(playerColor);
+    if (presentPlayers.size === this.nMeetingAttendees()) this.startMeeting();
+    else this.synchronize();
   }
 
   // Start a meeting in this lobby, depending on which type of meeting was previously called.
@@ -70,11 +104,12 @@ class Lobby {
       nVoters: this.nAlivePlayers(),
     };
 
+    this.synchronize();
     // Start the meeting by setting the timer to max, then count down every 1 second
     // Meeting ends when the countdown reaches 0, or when all players have voted
     const cancel = setInterval(() => {
-      this.synchronize();
       this.status.countDown -= 1;
+      this.synchronizeCountDown();
       const nVotes = Object.values(this.status.votes).length;
       if (this.status.countDown === 0 || nVotes === this.status.nVoters) {
         clearInterval(cancel);
@@ -124,6 +159,12 @@ class Lobby {
       (n, player) => (player.status !== "foundDead" ? n + 1 : n),
       0
     );
+  }
+
+  // Sets the list of rooms for this lobby
+  setRooms(rooms) {
+    this.rooms = rooms;
+    this.synchronize();
   }
 
   // Returns the color the player that should be voted out, or `null` if no player is voted out.

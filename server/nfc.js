@@ -1,10 +1,7 @@
-import { getLobby } from "./lobbies.js";
-
 // Perform the action associated with the scanned `nfcTag`
-export function nfcAction(player, lobbyId, nfcTag) {
+export function nfcAction(player, lobby, nfcTag) {
   console.debug(`NFC tag has been scanned with contents: ${nfcTag}`);
   const [action, info] = nfcTag.split(":");
-  const lobby = getLobby(lobbyId);
   switch (action) {
     case "player":
       handlePlayerScanned(lobby, player, info);
@@ -13,6 +10,7 @@ export function nfcAction(player, lobbyId, nfcTag) {
       handleTaskScanned(player, info);
       break;
     case "meeting":
+      handleMeetingPointScanned(player, lobby);
       break;
   }
 }
@@ -34,16 +32,24 @@ function handlePlayerScanned(lobby, player, targetColor) {
   }
 }
 
-function handleTaskScanned(player, task) {
-  // Scanning a task has no effect if impostor
+function handleTaskScanned(player, taskNumber) {
   if (player.role === "crew") {
-    if (task.status === "started")
-      return; // TODO: register player as being in a task
-    else if (task.status === "completed") return; // TODO: register completion of a task
+    const task = player.tasks.find((task) => task.number === taskNumber);
+    if (task == null)
+      // Player did not have this task
+      return;
+    // Scanning a task the first time activates it
+    if (task.status === "available") task.status = "doing";
+    // Scanning a task the second time completes it
+    // A player does not get access to the scanner again until they complete the task,
+    // so this should not happen accidentally
+    else if (task.status === "doing") task.status = "completed";
+  } else if (player.role === "impostor") {
+    // TODO: Decide what scanning a task as impostor does
   }
 }
 
-function handleMeetingScanned(player, lobby) {
+function handleMeetingPointScanned(player, lobby) {
   // Players that are dead and have already been found do not need to scan the meeting point to start a meeting.
   // Players that have died _this round_ however, must scan the meeting point.
   if (player.status === "foundDead") return;
@@ -51,19 +57,11 @@ function handleMeetingScanned(player, lobby) {
 
   switch (state) {
     case "meetingCalled":
-      const { presentPlayers } = lobby.status;
-      presentPlayers.add(player.name);
-      if (presentPlayers.size === lobby.nMeetingAttendees()) {
-        lobby.startMeeting();
-      }
+      lobby.addPlayerToMeeting(player.color);
       break;
 
     case "started":
-      lobby.status = {
-        state: "meetingCalled",
-        type: "emergency",
-        presentPlayers: new Set(),
-      };
+      lobby.startMeetingCall("emergency", player.color);
       break;
   }
 }
