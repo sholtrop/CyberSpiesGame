@@ -10,8 +10,7 @@ export function getSocketIO(): socketIO.Socket {
       .connect(dev ? `http://localhost:3000` : SERVER)
       .on("connect", () => {
         console.debug(`Connected to socketIO`);
-      })
-      .on("message", (data) => {});
+      });
 
   return socket;
 }

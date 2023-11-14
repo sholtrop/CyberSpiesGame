@@ -7,7 +7,7 @@
   import NameInput from "$lib/NameInput.svelte";
   import { deviceIsSupported } from "$lib/util";
   import type { Socket } from "socket.io-client";
-  import { lobbyStore } from "$lib/lobbyStore";
+  import { lobbyStore, playerStore } from "$lib/lobbyStore";
   let deviceSupported: boolean;
 
   let playerName = "";
@@ -26,6 +26,7 @@
 
   onMount(() => {
     deviceSupported = deviceIsSupported();
+    if (!deviceIsSupported) return;
     socket = getSocketIO();
     // TODO: Display the error to the user somehow
     socket.on("error", console.error);

@@ -5,9 +5,11 @@
   import Title from "$lib/Title.svelte";
   import QrCode from "$lib/QrCode.svelte";
   import { onMount } from "svelte";
-  import { lobbyStore } from "$lib/lobbyStore";
+  import { lobbyStore, playerStore } from "$lib/lobbyStore";
   import InviteLink from "$lib/InviteLink.svelte";
   import type { Socket } from "socket.io-client";
+  import { COLORS, MINIMUM_N_PLAYERS } from "$lib/consts";
+  import { dev } from "$app/environment";
 
   let socket: Socket;
   let roomLink: string;
@@ -20,27 +22,35 @@
     roomLink = getRoomLink();
     socket = getSocketIO();
 
+    // The 'lobbyUpdate' event sends the entire state of the lobby to all players
     socket.on("lobbyUpdate", ({ lobby }) => {
-      console.debug(`lobbyupdate`, { lobby });
       lobbyStore.set(lobby);
     });
 
-    // From `onMount` we can return a cleanup function that Svelte runs whenever a component unmounts (disappears).
-    // At the very least, we need to unsub from socketIO events that only this page needs.
-    return () => {
-      socket.removeAllListeners("lobbyUpdate");
-    };
-  });
+    // The 'countDown' event sends only the current countDown (if there is any),
+    // making it a more light-weight update
+    socket.on("countDown", ({ count }) => {
+      lobbyStore.update((lobby) => {
+        if (lobby != null && "countDown" in lobby.status) {
+          lobby.status.countDown = count;
+          return lobby;
+        }
+        return null;
+      });
+    });
 
-  const colors = {
-    red: "bg-red-600",
-    orange: "bg-orange-600",
-    yellow: "bg-yellow-400",
-    green: "bg-green-600",
-    blue: "bg-blue-600",
-    purple: "bg-purple-700",
-    white: "bg-white",
-  } as { [key: string]: string };
+    // `subscribe` allows us to react to some change in the lobby state.
+    // In this case, we want to navigate to /game when the game starts.
+    // `subscribe` returns an unsubscribe function so that we can stop listening for events at some point.
+    const unsubscribe = lobbyStore.subscribe((lobby) => {
+      if (lobby?.status.state === "roleExplanation") goto("/role");
+    });
+
+    // When this component unmounts, the unsubscribe method
+    // will be called by Svelte, freeing resources.
+    // We only unsubscribe from the lobbyStore here, but NOT from the socketIO events.
+    return unsubscribe;
+  });
 
   function getRoomLink(): string {
     let link = window.location.origin + `/join?code=${$lobbyStore?.id}`;
@@ -48,8 +58,13 @@
   }
 
   function startGame() {
-    goto("/role", { replaceState: true });
+    socket.emit("startGame");
   }
+
+  // Game can only be started by the creator after enough playes are present
+  $: enoughPlayers = $lobbyStore?.players.length === MINIMUM_N_PLAYERS;
+  $: playerIsCreator = $lobbyStore?.creator === $playerStore?.name;
+  $: canStartGame = (enoughPlayers && playerIsCreator) || dev;
 </script>
 
 {#if $lobbyStore != null}
@@ -68,7 +83,7 @@
         <div class="grid grid-rows-4 grid-cols-3 gap-x-3 gap-y-1">
           {#each $lobbyStore.players as { name, color }}
             <div class="flex items-baseline space-x-1.5 w-24">
-              <div class={colors[color] + " w-3 h-3"} />
+              <div class={COLORS[color] + " w-3 h-3"} />
               <div>{name}</div>
             </div>
           {/each}
@@ -76,7 +91,16 @@
       </div>
     </div>
     <div class="mb-10 flex justify-center">
-      <MainButton on:click={() => startGame()}>Start Game</MainButton>
+      <MainButton disabled={!canStartGame} on:click={() => startGame()}>
+        {#if canStartGame}
+          Start Game {#if dev}<span class="text-sm">(dev mode)</span>{/if}
+        {:else if !playerIsCreator}<span class="text-base">
+            Waiting for host to start game</span
+          >
+        {:else if !enoughPlayers}
+          Game requires 5 players
+        {/if}
+      </MainButton>
     </div>
   </div>
 {/if}
