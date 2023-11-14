@@ -20,7 +20,7 @@ io.on("connection", (client) => {
     playerLobby = lobby;
     client.join(playerLobby.id);
     client.join(player.id);
-    client.emit("joinedLobby", { lobby });
+    client.emit("joinedLobby", { lobby, color: player.color });
     console.debug(`${player.name} created lobby ${playerLobby.id}`);
   });
 
@@ -68,6 +68,22 @@ io.on("connection", (client) => {
       const lobby = removePlayer(playerLobby.id, currentPlayer.name);
       if (lobby != null) lobby.synchronize();
     }
+  });
+
+  client.on("devSetLobby", ({ lobby }) => {
+    if (playerLobby == null) {
+      console.error(`Cannot set a lobby; must join a lobby first`);
+      return;
+    }
+    console.debug(`Updating lobby`);
+    for (const key of Object.keys(playerLobby)) {
+      if (lobby[key] !== undefined) {
+        playerLobby[key] = lobby[key];
+
+        console.debug(`Changed lobby.${key} to ${JSON.stringify(lobby[key])}`);
+      }
+    }
+    playerLobby.synchronize();
   });
 });
 
