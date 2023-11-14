@@ -11,3 +11,9 @@ export const COLORS = {
   purple: "bg-purple-700",
   white: "bg-white",
 } as { [key: string]: string };
+
+// Pressing ctrl and this key will open/close the dev panel
+export const DEV_PANEL_KEY = ".";
+
+// Number of minigames that are available in general
+export const N_TOTAL_TASKS = 7;

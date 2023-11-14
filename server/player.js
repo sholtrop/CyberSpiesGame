@@ -6,14 +6,15 @@ export class Player {
     this.connection = connection;
     this.status = status;
     this.role = role;
+    this.tasks = [];
     this.color = randomPlayerColor();
   }
 }
 
 const colors = ["green", "blue", "yellow", "white", "red"];
 
-function randomPlayerColor() {
-  const random = randInt(0, colors.length);
+export function randomPlayerColor() {
+  const random = randInt(0, colors.length - 1);
   return colors[random];
 }
 

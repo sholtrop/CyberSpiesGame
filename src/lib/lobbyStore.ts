@@ -4,7 +4,7 @@ import { derived, writable, type Readable } from "svelte/store";
 export const lobbyStore = writable<Lobby | null>(null);
 
 // Color of the current player
-const playerColorStore = writable<Color | null>(null);
+export const playerColorStore = writable<Color | null>(null);
 
 // All data related to this player.
 // Player store is derived from the lobbyStore by finding the
@@ -12,7 +12,7 @@ const playerColorStore = writable<Color | null>(null);
 export const playerStore: Readable<Player | null> = derived(
   [lobbyStore, playerColorStore],
   ([lobby, color], set) => {
-    if (!lobby || !color) set(null);
+    if (lobby == null || color == null) set(null);
     else {
       const me = lobby.players.find((player) => player.color === color);
       if (me == null)

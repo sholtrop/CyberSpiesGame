@@ -6,7 +6,7 @@ import {
   TASK_PROGRESSION_VICTORY_AMOUNT,
 } from "./consts.js";
 import { io } from "./socketio.js";
-import { Player } from "./player.js";
+import { Player, randomPlayerColor } from "./player.js";
 import { randInt } from "./util.js";
 
 // Mapping of lobbyId -> lobby
