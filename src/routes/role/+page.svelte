@@ -4,21 +4,31 @@
   import { lobbyStore, playerStore } from "$lib/lobbyStore";
   import { onMount } from "svelte";
 
+  let ready = false;
+
   onMount(() => {
     return lobbyStore.subscribe((lobby) => {
       if (lobby?.status.state === "started") goto("/game");
     });
   });
+
+  function toggleReady() {
+    ready = true;
+  }
 </script>
 
-<div class="flex flex-col items-center justify-between h-full">
-  <p>
-    Your role is: <span
-      >{$playerStore?.role === "crew" ? "Cyber Criminal" : "Secret Agent"}</span
-    >
-  </p>
-  {#if $playerStore?.role === "impostor"}
-    <p>Your tasks are fake. Swipe up to see your special powers.</p>
+<div on:click={toggleReady} class="flex flex-col items-center justify-between h-full">
+  {#if ready}
+    <p>
+      Your role is: <span
+        >{$playerStore?.role === "crew" ? "Cyber Criminal" : "Secret Agent"}</span
+      >
+    </p>
+    {#if $playerStore?.role === "impostor"}
+      <p>Your tasks are fake. Swipe up to see your special powers.</p>
+    {/if}
+  {:else}
+    <p>Tap to show your role</p>
   {/if}
 
   {#if $lobbyStore?.status.state === "roleExplanation"}
