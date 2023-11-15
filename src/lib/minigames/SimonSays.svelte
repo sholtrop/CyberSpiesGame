@@ -94,8 +94,9 @@
     <div class="grid grid-cols-3 grid-rows-3 gap-4">
         {#each Array(9) as _,i}
             <button
-                class="btn {buttonlit[i] && !mistake ? "btn-light-up" : ""}
-                {buttonlit[i] && mistake? "btn-wrong" : ""}"
+                class="btn"
+                class:btn-light-up={buttonlit[i] && !mistake}
+                class:btn-wrong={buttonlit[i] && mistake}
                 on:click={() => clickbutton(i)}
             ></button>
         {/each}
