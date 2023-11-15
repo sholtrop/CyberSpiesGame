@@ -11,7 +11,7 @@
   $: windowWidth, link != null && canvas != null && renderQRCode();
 
   function renderQRCode() {
-    QRCode.toCanvas(canvas, link, { width: windowWidth / 2 });
+    QRCode.toCanvas(canvas, link, { width: windowWidth / 3 });
     const arr = canvas
       .getContext("2d")
       ?.getImageData(0, 0, canvas!.width, canvas!.height)!;
