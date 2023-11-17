@@ -30,7 +30,7 @@
         } else {
           level += 1;
           nextclick = 0;
-          setTimeout(() => showsequence(level), 1500);
+          setTimeout(() => showSequence(level), 1500);
         }
       }
     } else {
@@ -39,7 +39,7 @@
       nextclick = 0;
       setTimeout(() => {
         mistake = false;
-        showsequence(level);
+        showSequence(level);
       }, 1500);
     }
 
@@ -62,7 +62,7 @@
       buttonlit[sequence[index]] = false;
     }, 900);
   }
-  function showsequence(total: number) {
+  function showSequence(total: number) {
     blockinput = true;
     if (total > sequence.length) {
       return;
@@ -88,7 +88,7 @@
           reset();
         }
         nextclick = 0;
-        showsequence(level);
+        showSequence(level);
       }}
     >
       SHOW
