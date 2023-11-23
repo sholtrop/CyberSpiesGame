@@ -46,11 +46,12 @@
   });
 </script>
 
-<div class="h-full flex flex-col justify-between items-center">
+<div class="h-screen flex flex-col items-center justify-between">
   {#if deviceSupported}
     <Title />
-    <NameInput bind:playerName bind:showError />
-    <div class="mb-10">
+
+    <div class="mb-20 space-y-20 flex flex-col items-center justify-center">
+      <NameInput bind:playerName bind:showError />
       <MainButton on:click={() => createLobby()}>Create Lobby</MainButton>
     </div>
   {:else}

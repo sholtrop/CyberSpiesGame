@@ -55,8 +55,8 @@
   }
 
   function swipeHandler(event: any) {
-    if (event.detail.direction == "top") scrollDown();
-    if (event.detail.direction == "bottom") scrollUp();
+    if (event.detail.direction === "top") scrollDown();
+    if (event.detail.direction === "bottom") scrollUp();
   }
 
   function updatePlayerStatus(player: number, status: string) {
@@ -103,9 +103,9 @@
   bind:this={mainDiv}
   use:swipe={{ timeframe: 300, minSwipeDistance: 100 }}
   on:swipe={swipeHandler}
-  class="mainDiv min-h-full overflow-hidden whitespace-nowrap"
+  class="mainDiv overflow-hidden whitespace-nowrap"
 >
-  <div class="h-full w-screen flex flex-col justify-between items-center">
+  <div class="h-screen w-screen flex flex-col justify-between items-center">
     <div>
       <div class="mb-10">
         <TaskBar {taskProgress} />
@@ -119,13 +119,13 @@
         </ul>
       </div>
     </div>
-    <div class="self-center mb-10">
+    <div class="self-center mb-20">
       <MainButton on:click={() => scanNFC()}>Scan</MainButton>
     </div>
   </div>
 
   {#if spy}
-    <div bind:this={spyDiv} class="h-full px-10 flex flex-col gap-10">
+    <div bind:this={spyDiv} class="h-screen px-10 flex flex-col gap-10">
       <div>
         <p class="font-bold text-2xl">Status Report</p>
         <!-- I'm not making a component for a player list because I plan to style them all differently -->

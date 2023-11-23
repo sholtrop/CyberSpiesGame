@@ -1,6 +1,5 @@
 import { io } from "./socketio.js";
-import { createLobby, getLobby, joinLobby, removePlayer } from "./lobbies.js";
-import { nfcAction } from "./nfc.js";
+import { createLobby, joinLobby, removePlayer } from "./lobbies.js";
 import { playerNameValid } from "./player.js";
 
 io.on("connection", (client) => {
