@@ -8,6 +8,37 @@ export class Player {
     this.role = role;
     this.tasks = [];
     this.color = randomPlayerColor();
+    this.currentlyDoing = { activity: "nothing" };
+  }
+
+  startTask(taskNumber) {
+    // Already doing something else
+    if (this.currentlyDoing.activity !== "nothing") return;
+    const task = this.tasks.find((task) => task.number === taskNumber);
+    // Player does not have this task, or task is already completed
+    if (task == null || task.status !== "available") return;
+    this.currentlyDoing = { activity: "task", number: taskNumber };
+  }
+
+  finishTask(taskNumber) {
+    if (this.currentlyDoing.activity !== "task") return;
+    // Task that was finished is not the one that was started
+    if (this.currentlyDoing.number !== taskNumber) return;
+    const task = this.tasks.find((task) => task.number === taskNumber);
+    if (task == null) return;
+    task.status = "completed";
+    this.currentlyDoing = { activity: "nothing" };
+  }
+
+  startSabotageFix() {
+    // Already doing something else
+    if (this.currentlyDoing.activity !== "nothing") return;
+    this.currentlyDoing = { activity: "fixSabotage" };
+  }
+
+  finishSabotageFix() {
+    if (this.currentlyDoing.activity !== "fixSabotage") return;
+    this.currentlyDoing = { activity: "nothing" };
   }
 }
 

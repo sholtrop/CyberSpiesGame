@@ -18,7 +18,7 @@ class Lobby {
     this.players = players;
     this.creator = creator;
     this.status = status;
-    this.taskProgression = 0;
+    this.taskProgression = { real: 0, displayed: 0 };
     this.rooms = [];
     this.activeEffects = [];
   }
@@ -167,6 +167,26 @@ class Lobby {
     this.synchronize();
   }
 
+  // Increase the taskbar with the completion of a single task
+  // If the display value for the task bar is updated, it will happen after a random delay
+  increaseTaskBar() {
+    this.taskProgression.real += SINGLE_TASK_PROGRESSION_AMOUNT;
+
+    // If this is the last task, end the game
+    const victors = this.#determineVictors();
+    if (victors != null) return this.#endGame(victors);
+    this.synchronize();
+
+    // Update the displayed value after a random delay
+    setTimeout(() => {
+      this.taskProgression.displayed =
+        Math.floor(
+          this.taskProgression.real / TASK_PROGRESS_DISPLAY_THRESHOLD
+        ) * TASK_PROGRESS_DISPLAY_THRESHOLD;
+      this.synchronize();
+    }, randInt(3, 8) * 1000);
+  }
+
   // Returns the color the player that should be voted out, or `null` if no player is voted out.
   // No player is voted out if at least half voted to skip, or if there is a tie.
   #determineVoteResult() {
@@ -237,7 +257,8 @@ class Lobby {
   // Does NOT check for sabotage victories, as these are triggered instantly when the sabotage completes.
   #determineVictors() {
     // Tasks completed - Crew win
-    if (this.taskProgression >= TASK_PROGRESSION_VICTORY_AMOUNT) return "crew";
+    if (this.taskProgression.real >= TASK_PROGRESSION_VICTORY_AMOUNT)
+      return "crew";
 
     // Impostors all dead - Crew win
     const impostorsLeft = this.players.reduce(({ role, status }, n) => {
@@ -253,6 +274,7 @@ class Lobby {
     }, 0);
 
     if (crewLeft === impostorsLeft) return "impostors";
+    return null;
   }
 
   // Instantly end the game, with a victory for `victors` ("crew" or "impostors")

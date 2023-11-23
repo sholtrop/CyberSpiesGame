@@ -2,14 +2,13 @@
   import { dev } from "$app/environment";
   import DevPanel from "$lib/DevPanel.svelte";
   import { DEV_PANEL_KEY } from "$lib/consts";
-  import { lobbyStore } from "$lib/lobbyStore";
   import "../app.postcss";
 
-  let showDevPanel = true;
+  let showDevPanel = false;
 </script>
 
 <div
-  class="bg-black h-screen flex flex-col items-center text-white font-mono py-10 px-2 select-none"
+  class="bg-black h-screen flex flex-col items-center text-white font-mono py-10 px-2 select-none overflow-hidden"
 >
   <slot />
 </div>

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import MainButton from "$lib/MainButton.svelte";
-  import { lobbyStore, playerStore } from "$lib/lobbyStore";
+  import { lobbyStore, playerStore } from "$lib/stores";
   import { onMount } from "svelte";
 
   onMount(() => {

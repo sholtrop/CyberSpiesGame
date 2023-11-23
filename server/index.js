@@ -52,8 +52,39 @@ io.on("connection", (client) => {
     console.debug(`${name} joined lobby ${lobby.id}`);
   });
 
-  client.on("nfcScanned", ({ nfcTag }) => {
-    nfcAction(currentPlayer, playerLobby, nfcTag);
+  client.on("gameAction", ({ action, ...info }) => {
+    switch (action) {
+      case "callMeeting":
+        playerLobby?.startMeetingCall(info.type, currentPlayer.color);
+        break;
+      case "vote":
+        playerLobby?.addVote(currentPlayer.color, info.playerColor);
+        break;
+      case "killPlayer":
+        playerLobby?.killPlayer(info.playerColor);
+        break;
+      case "startTask":
+        currentPlayer?.startTask(taskNumber);
+        playerLobby?.synchronize();
+        break;
+      case "startSabotageFix":
+        currentPLayer?.startSabotageFix();
+        playerLobby?.synchronize();
+        break;
+      case "taskCompleted":
+        currentPlayer?.finishTask(info.taskNumber);
+        // increaseTaskBar will synchronize lobby state
+        playerLobby?.increaseTaskBar();
+        break;
+      case "sabotageFixCompleted":
+        currentPlayer?.finishSabotageFix();
+        // TODO: cancel everyone else's sabotage fix
+        playerLobby?.synchronize();
+        break;
+      case "virusScanFailed":
+        // TODO: Lock player out of completing scan actions
+        break;
+    }
   });
 
   client.on("startGame", () => {

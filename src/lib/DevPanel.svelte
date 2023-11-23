@@ -1,6 +1,6 @@
 <script lang="ts">
   import { DEV_PANEL_KEY, N_TOTAL_TASKS } from "./consts";
-  import { lobbyStore, playerStore } from "./lobbyStore";
+  import { lobbyStore, playerStore } from "$lib/stores";
   import { getSocketIO } from "./websocket";
 
   const io = getSocketIO();

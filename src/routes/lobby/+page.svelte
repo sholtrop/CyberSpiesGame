@@ -5,7 +5,7 @@
   import Title from "$lib/Title.svelte";
   import QrCode from "$lib/QrCode.svelte";
   import { onMount } from "svelte";
-  import { lobbyStore, playerStore } from "$lib/lobbyStore";
+  import { lobbyStore, playerStore } from "$lib/stores";
   import InviteLink from "$lib/InviteLink.svelte";
   import type { Socket } from "socket.io-client";
   import { COLORS, MINIMUM_N_PLAYERS } from "$lib/consts";
@@ -68,7 +68,7 @@
 </script>
 
 {#if $lobbyStore != null}
-  <div class="min-h-full flex flex-col justify-between">
+  <div class="flex flex-col justify-between">
     <div class="flex flex-col items-center">
       <Title />
       <div class="my-10 flex flex-col items-center">
@@ -89,18 +89,18 @@
           {/each}
         </div>
       </div>
-    </div>
-    <div class="mb-10 flex justify-center">
-      <MainButton disabled={!canStartGame} on:click={() => startGame()}>
-        {#if canStartGame}
-          Start Game {#if dev}<span class="text-sm">(dev mode)</span>{/if}
-        {:else if !playerIsCreator}<span class="text-base">
-            Waiting for host to start game</span
-          >
-        {:else if !enoughPlayers}
-          Game requires 5 players
-        {/if}
-      </MainButton>
+      <div class="flex justify-center -mt-4">
+        <MainButton disabled={!canStartGame} on:click={() => startGame()}>
+          {#if canStartGame}
+            Start Game {#if dev}<span class="text-sm">(dev mode)</span>{/if}
+          {:else if !playerIsCreator}<span class="text-base">
+              Waiting for host to start game</span
+            >
+          {:else if !enoughPlayers}
+            Game requires 5 players
+          {/if}
+        </MainButton>
+      </div>
     </div>
   </div>
 {/if}

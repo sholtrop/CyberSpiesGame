@@ -7,7 +7,7 @@
   import NameInput from "$lib/NameInput.svelte";
   import { deviceIsSupported } from "$lib/util";
   import type { Socket } from "socket.io-client";
-  import { lobbyStore, playerColorStore, playerStore } from "$lib/lobbyStore";
+  import { lobbyStore, playerColorStore, playerStore } from "$lib/stores";
   let deviceSupported: boolean;
 
   let playerName = "";
