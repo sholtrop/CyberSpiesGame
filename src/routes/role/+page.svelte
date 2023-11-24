@@ -15,8 +15,12 @@
   function toggleReady() {
     ready = true;
   }
+
+
 </script>
 
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y-no-static-element-interactions -->
 <div on:click={toggleReady} class="flex flex-col items-center justify-between h-full">
   {#if ready}
     <p>
