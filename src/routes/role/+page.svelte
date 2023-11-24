@@ -1,7 +1,6 @@
 <script lang="ts">
   import { dev } from "$app/environment";
   import { goto } from "$app/navigation";
-  import AgentRoleExplanation from "$lib/AgentRoleExplanation.svelte";
   import MainButton from "$lib/MainButton.svelte";
   import { lobbyStore, playerStore } from "$lib/stores";
   import { onMount } from "svelte";
@@ -13,20 +12,24 @@
   });
 </script>
 
-<div class="flex flex-col items-center h-full space-y-10 mt-4">
+<div class="flex flex-col items-center min-h-screen space-y-10">
+  <div class="flex flex-col items-center justify-end h-full mb-4">
+    <p class="mb-2 text-lg">
+      Your role is: <span class="font-bold"
+        >{$playerStore?.role === "crew"
+          ? "Cyber Criminal"
+          : "Secret Agent"}</span
+      >
+    </p>
+
+    {#if $playerStore?.role === "impostor" || true}
+      you're secret agent
+    {/if}
+  </div>
   {#if $lobbyStore?.status.state === "roleExplanation"}
     <MainButton disabled={!dev} on:click={() => goto("/game")}
       >Game will start in {$lobbyStore.status.countDown}<br />
       <span class="text-sm text-gray-300">(Dev mode: Click to start now)</span>
     </MainButton>
   {/if}
-  <p>
-    Your role is: <span class="font-bold text-lg"
-      >{$playerStore?.role === "crew" ? "Cyber Criminal" : "Secret Agent"}</span
-    >
-  </p>
-  <!-- {#if $playerStore?.role === "impostor"} -->
-
-  <AgentRoleExplanation />
-  <!-- {/if} -->
 </div>

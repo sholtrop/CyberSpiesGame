@@ -8,7 +8,7 @@
 
   let startTask = 0;
   function cycleTasks() {
-    const players = [...$lobbyStore!.players];
+    const players = { ...$lobbyStore!.players };
     const me = $playerStore!;
     me.tasks = [];
     let i = startTask;
@@ -22,7 +22,7 @@
 
   const buttons = {
     "Make me impostor": () => {
-      const players = [...$lobbyStore!.players];
+      const players = { ...$lobbyStore!.players };
       const me = $playerStore!;
       me.role = "impostor";
       io.emit("devSetLobby", { lobby: { players } });
@@ -75,7 +75,7 @@
           Kill player
         </h1>
         <div class="grid grid-cols-2 grid-rows-4 gap-y-4 gap-x-4 mt-4">
-          {#each $lobbyStore.players as player}
+          {#each Object.values($lobbyStore.players) as player}
             <button
               class="border text-white border-green-300 p-3"
               on:click={() =>

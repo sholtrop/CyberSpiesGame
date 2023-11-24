@@ -23,9 +23,9 @@ io.on("connection", (client) => {
     console.debug(`${player.name} created lobby ${playerLobby.id}`);
   });
 
-  client.on("addRooms", ({ rooms }) => {
+  client.on("setActivities", ({ activities }) => {
     if (currentPlayer == null || playerLobby == null) return;
-    playerLobby.addRooms(rooms);
+    playerLobby.setActivities(activities);
   });
 
   client.on("joinLobby", ({ name, lobbyId }) => {
@@ -55,6 +55,9 @@ io.on("connection", (client) => {
     switch (action) {
       case "callMeeting":
         playerLobby?.startMeetingCall(info.type, currentPlayer.color);
+        break;
+      case "playerReady":
+        playerLobby?.addReady(currentPlayer.color);
         break;
       case "vote":
         playerLobby?.addVote(currentPlayer.color, info.playerColor);
@@ -95,7 +98,7 @@ io.on("connection", (client) => {
       `Client disconnected ${currentPlayer ? currentPlayer.name : ""}`
     );
     if (playerLobby != null) {
-      const lobby = removePlayer(playerLobby.id, currentPlayer.name);
+      const lobby = removePlayer(playerLobby.id, currentPlayer.color);
       if (lobby != null) lobby.synchronize();
     }
   });

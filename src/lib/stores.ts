@@ -15,7 +15,7 @@ export const playerStore: Readable<Player | null> = derived(
   ([lobby, color], set) => {
     if (lobby == null || color == null) set(null);
     else {
-      const me = lobby.players.find((player) => player.color === color);
+      const me = lobby.players[color];
       if (me == null)
         console.error(
           `Could not find own color (${color}) in the players array: ${JSON.stringify(

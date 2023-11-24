@@ -19,7 +19,7 @@ class Lobby {
     this.creator = creator;
     this.status = status;
     this.taskProgression = { real: 0, displayed: 0 };
-    this.rooms = [];
+    this.activities = null;
     this.activeEffects = [];
   }
 
@@ -63,12 +63,12 @@ class Lobby {
     this.status.state = {
       state: "meetingCalled",
       type,
-      presentPlayers: new Set(),
+      presentPlayers: {}
     };
     // If the meeting is an emergency meeting, the initiator just scanned
     // the meeting point, and is therefore already present.
     if (type === "emergency")
-      this.status.state.presentPlayers.add(initiatorColor);
+      this.status.state.presentPlayers[initiatorColor] = true;
 
     // TODO calling a meeting is special, and it interrupts/disables a lot of things:
     // - Tasks are cancelled and left uncompleted
@@ -82,7 +82,7 @@ class Lobby {
   addPlayerToMeeting(playerColor) {
     if (this.status.state !== "meetingCalled") return;
     const presentPlayers = this.status.state.presentPlayers;
-    presentPlayers.add(playerColor);
+    presentPlayers[playerColor] = true;
     if (presentPlayers.size === this.nMeetingAttendees()) this.startMeeting();
     else this.synchronize();
   }
@@ -132,6 +132,13 @@ class Lobby {
     }
   }
 
+  addReady(playerColor) {
+    if (this.status.state !== 'inLobby')
+      throw Error(`Cannot add ready when game is in state ${this.status.state}`)
+    this.status.readyPlayers[playerColor] = true;
+    this.synchronize();
+  }
+
   // Add the vote of player with `color`. The `vote` is the color of the player
   // that the voter wants to eliminate, or `null` if the voters wants to skip.
   addVote(voterColor, vote) {
@@ -161,9 +168,9 @@ class Lobby {
     );
   }
 
-  // Sets the list of rooms for this lobby
-  setRooms(rooms) {
-    this.rooms = rooms;
+  // Sets the list of activities with their rooms for this lobby
+  setActivities(activities) {
+    this.activities = activities;
     this.synchronize();
   }
 
@@ -313,9 +320,9 @@ export function createLobby(creatorName) {
   const lobbyId = nanoid();
   const lobby = new Lobby({
     id: lobbyId,
-    players: [player],
+    players: { [player.color]: player },
     creator: creatorName,
-    status: "notStarted",
+    status: { state: "inLobby", readyPlayers: {} },
   });
   lobbies[lobbyId] = lobby;
   return { lobby, player };
@@ -327,16 +334,16 @@ export function joinLobby(lobbyId, playerName) {
   if (lobby == null) return [false, `Lobby with id ${lobbyId} does not exist`];
 
   const players = lobby.players;
-  if (players.length === MAX_PLAYERS)
+  if (Object.values(players).length === MAX_PLAYERS)
     return [false, `Maximum amount of players reached`];
 
-  if (players.find(({ name }) => playerName === name))
+  if (Object.values(players).find(({ name }) => playerName === name))
     return [false, `Name ${playerName} is already taken`];
 
   // Give player a random, non-used color
   let color = randomPlayerColor();
   // Loop until we find a color that is not in use yet
-  while (players.find(({ usedColor }) => usedColor === color) != null) {
+  while (players[color] != null) {
     color = randomPlayerColor();
   }
   const player = new Player({
@@ -355,19 +362,17 @@ export function joinLobby(lobbyId, playerName) {
 
 // Remove player from an existing lobby. Also remove the lobby if this was the last player left.
 // If player does not exist in this lobby, returns `null` if there is no lobby (anymore), else returns the lobby.
-export function removePlayer(lobbyId, playerName) {
+export function removePlayer(lobbyId, playerColor) {
   const lobby = lobbies[lobbyId];
   if (lobby == null) return null;
-  const playerIdx = lobby.players.findIndex(({ name }) => name === playerName);
-  console.debug(`Player ${playerName} left lobby ${lobbyId}`);
+  console.debug(`Player ${lobby.players[playerColor].name} left lobby ${lobbyId}`);
+  delete lobby.players[playerColor]
   // Remove lobby entirely if this is the last player left
-  if (lobby.players.length === 1) {
+  if (Object.values(lobby.players).length === 1) {
     delete lobbies[lobbyId];
     console.debug(`Remove lobby ${lobbyId} because it has no players left`);
     return null;
   }
-  // Remove the player from the list of players
-  lobby.players.splice(playerIdx, 1);
   return lobby;
 }
 

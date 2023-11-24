@@ -17,3 +17,10 @@ export const DEV_PANEL_KEY = ".";
 
 // Number of minigames that are available in general
 export const N_TOTAL_TASKS = 7;
+
+export const ACTIVITIES = [
+  "meeting", "simonsays", "wiretap1", "wiretap2", "wiretap3", "passwordcrack",
+  "bitcoinmine", "killthevirus", "firewallbutton1", "firewallbutton2"
+] as const;
+
+

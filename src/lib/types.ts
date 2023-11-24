@@ -1,25 +1,27 @@
+import type { ACTIVITIES } from "./consts";
+
 export type Lobby = {
   id: string;
-  players: Player[];
+  players: { [K in Color]: Player },
   creator: string;
   status:
-    | { state: "notStarted" }
-    | { state: "roleExplanation"; countDown: number }
-    | { state: "started" }
-    | {
-        state: "meetingCalled";
-        type: "emergency" | "bodyFound";
-        presentPlayers: Set<string>;
-      }
-    | {
-        state: "meeting";
-        type: "emergency" | "bodyFound";
-        countDown: number;
-        votes: { [name: string]: string | null };
-        nVoters: number;
-      }
-    | { state: "voteResultAnnounced"; votedOutPlayer: string | null }
-    | { state: "gameEnded"; victors: "impostors" | "crew" };
+  | { state: "inLobby", readyPlayers: { [K in Color]: boolean } }
+  | { state: "roleExplanation"; countDown: number }
+  | { state: "started" }
+  | {
+    state: "meetingCalled";
+    type: "emergency" | "bodyFound";
+    presentPlayers: { [K in Color]: boolean };
+  }
+  | {
+    state: "meeting";
+    type: "emergency" | "bodyFound";
+    countDown: number;
+    votes: { [name: string]: string | null };
+    nVoters: number;
+  }
+  | { state: "voteResultAnnounced"; votedOutPlayer: string | null }
+  | { state: "gameEnded"; victors: "impostors" | "crew" };
   // Between 0 and 100. At 100, crew win the game.
   // Has a displayed value and a real value.
   // Displayed value may differ from the actual value.
@@ -27,7 +29,7 @@ export type Lobby = {
     real: number;
     displayed: number;
   };
-  rooms: Room[];
+  activities: Activities;
   activeEffects: Effect[];
 };
 
@@ -39,97 +41,99 @@ export type Player = {
   color: Color;
   tasks: Task[];
   currentlyDoing:
-    | {
-        activity: "task";
-        number: number;
-      }
-    | {
-        activity: "nothing";
-      }
-    | {
-        activity: "fixSabotage";
-      };
+  | {
+    activity: "task";
+    number: number;
+  }
+  | {
+    activity: "nothing";
+  }
+  | {
+    activity: "fixSabotage";
+  };
 };
 
 // A room has a name and one or more activities (NFC tags)
-export type Room = {
-  roomName: string;
-  activities: Activity[];
+export type Activities = {
+  [activityName: string]: Activity
 };
 
 // An activity has an NFC tag and is assigned to a room
 export type Activity =
-  | {
-      type: "task";
-      taskNumber: number;
-    }
-  | {
+  ({
+    type: "task";
+    taskNumber: number;
+  }
+    | {
       type: "sabotageFix";
     }
-  | { type: "meetingPoint" };
+    | { type: "meetingPoint" }) & { room: string };
 
 // Effects that are active in the lobby, from e.g. impostor powers
 export type Effect =
   | {
-      // A player affected by this is unable to scan anything
-      effect: "hacked";
-      affectedPlayers: Color[];
-    }
+    // A player affected by this is unable to scan anything
+    effect: "hacked";
+    affectedPlayers: Color[];
+  }
   | {
-      // Sabotage that forces one or more players to go to
-      // a specific destination room and scan its NFC tag to fix it.
-      // Failing to do so before the countDown reaches 0 results in impostor victory
-      effect: "firewallBreach";
-      affectedPlayers: {
-        color: Color;
-        destinationRoom: Room;
-      };
-      countDown: number;
-    }
-  | {
-      // Sabotage that forces all affected players to stand still (checked by their mobile device)
-      // If they fail, they will become affected by 'hacked'
-      effect: "virusScan";
-      affectedPlayers: Color[];
+    // Sabotage that forces one or more players to go to
+    // a specific destination room and scan its NFC tag to fix it.
+    // Failing to do so before the countDown reaches 0 results in impostor victory
+    effect: "firewallBreach";
+    affectedPlayers: {
+      color: Color;
+      destinationRoom: string;
     };
+    countDown: number;
+  }
+  | {
+    // Sabotage that forces all affected players to stand still (checked by their mobile device)
+    // If they fail, they will become affected by 'hacked'
+    effect: "virusScan";
+    affectedPlayers: Color[];
+  };
 
 // Each player has one of these colors assigned to them
 export type Color = "green" | "blue" | "yellow" | "white" | "red";
 
+
 export type Task = {
-  number: number;
+  name: (typeof ACTIVITIES)[number];
+  description: string;
+  room: string;
   status: "available" | "completed";
 };
 
 // Game actions taken by players that the frontend needs to communicate to the backend
 export type GameAction =
   | {
-      action: "callMeeting";
-      type: "emergency" | "bodyFound";
-    }
+    action: "callMeeting";
+    type: "emergency" | "bodyFound";
+  }
   | {
-      action: "vote";
-      playerColor: Color;
-    }
+    action: "vote";
+    playerColor: Color;
+  }
   | {
-      action: "killPlayer";
-      playerColor: "color";
-    }
+    action: "killPlayer";
+    playerColor: Color;
+  }
   | {
-      action: "startTask";
-      taskNumber: number;
-    }
+    action: "startTask";
+    taskNumber: number;
+  }
   | {
-      action: "startSabotageFix";
-    }
+    action: "startSabotageFix";
+  }
   | {
-      action: "taskCompleted";
-      taskNumber: number;
-    }
+    action: "taskCompleted";
+    taskNumber: number;
+  }
   | {
-      action: "sabotageFixCompleted";
-    }
+    action: "sabotageFixCompleted";
+  }
   | {
-      // Moved during the virus scan
-      action: "virusScanFailed";
-    };
+    // Moved during the virus scan
+    action: "virusScanFailed";
+  };

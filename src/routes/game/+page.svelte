@@ -5,10 +5,9 @@
   import SmallButton from "$lib/SmallButton.svelte";
   import TaskBar from "$lib/TaskBar.svelte";
   import { lobbyStore, playerStore } from "$lib/stores";
-  import type { Room, Task } from "$lib/types";
   import { scanNfc } from "$lib/util";
   import { onMount } from "svelte";
-  import { swipe } from "svelte-gestures";
+  import { press, swipe } from "svelte-gestures";
 
   let mainDiv: HTMLDivElement;
   let spyDiv: HTMLDivElement;
@@ -104,24 +103,32 @@
 
   // setKillCD();
   // setSabotageCD();
-  function getTaskRoom(task: Task): Room {
-    const room = $lobbyStore?.rooms.find((room) =>
-      room.activities.find(
-        (activity) =>
-          activity.type === "task" && activity.taskNumber === task.number,
-      ),
-    );
-    if (room == null) {
-      if (dev) {
-        return {
-          roomName: "Test room",
-          activities: [{ type: "task", taskNumber: task.number }],
-        };
-      } else {
-        throw Error(`Task ${task.number} does not have an assigned room`);
-      }
+  // function getTaskRoom(task: Task): Room {
+  //   const room = $lobbyStore?.rooms.find((room) =>
+  //     room.activities.find(
+  //       (activity) =>
+  //         activity.type === "task" && activity.taskNumber === task.number,
+  //     ),
+  //   );
+  //   if (room == null) {
+  //     if (dev) {
+  //       return {
+  //         roomName: "Test room",
+  //         activities: [{ type: "task", taskNumber: task.number }],
+  //       };
+  //     } else {
+  //       throw Error(`Task ${task.number} does not have an assigned room`);
+  //     }
+  //   }
+  //   return room;
+  // }
+  setKillCD();
+  setSabotageCD();
+
+  function pressHandler(event: any) {
+    if (spy) {
+      console.log(event.target);
     }
-    return room;
   }
 </script>
 
@@ -142,8 +149,8 @@
           <ul class="list-disc list-inside">
             {#each $playerStore.tasks as task}
               <li>
-                <span>Task {task.number}</span>
-                <span>in {getTaskRoom(task).roomName}</span>
+                <span>{task.description}</span>
+                <span>in {task.room}</span>
               </li>
             {/each}
           </ul>
@@ -151,6 +158,18 @@
       </div>
       <div class="self-center mb-20">
         <MainButton on:click={() => scanNfc()}>Scan</MainButton>
+
+        <p class="text-lg">Tasks:</p>
+        <ul class="list-disc list-inside">
+          {#each tasks as task}
+            <li
+              use:press={{ timeframe: 600, triggerBeforeFinished: true }}
+              on:press={pressHandler}
+            >
+              <span>{task.name}</span> <span>({task.room})</span>
+            </li>
+          {/each}
+        </ul>
       </div>
     </div>
 
