@@ -3,7 +3,9 @@
   import MainButton from "$lib/MainButton.svelte";
   import SmallButton from "$lib/SmallButton.svelte";
   import TaskBar from "$lib/TaskBar.svelte";
-  import { swipe } from "svelte-gestures";
+  import { press, swipe } from "svelte-gestures";
+  import { lobbyStore, playerStore } from "$lib/lobbyStore";
+
 
   let mainDiv: HTMLDivElement;
   let spyDiv: HTMLDivElement;
@@ -97,6 +99,11 @@
 
   setKillCD();
   setSabotageCD();
+
+  function pressHandler(event: any) {
+    console.log(event.target);
+  }
+
 </script>
 
 <div
@@ -114,7 +121,10 @@
         <p class="text-lg">Tasks:</p>
         <ul class="list-disc list-inside">
           {#each tasks as task}
-            <li><span>{task.name}</span> <span>({task.room})</span></li>
+            <li 
+              use:press={{ timeframe: 600, triggerBeforeFinished: true }}
+              on:press={pressHandler}
+            ><span>{task.name}</span> <span>({task.room})</span></li>
           {/each}
         </ul>
       </div>
