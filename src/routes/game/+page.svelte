@@ -101,7 +101,9 @@
   setSabotageCD();
 
   function pressHandler(event: any) {
-    console.log(event.target);
+    if (spy) {
+      console.log(event.target);
+    }
   }
 
 </script>
