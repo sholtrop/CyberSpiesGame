@@ -13,9 +13,9 @@
   });
 </script>
 
-<div class="flex flex-col items-center h-full space-y-10">
+<div class="flex flex-col items-center h-full space-y-10 mt-4">
   {#if $lobbyStore?.status.state === "roleExplanation"}
-    <MainButton disabled={!dev}
+    <MainButton disabled={!dev} on:click={() => goto("/game")}
       >Game will start in {$lobbyStore.status.countDown}<br />
       <span class="text-sm text-gray-300">(Dev mode: Click to start now)</span>
     </MainButton>

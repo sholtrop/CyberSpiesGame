@@ -2,7 +2,7 @@
   export let taskProgress = 50;
 </script>
 
-<div class="flex flex-col space-y-1">
+<div class="flex flex-col space-y-1 items-center">
   <label for="taskbar" class="text-lg">Task progress</label>
   <progress
     id="taskbar"

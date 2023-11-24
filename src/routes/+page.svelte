@@ -50,7 +50,7 @@
   {#if deviceSupported}
     <Title />
 
-    <div class="mb-20 space-y-20 flex flex-col items-center justify-center">
+    <div class="pb-20 space-y-20 flex flex-col items-center justify-center">
       <NameInput bind:playerName bind:showError />
       <MainButton on:click={() => createLobby()}>Create Lobby</MainButton>
     </div>

@@ -1,8 +1,12 @@
 <script lang="ts">
   import { dev } from "$app/environment";
+  import { goto } from "$app/navigation";
   import MainButton from "$lib/MainButton.svelte";
   import SmallButton from "$lib/SmallButton.svelte";
   import TaskBar from "$lib/TaskBar.svelte";
+  import { lobbyStore, playerStore } from "$lib/stores";
+  import type { Room, Task } from "$lib/types";
+  import { onMount } from "svelte";
   import { swipe } from "svelte-gestures";
 
   let mainDiv: HTMLDivElement;
@@ -31,6 +35,10 @@
     purple: "bg-purple-700",
     white: "bg-white",
   } as { [key: string]: string };
+
+  onMount(() => {
+    if (!$lobbyStore || !$playerStore) goto(`/`, { replaceState: true });
+  });
 
   function goFullScreen() {
     mainDiv.requestFullscreen();
@@ -95,68 +103,92 @@
     startSabotageCD();
   }
 
-  setKillCD();
-  setSabotageCD();
+  // setKillCD();
+  // setSabotageCD();
+  function getTaskRoom(task: Task): Room {
+    const room = $lobbyStore?.rooms.find((room) =>
+      room.activities.find(
+        (activity) =>
+          activity.type === "task" && activity.taskNumber === task.number
+      )
+    );
+    if (room == null) {
+      if (dev) {
+        return {
+          roomName: "Test room",
+          activities: [{ type: "task", taskNumber: task.number }],
+        };
+      } else {
+        throw Error(`Task ${task.number} does not have an assigned room`);
+      }
+    }
+    return room;
+  }
 </script>
 
-<div
-  bind:this={mainDiv}
-  use:swipe={{ timeframe: 300, minSwipeDistance: 100 }}
-  on:swipe={swipeHandler}
-  class="mainDiv overflow-hidden whitespace-nowrap"
->
-  <div class="h-screen w-screen flex flex-col justify-between items-center">
-    <div>
-      <div class="mb-10">
-        <TaskBar {taskProgress} />
+{#if $lobbyStore != null && $playerStore != null}
+  <div
+    bind:this={mainDiv}
+    use:swipe={{ timeframe: 300, minSwipeDistance: 100 }}
+    on:swipe={swipeHandler}
+    class="mainDiv overflow-hidden whitespace-nowrap h-screen"
+  >
+    <div class="h-full w-screen flex flex-col justify-between items-center">
+      <div class="w-full px-5">
+        <div class="my-4">
+          <TaskBar taskProgress={$lobbyStore.taskProgression.displayed} />
+        </div>
+        <div>
+          <p class="text-lg">Tasks:</p>
+          <ul class="list-disc list-inside">
+            {#each $playerStore.tasks as task}
+              <li>
+                <span>Task {task.number}</span>
+                <span>in {getTaskRoom(task).roomName}</span>
+              </li>
+            {/each}
+          </ul>
+        </div>
       </div>
-      <div>
-        <p class="text-lg">Tasks:</p>
-        <ul class="list-disc list-inside">
-          {#each tasks as task}
-            <li><span>{task.name}</span> <span>({task.room})</span></li>
-          {/each}
-        </ul>
+      <div class="self-center mb-20">
+        <MainButton on:click={() => scanNFC()}>Scan</MainButton>
       </div>
     </div>
-    <div class="self-center mb-20">
-      <MainButton on:click={() => scanNFC()}>Scan</MainButton>
-    </div>
-  </div>
 
-  {#if spy}
-    <div bind:this={spyDiv} class="h-screen px-10 flex flex-col gap-10">
-      <div>
-        <p class="font-bold text-2xl">Status Report</p>
-        <!-- I'm not making a component for a player list because I plan to style them all differently -->
-        {#each players as player}
-          <div class="flex items-baseline space-x-1.5">
-            <div class={colors[player.color] + " w-3 h-3"} />
-            <div>{player.name} - {player.status}</div>
-          </div>
-        {/each}
+    {#if spy}
+      <div bind:this={spyDiv} class="h-screen px-10 flex flex-col gap-10">
+        <div>
+          <p class="font-bold text-2xl">Status Report</p>
+          <!-- I'm not making a component for a player list because I plan to style them all differently -->
+          {#each players as player}
+            <div class="flex items-baseline space-x-1.5">
+              <div class={colors[player.color] + " w-3 h-3"} />
+              <div>{player.name} - {player.status}</div>
+            </div>
+          {/each}
+        </div>
+        <div class="flex flex-col">
+          <p class="font-bold text-2xl">
+            Sabotage ({sabotageCD ? "CD: " + sabotageCD : "Ready"})
+          </p>
+          <!-- TODO: grey out buttons when cd is up -->
+          <SmallButton>Sabotage 1</SmallButton>
+          <SmallButton>Sabotage 2</SmallButton>
+          <SmallButton>Sabotage 3</SmallButton>
+        </div>
+        <div class="flex flex-col">
+          <p class="font-bold text-2xl">Power</p>
+          <SmallButton>Power 1</SmallButton>
+          <SmallButton>Power 2</SmallButton>
+          <SmallButton>Power 3</SmallButton>
+        </div>
+        <div>
+          <p>Ready to kill{killCD ? " in " + killCD : ""}.</p>
+        </div>
       </div>
-      <div class="flex flex-col">
-        <p class="font-bold text-2xl">
-          Sabotage ({sabotageCD ? "CD: " + sabotageCD : "Ready"})
-        </p>
-        <!-- TODO: grey out buttons when cd is up -->
-        <SmallButton>Sabotage 1</SmallButton>
-        <SmallButton>Sabotage 2</SmallButton>
-        <SmallButton>Sabotage 3</SmallButton>
-      </div>
-      <div class="flex flex-col">
-        <p class="font-bold text-2xl">Power</p>
-        <SmallButton>Power 1</SmallButton>
-        <SmallButton>Power 2</SmallButton>
-        <SmallButton>Power 3</SmallButton>
-      </div>
-      <div>
-        <p>Ready to kill{killCD ? " in " + killCD : ""}.</p>
-      </div>
-    </div>
-  {/if}
-</div>
+    {/if}
+  </div>
+{/if}
 
 <style>
   .mainDiv::-webkit-scrollbar {
