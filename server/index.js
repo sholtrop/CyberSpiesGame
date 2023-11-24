@@ -25,6 +25,7 @@ io.on("connection", (client) => {
 
   client.on("setActivities", ({ activities }) => {
     if (currentPlayer == null || playerLobby == null) return;
+    console.log({ activities });
     playerLobby.setActivities(activities);
   });
 

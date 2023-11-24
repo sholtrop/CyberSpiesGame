@@ -1,3 +1,4 @@
+import { PLAYER_COLORS } from "./consts.js";
 import { randInt } from "./util.js";
 
 export class Player {
@@ -42,11 +43,9 @@ export class Player {
   }
 }
 
-const colors = ["green", "blue", "yellow", "white", "red"];
-
 export function randomPlayerColor() {
-  const random = randInt(0, colors.length - 1);
-  return colors[random];
+  const random = randInt(0, PLAYER_COLORS.length - 1);
+  return PLAYER_COLORS[random];
 }
 
 export function playerNameValid(name) {

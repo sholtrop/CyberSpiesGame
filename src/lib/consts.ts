@@ -1,3 +1,5 @@
+import type { Activity } from "./types";
+
 export const MINIMUM_N_PLAYERS = 5;
 
 // N.B. not all of these are actually used.
@@ -18,9 +20,16 @@ export const DEV_PANEL_KEY = ".";
 // Number of minigames that are available in general
 export const N_TOTAL_TASKS = 7;
 
-export const ACTIVITIES = [
-  "meeting", "simonsays", "wiretap1", "wiretap2", "wiretap3", "passwordcrack",
-  "bitcoinmine", "killthevirus", "firewallbutton1", "firewallbutton2"
+// Order of this array is important as it determines the id of the NFC tags. The first item in the array has id 1, second one 2, etc.
+export const NFC_ACTIVITIES = [
+  "meeting",
+  "simonsays",
+  "wiretap1",
+  "wiretap2",
+  "wiretap3",
+  "passwordcrack",
+  "bitcoinmine",
+  "killthevirus",
+  "firewallbutton1",
+  "firewallbutton2",
 ] as const;
-
-

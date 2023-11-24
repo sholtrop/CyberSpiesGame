@@ -2,6 +2,7 @@ import { nanoid } from "nanoid";
 import {
   MAX_PLAYERS,
   N_IMPOSTORS,
+  PLAYER_COLORS,
   ROLE_DISPLAY_SECS,
   TASK_PROGRESSION_VICTORY_AMOUNT,
 } from "./consts.js";
@@ -63,7 +64,7 @@ class Lobby {
     this.status.state = {
       state: "meetingCalled",
       type,
-      presentPlayers: {}
+      presentPlayers: {},
     };
     // If the meeting is an emergency meeting, the initiator just scanned
     // the meeting point, and is therefore already present.
@@ -133,8 +134,10 @@ class Lobby {
   }
 
   addReady(playerColor) {
-    if (this.status.state !== 'inLobby')
-      throw Error(`Cannot add ready when game is in state ${this.status.state}`)
+    if (this.status.state !== "inLobby")
+      throw Error(
+        `Cannot add ready when game is in state ${this.status.state}`
+      );
     this.status.readyPlayers[playerColor] = true;
     this.synchronize();
   }
@@ -171,6 +174,7 @@ class Lobby {
   // Sets the list of activities with their rooms for this lobby
   setActivities(activities) {
     this.activities = activities;
+    this.status = { state: "inLobby", readyPlayers: {} };
     this.synchronize();
   }
 
@@ -235,6 +239,10 @@ class Lobby {
     return votedOutPlayer;
   }
 
+  #assignTasks() {
+    // TODO assign tasks
+  }
+
   #stopVote() {
     const votedOutPlayer = this.#determineVoteResult();
     if (votedOutPlayer != null) this.killPlayer(votedOutPlayer);
@@ -292,18 +300,21 @@ class Lobby {
 
   #assignRolesRandomly() {
     // First make everyone crew
-    for (const player of this.players) {
-      player.role = "crew";
+    for (const color of Object.keys(this.players)) {
+      this.players[color].role = "crew";
     }
 
     // Determine impostors
-    const impostorIndices = new Set();
-    while (impostorIndices.size < N_IMPOSTORS)
-      impostorIndices.add(randInt(0, this.players.length));
+    const impostorColors = new Set();
+    while (impostorColors.size < N_IMPOSTORS) {
+      const players = Object.keys(this.players);
+      const randPlayerColor = players[randInt(0, players.length)];
+      impostorColors.add(randPlayerColor);
+    }
 
     // Set the selected players to impostor
-    for (const impostorIdx of impostorIndices) {
-      this.players[impostorIdx].role = "impostor";
+    for (const impostorColor of impostorColors) {
+      this.players[impostorColor].role = "impostor";
     }
     console.log(`Player roles decided`, JSON.stringify(this.players, null, 4));
   }
@@ -322,7 +333,7 @@ export function createLobby(creatorName) {
     id: lobbyId,
     players: { [player.color]: player },
     creator: creatorName,
-    status: { state: "inLobby", readyPlayers: {} },
+    status: { state: "settingRooms", readyPlayers: {} },
   });
   lobbies[lobbyId] = lobby;
   return { lobby, player };
@@ -365,10 +376,12 @@ export function joinLobby(lobbyId, playerName) {
 export function removePlayer(lobbyId, playerColor) {
   const lobby = lobbies[lobbyId];
   if (lobby == null) return null;
-  console.debug(`Player ${lobby.players[playerColor].name} left lobby ${lobbyId}`);
-  delete lobby.players[playerColor]
+  console.debug(
+    `Player ${lobby.players[playerColor].name} left lobby ${lobbyId}`
+  );
+  delete lobby.players[playerColor];
   // Remove lobby entirely if this is the last player left
-  if (Object.values(lobby.players).length === 1) {
+  if (Object.values(lobby.players).length === 0) {
     delete lobbies[lobbyId];
     console.debug(`Remove lobby ${lobbyId} because it has no players left`);
     return null;

@@ -144,7 +144,18 @@
         <div class="my-4">
           <TaskBar taskProgress={$lobbyStore.taskProgression.displayed} />
         </div>
-        <div>
+        <p class="text-lg mt-8">Tasks:</p>
+        <ul class="list-disc list-inside">
+          {#each $playerStore.tasks as task}
+            <li
+              use:press={{ timeframe: 600, triggerBeforeFinished: true }}
+              on:press={pressHandler}
+            >
+              <span>{task.description}</span> <span>({task.room})</span>
+            </li>
+          {/each}
+        </ul>
+        <!-- <div>
           <p class="text-lg">Tasks:</p>
           <ul class="list-disc list-inside">
             {#each $playerStore.tasks as task}
@@ -154,22 +165,10 @@
               </li>
             {/each}
           </ul>
-        </div>
+        </div> -->
       </div>
-      <div class="self-center mb-20">
+      <div class="self-center mb-10">
         <MainButton on:click={() => scanNfc()}>Scan</MainButton>
-
-        <p class="text-lg">Tasks:</p>
-        <ul class="list-disc list-inside">
-          {#each tasks as task}
-            <li
-              use:press={{ timeframe: 600, triggerBeforeFinished: true }}
-              on:press={pressHandler}
-            >
-              <span>{task.name}</span> <span>({task.room})</span>
-            </li>
-          {/each}
-        </ul>
       </div>
     </div>
 

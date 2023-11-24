@@ -12,7 +12,7 @@
   });
 </script>
 
-<div class="flex flex-col items-center min-h-screen space-y-10">
+<div class="flex flex-col items-center justify-between min-h-screen space-y-10">
   <div class="flex flex-col items-center justify-end h-full mb-4">
     <p class="mb-2 text-lg">
       Your role is: <span class="font-bold"
@@ -27,9 +27,12 @@
     {/if}
   </div>
   {#if $lobbyStore?.status.state === "roleExplanation"}
-    <MainButton disabled={!dev} on:click={() => goto("/game")}
-      >Game will start in {$lobbyStore.status.countDown}<br />
-      <span class="text-sm text-gray-300">(Dev mode: Click to start now)</span>
-    </MainButton>
+    <div class="mb-10">
+      <MainButton disabled={!dev} on:click={() => goto("/game")}
+        >Game will start in {$lobbyStore.status.countDown}<br />
+        <span class="text-sm text-gray-300">(Dev mode: Click to start now)</span
+        >
+      </MainButton>
+    </div>
   {/if}
 </div>

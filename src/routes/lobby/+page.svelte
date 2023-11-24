@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { getSocketIO } from "$lib/websocket";
   import { goto } from "$app/navigation";
   import MainButton from "$lib/MainButton.svelte";
   import Title from "$lib/Title.svelte";
@@ -12,6 +11,7 @@
   import { dev } from "$app/environment";
   import AgentRoleExplanation from "$lib/AgentRoleExplanation.svelte";
   import { swipe } from "svelte-gestures";
+  import { getSocketIO } from "$lib/websocket";
 
   const N_PAGES = 4;
 
@@ -26,24 +26,6 @@
     }
     roomLink = getRoomLink();
     socket = getSocketIO();
-
-    // The 'lobbyUpdate' event sends the entire state of the lobby to all players
-    socket.on("lobbyUpdate", ({ lobby }) => {
-      lobbyStore.set(lobby);
-    });
-
-    // The 'countDown' event sends only the current countDown (if there is any),
-    // making it a more light-weight update
-    socket.on("countDown", ({ count }) => {
-      lobbyStore.update((lobby) => {
-        if (lobby != null && "countDown" in lobby.status) {
-          lobby.status.countDown = count;
-          return lobby;
-        }
-        return null;
-      });
-    });
-
     // `subscribe` allows us to react to some change in the lobby state.
     // In this case, we want to navigate to /game when the game starts.
     // `subscribe` returns an unsubscribe function so that we can stop listening for events at some point.
@@ -69,6 +51,10 @@
     return link;
   }
 
+  function startGame() {
+    socket.emit("startGame");
+  }
+
   function setReady() {
     socket.emit("gameAction", { action: "playerReady" });
   }
@@ -86,8 +72,6 @@
   $: canStartGame =
     (enoughPlayers && playerIsCreator && allPlayersReady) || dev;
 </script>
-
-{$lobbyStore?.status.state}
 
 {#if $lobbyStore != null && $lobbyStore.status.state === "inLobby"}
   <div
@@ -138,7 +122,8 @@
         {/if}
       </div>
       <div class="mb-4 flex flex-col items-center">
-        <div class="mb-4 flex space-x-2 justify-around w-20">
+        <span class="text-gray-300">Swipe to see tutorials</span>
+        <div class="mb-4 flex space-x-2 justify-around w-20 mt-2">
           {#each Array(4) as _, idx}
             <div
               class="w-4 h-4 rounded-full"
@@ -148,7 +133,7 @@
           {/each}
         </div>
         {#if canStartGame}
-          <MainButton>Start game</MainButton>
+          <MainButton on:click={startGame}>Start game</MainButton>
         {:else if !enoughPlayers}
           <MainButton disabled>Waiting for players to join...</MainButton>
         {:else if !allPlayersReady}

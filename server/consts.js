@@ -19,3 +19,31 @@ export const SINGLE_TASK_PROGRESSION_AMOUNT =
 // Update the progression bar only when this much progress has been made
 // since the previous display update
 export const TASK_PROGRESS_DISPLAY_THRESHOLD = 20;
+
+export const PLAYER_COLORS = ["green", "blue", "yellow", "white", "red"];
+
+export const N_TASKS = 7;
+
+// Position in the array is the id of the activity. The id is encoded on the NFC tag.
+export const NFC_ACTIVITIES = [
+  "meeting",
+  "simonsays",
+  "wiretap1",
+  "wiretap2",
+  "wiretap3",
+  "passwordcrack",
+  "bitcoinmine",
+  "killthevirus",
+  "firewallbutton1",
+  "firewallbutton2",
+];
+
+export const TASKS = [
+  "simonsays",
+  "wiretap1",
+  "wiretap2",
+  "wiretap3",
+  "passwordcrack",
+  "bitcoinmine",
+  "killthevirus",
+];

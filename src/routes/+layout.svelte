@@ -3,6 +3,8 @@
   import DevPanel from "$lib/DevPanel.svelte";
   import NotificationBar from "$lib/NotificationBar.svelte";
   import { DEV_PANEL_KEY } from "$lib/consts";
+  import { lobbyStore } from "$lib/stores";
+  import { getSocketIO } from "$lib/websocket";
   import "../app.postcss";
 
   let showDevPanel = false;
@@ -18,6 +20,25 @@
   function rmNotification() {
     showNotification = false;
   }
+
+  const socket = getSocketIO();
+
+  // The 'lobbyUpdate' event sends the entire state of the lobby to all players
+  socket.on("lobbyUpdate", ({ lobby }) => {
+    lobbyStore.set(lobby);
+  });
+
+  // The 'countDown' event sends only the current countDown (if there is any),
+  // making it a more light-weight update
+  socket.on("countDown", ({ count }) => {
+    lobbyStore.update((lobby) => {
+      if (lobby != null && "countDown" in lobby.status) {
+        lobby.status.countDown = count;
+        return lobby;
+      }
+      return null;
+    });
+  });
 </script>
 
 <div
