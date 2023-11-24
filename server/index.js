@@ -63,11 +63,11 @@ io.on("connection", (client) => {
         playerLobby?.killPlayer(info.playerColor);
         break;
       case "startTask":
-        currentPlayer?.startTask(taskNumber);
+        currentPlayer?.startTask(info.taskNumber);
         playerLobby?.synchronize();
         break;
       case "startSabotageFix":
-        currentPLayer?.startSabotageFix();
+        currentPlayer?.startSabotageFix();
         playerLobby?.synchronize();
         break;
       case "taskCompleted":

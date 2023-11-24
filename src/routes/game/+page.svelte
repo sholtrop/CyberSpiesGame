@@ -6,6 +6,7 @@
   import TaskBar from "$lib/TaskBar.svelte";
   import { lobbyStore, playerStore } from "$lib/stores";
   import type { Room, Task } from "$lib/types";
+  import { scanNfc } from "$lib/util";
   import { onMount } from "svelte";
   import { swipe } from "svelte-gestures";
 
@@ -43,8 +44,6 @@
   function goFullScreen() {
     mainDiv.requestFullscreen();
   }
-
-  function scanNFC() {}
 
   function addTask(name: string, room: string) {
     tasks = [...tasks, { name, room }];
@@ -109,8 +108,8 @@
     const room = $lobbyStore?.rooms.find((room) =>
       room.activities.find(
         (activity) =>
-          activity.type === "task" && activity.taskNumber === task.number
-      )
+          activity.type === "task" && activity.taskNumber === task.number,
+      ),
     );
     if (room == null) {
       if (dev) {
@@ -151,7 +150,7 @@
         </div>
       </div>
       <div class="self-center mb-20">
-        <MainButton on:click={() => scanNFC()}>Scan</MainButton>
+        <MainButton on:click={() => scanNfc()}>Scan</MainButton>
       </div>
     </div>
 
