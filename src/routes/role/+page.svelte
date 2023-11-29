@@ -12,7 +12,9 @@
   });
 </script>
 
-<div class="flex flex-col items-center justify-between min-h-screen space-y-10">
+<div
+  class="flex flex-col items-center justify-between min-h-screen space-y-10 py-10"
+>
   <div class="flex flex-col items-center justify-end h-full mb-4">
     <p class="mb-2 text-lg">
       Your role is: <span class="font-bold"
@@ -22,17 +24,14 @@
       >
     </p>
 
-    {#if $playerStore?.role === "impostor" || true}
-      you're secret agent
+    {#if $playerStore?.role === "impostor"}
+      TODO explanation
     {/if}
   </div>
   {#if $lobbyStore?.status.state === "roleExplanation"}
-    <div class="mb-20">
-      <MainButton disabled={!dev} on:click={() => goto("/game")}
-        >Game will start in {$lobbyStore.status.countDown}<br />
-        <span class="text-sm text-gray-300">(Dev mode: Click to start now)</span
-        >
-      </MainButton>
-    </div>
+    <MainButton disabled={!dev} on:click={() => goto("/game")}
+      >Game will start in {$lobbyStore.status.countDown}<br />
+      <span class="text-sm text-gray-300">(Dev mode: Click to start now)</span>
+    </MainButton>
   {/if}
 </div>
