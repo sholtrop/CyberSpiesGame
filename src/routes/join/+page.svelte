@@ -48,7 +48,7 @@
   });
 </script>
 
-<div class="h-full flex flex-col justify-between items-center">
+<div class="min-h-screen flex flex-col justify-between items-center">
   {#if deviceSupported}
     <Title />
     <NameInput bind:playerName bind:showError />

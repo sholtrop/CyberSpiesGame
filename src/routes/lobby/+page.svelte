@@ -88,7 +88,7 @@
               <Title />
               <div class="my-10 flex flex-col items-center">
                 <p class="text-center mb-3">
-                  Invite Link: <br />
+                  Invite Link (click to copy): <br />
                   <InviteLink {roomLink} />
                 </p>
                 <QrCode link={roomLink} />
