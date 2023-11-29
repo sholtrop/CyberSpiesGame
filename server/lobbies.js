@@ -86,7 +86,7 @@ class Lobby {
 
   addPlayerToMeeting(playerColor) {
     if (this.status.state !== "meetingCalled") return;
-    const presentPlayers = this.status.state.presentPlayers;
+    const presentPlayers = this.status.presentPlayers;
     presentPlayers[playerColor] = true;
     if (presentPlayers.size === this.nMeetingAttendees()) this.startMeeting();
     else this.synchronize();
