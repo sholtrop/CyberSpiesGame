@@ -65,7 +65,7 @@ class Lobby {
     if (this.status.state !== "started") return;
     if (type !== "emergency" && type !== "bodyFound")
       throw Error(`Meeting type invalid: ${type}`);
-    this.status.state = {
+    this.status = {
       state: "meetingCalled",
       type,
       presentPlayers: {},
