@@ -96,15 +96,14 @@ class Lobby {
   // Start a meeting in this lobby, depending on which type of meeting was previously called.
   // After the meeting is done, this method will then start the vote
   startMeeting() {
-    const { state } = this.status;
-    if (state !== "meetingCalled")
+    if (this.status.state !== "meetingCalled")
       throw Error(
         `Cannot start a meeting: No meeting was called beforehand. Lobby status was ${state}`
       );
 
     this.status = {
       state: "meeting",
-      type: state.type,
+      type: this.status.type,
       countDown: MEETING_TIME,
       votes: {},
       nVoters: this.nAlivePlayers(),
