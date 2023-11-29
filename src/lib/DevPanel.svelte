@@ -1,23 +1,13 @@
 <script lang="ts">
-  import { DEV_PANEL_KEY, N_TOTAL_TASKS } from "./consts";
+  import { DEV_PANEL_KEY } from "./consts";
   import { lobbyStore, playerStore } from "$lib/stores";
   import { getSocketIO } from "./websocket";
   import type { GameAction } from "./types";
 
   const io = getSocketIO();
 
-  let startTask = 0;
-  function cycleTasks() {
-    const players = { ...$lobbyStore!.players };
-    const me = $playerStore!;
-    me.tasks = [];
-    let i = startTask;
-    while (me.tasks.length != 3) {
-      me.tasks.push({ number: i, status: "available" });
-      i = (i + 1) % N_TOTAL_TASKS;
-    }
-    startTask = (startTask + 3) % N_TOTAL_TASKS;
-    io.emit("devSetLobby", { lobby: { players } });
+  function changeTasks() {
+    io.emit("devChangeTasks");
   }
 
   const buttons = {
@@ -98,7 +88,7 @@
         </h1>
         <div class="flex flex-col items-center">
           <button
-            on:click={cycleTasks}
+            on:click={changeTasks}
             class="border-green-200 border px-2 py-2">Cycle tasks</button
           >
           <div class="grid grid-cols-2 grid-rows-4 gap-y-4 gap-x-4 mt-4">
