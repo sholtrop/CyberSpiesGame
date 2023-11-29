@@ -374,6 +374,7 @@ export function joinLobby(lobbyId, playerName) {
     status: "alive",
     connection: "connected",
     role: "undecided",
+    color,
   });
 
   lobby.players[color] = player;

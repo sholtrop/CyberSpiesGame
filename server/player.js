@@ -7,13 +7,13 @@ import {
 import { randInt } from "./util.js";
 
 export class Player {
-  constructor({ name, connection, status, role }) {
+  constructor({ name, connection, status, role, color }) {
     this.name = name;
     this.connection = connection;
     this.status = status;
     this.role = role;
     this.tasks = [];
-    this.color = randomPlayerColor();
+    this.color = color || randomPlayerColor();
     this.currentlyDoing = { activity: "nothing" };
   }
 
