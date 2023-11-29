@@ -1,9 +1,8 @@
 <script lang="ts">
   import MainButton from "$lib/MainButton.svelte";
+  import { scanNfc } from "$lib/util";
 
   let meetingCall: string;
-
-  function scanNFC() {}
 
   function bodyFound(): boolean {
     let body = true;
@@ -23,6 +22,6 @@
     <p>Go to the meeting room now.</p>
   </div>
   <div class="self-center mb-10">
-    <MainButton on:click={() => scanNFC()}>Scan</MainButton>
+    <MainButton on:click={() => scanNfc()}>Scan</MainButton>
   </div>
 </div>

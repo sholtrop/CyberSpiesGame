@@ -24,6 +24,13 @@
         type: "emergency",
       } as GameAction);
     },
+    "Join meeting": () => {
+      io.emit("enterMeeting");
+    },
+    // "Report dead body": () => {
+    //   // TODO: get dead body screen
+    //   io.emit("reportDeadBody", {bodyColor: });
+    // },
     "Start task": () =>
       $lobbyStore != null
         ? (screen = "scanTaskScreen")

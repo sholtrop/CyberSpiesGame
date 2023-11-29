@@ -67,7 +67,11 @@ io.on("connection", (client) => {
         playerLobby?.addVote(currentPlayer.color, info.playerColor);
         break;
       case "reportDeadBody":
-        playerLobby?.startMeetingCall("bodyFound", currentPlayer?.color);
+        playerLobby?.startMeetingCall(
+          "bodyFound",
+          currentPlayer?.color,
+          info.bodyColor
+        );
         break;
       case "killPlayer":
         playerLobby?.killPlayer(info.playerColor);
@@ -89,9 +93,6 @@ io.on("connection", (client) => {
         currentPlayer?.finishSabotageFix();
         // TODO: cancel everyone else's sabotage fix
         playerLobby?.synchronize();
-        break;
-      case "virusScanFailed":
-        // TODO: Lock player out of completing scan actions
         break;
     }
   });

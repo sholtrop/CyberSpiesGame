@@ -14,6 +14,8 @@ export type Lobby = {
         type: "emergency" | "bodyFound";
         caller: Color;
         presentPlayers: { [K in Color]: boolean };
+        // is null when meeting is emergency
+        deadPlayer: Color | null;
       }
     | {
         state: "meeting";
@@ -107,8 +109,13 @@ export type Task = {
 export type GameAction =
   | {
       action: "callMeeting";
-      type: "emergency" | "bodyFound";
     }
+  | {
+      action: "reportDeadBody";
+      bodyColor: Color;
+    }
+  // Enter the currently called meeting
+  | { action: "enterMeeting" }
   | {
       action: "vote";
       playerColor: Color;
@@ -131,7 +138,5 @@ export type GameAction =
   | {
       action: "sabotageFixCompleted";
     }
-  | {
-      // Moved during the virus scan
-      action: "virusScanFailed";
-    };
+  // Player ready in lobby
+  | { action: "playerReady" };

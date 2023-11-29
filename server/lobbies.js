@@ -57,7 +57,7 @@ class Lobby {
 
   // Start a meeting call for a certain `type` of meeting: "emergency" or "bodyFound"
   // The color of the player that called the meeting must be passed in `initiatorColor`.
-  startMeetingCall(type, initiatorColor) {
+  startMeetingCall(type, initiatorColor, deadPlayer = null) {
     // Meetings can only be called when the game is running
     if (this.status.state !== "started") return;
     if (type !== "emergency" && type !== "bodyFound")
@@ -67,6 +67,7 @@ class Lobby {
       type,
       presentPlayers: {},
       caller: initiatorColor,
+      deadPlayer,
     };
     // If the meeting is an emergency meeting, the initiator just scanned
     // the meeting point, and is therefore already present.
@@ -119,8 +120,22 @@ class Lobby {
     }, 1000);
   }
 
+  killVotedOutPlayer() {
+    const target = this.players[playerColor];
+    if (target != null) {
+      target.status = "foundDead";
+      this.synchronize();
+      return [true];
+    } else {
+      return [
+        false,
+        `Player with color ${playerColor} was not found in lobby ${this.id}`,
+      ];
+    }
+  }
+
   killPlayer(playerColor) {
-    const target = this.players.find((player) => player.color === playerColor);
+    const target = this.players[playerColor];
     if (target != null) {
       target.status = "dead";
       this.synchronize();
