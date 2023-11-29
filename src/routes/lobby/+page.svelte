@@ -41,7 +41,7 @@
 
   function swipeHandler(event: any) {
     if (event.detail.direction === "left")
-      infoPage = Math.min(infoPage + 1, N_PAGES);
+      infoPage = Math.min(infoPage + 1, N_PAGES - 1);
     if (event.detail.direction === "right")
       infoPage = Math.max(infoPage - 1, 0);
   }
