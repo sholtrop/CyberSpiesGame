@@ -16,3 +16,8 @@ export const COLORS = {
 
 // Pressing ctrl and this key will open/close the dev panel
 export const DEV_PANEL_KEY = ".";
+
+// 10 seconds
+export const VIRUS_SCAN_TIME = 10;
+
+export const VIRUS_FAIL_TIME = 25;
