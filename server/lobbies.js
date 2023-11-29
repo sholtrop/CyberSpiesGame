@@ -376,10 +376,8 @@ export function joinLobby(lobbyId, playerName) {
     role: "undecided",
   });
 
-  players.push({
-    name: playerName,
-    color,
-  });
+  lobby.players[color] = player;
+
   return [true, { lobby, player }];
 }
 
