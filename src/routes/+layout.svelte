@@ -1,9 +1,10 @@
 <script lang="ts">
   import { dev } from "$app/environment";
   import DevPanel from "$lib/DevPanel.svelte";
-    import NotificationBar from "$lib/NotificationBar.svelte";
+  import NotificationBar from "$lib/NotificationBar.svelte";
   import { DEV_PANEL_KEY } from "$lib/consts";
-  import { lobbyStore } from "$lib/lobbyStore";
+  import { lobbyStore } from "$lib/stores";
+  import { getSocketIO } from "$lib/websocket";
   import "../app.postcss";
 
   let showDevPanel = false;
@@ -11,7 +12,7 @@
   let notificationMessage: string;
 
   function addNotification() {
-    let msg = "Warning: Firewall breached!"
+    let msg = "Warning: Firewall breached!";
     notificationMessage = msg;
     showNotification = true;
   }
@@ -20,10 +21,28 @@
     showNotification = false;
   }
 
+  const socket = getSocketIO();
+
+  // The 'lobbyUpdate' event sends the entire state of the lobby to all players
+  socket.on("lobbyUpdate", ({ lobby }) => {
+    lobbyStore.set(lobby);
+  });
+
+  // The 'countDown' event sends only the current countDown (if there is any),
+  // making it a more light-weight update
+  socket.on("countDown", ({ count }) => {
+    lobbyStore.update((lobby) => {
+      if (lobby != null && "countDown" in lobby.status) {
+        lobby.status.countDown = count;
+        return lobby;
+      }
+      return null;
+    });
+  });
 </script>
 
 <div
-  class="bg-black h-screen flex flex-col items-center text-white font-mono py-10 px-2 select-none"
+  class="bg-black min-h-screen flex flex-col items-center text-white font-mono px-2 select-none"
 >
   <slot />
 </div>

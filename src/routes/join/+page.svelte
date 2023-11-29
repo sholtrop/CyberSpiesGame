@@ -8,7 +8,7 @@
   import NameInput from "$lib/NameInput.svelte";
   import { deviceIsSupported } from "$lib/util";
   import type { Socket } from "socket.io-client";
-  import { lobbyStore } from "$lib/lobbyStore";
+  import { lobbyStore } from "$lib/stores";
 
   let socket: Socket;
   let joinCode: string;

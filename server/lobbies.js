@@ -2,8 +2,12 @@ import { nanoid } from "nanoid";
 import {
   MAX_PLAYERS,
   N_IMPOSTORS,
+  N_TOTAL_TASKS,
   ROLE_DISPLAY_SECS,
+  TASKS,
+  TASK_BATCH_SIZE,
   TASK_PROGRESSION_VICTORY_AMOUNT,
+  VOTE_RESULT_DISPLAY_SECS,
 } from "./consts.js";
 import { io } from "./socketio.js";
 import { Player, randomPlayerColor } from "./player.js";
@@ -18,8 +22,8 @@ class Lobby {
     this.players = players;
     this.creator = creator;
     this.status = status;
-    this.taskProgression = 0;
-    this.rooms = [];
+    this.taskProgression = { real: 0, displayed: 0 };
+    this.activities = null;
     this.activeEffects = [];
   }
 
@@ -38,6 +42,7 @@ class Lobby {
   // Start the game for this lobby. Will decide a role for each player and show
   // them information about this role for `ROLE_DISPLAY_SECS`, then start the actual game.
   startGame() {
+    this.#assignTasks();
     this.#assignRolesRandomly();
     this.status = { state: "roleExplanation", countDown: ROLE_DISPLAY_SECS };
     this.synchronize();
@@ -63,12 +68,12 @@ class Lobby {
     this.status.state = {
       state: "meetingCalled",
       type,
-      presentPlayers: new Set(),
+      presentPlayers: {},
     };
     // If the meeting is an emergency meeting, the initiator just scanned
     // the meeting point, and is therefore already present.
     if (type === "emergency")
-      this.status.state.presentPlayers.add(initiatorColor);
+      this.status.state.presentPlayers[initiatorColor] = true;
 
     // TODO calling a meeting is special, and it interrupts/disables a lot of things:
     // - Tasks are cancelled and left uncompleted
@@ -82,7 +87,7 @@ class Lobby {
   addPlayerToMeeting(playerColor) {
     if (this.status.state !== "meetingCalled") return;
     const presentPlayers = this.status.state.presentPlayers;
-    presentPlayers.add(playerColor);
+    presentPlayers[playerColor] = true;
     if (presentPlayers.size === this.nMeetingAttendees()) this.startMeeting();
     else this.synchronize();
   }
@@ -132,6 +137,15 @@ class Lobby {
     }
   }
 
+  addReady(playerColor) {
+    if (this.status.state !== "inLobby")
+      throw Error(
+        `Cannot add ready when game is in state ${this.status.state}`
+      );
+    this.status.readyPlayers[playerColor] = true;
+    this.synchronize();
+  }
+
   // Add the vote of player with `color`. The `vote` is the color of the player
   // that the voter wants to eliminate, or `null` if the voters wants to skip.
   addVote(voterColor, vote) {
@@ -161,10 +175,31 @@ class Lobby {
     );
   }
 
-  // Sets the list of rooms for this lobby
-  setRooms(rooms) {
-    this.rooms = rooms;
+  // Sets the list of activities with their rooms for this lobby
+  setActivities(activities) {
+    this.activities = activities;
+    this.status = { state: "inLobby", readyPlayers: {} };
     this.synchronize();
+  }
+
+  // Increase the taskbar with the completion of a single task
+  // If the display value for the task bar is updated, it will happen after a random delay
+  increaseTaskBar() {
+    this.taskProgression.real += SINGLE_TASK_PROGRESSION_AMOUNT;
+
+    // If this is the last task, end the game
+    const victors = this.#determineVictors();
+    if (victors != null) return this.#endGame(victors);
+    this.synchronize();
+
+    // Update the displayed value after a random delay
+    setTimeout(() => {
+      this.taskProgression.displayed =
+        Math.floor(
+          this.taskProgression.real / TASK_PROGRESS_DISPLAY_THRESHOLD
+        ) * TASK_PROGRESS_DISPLAY_THRESHOLD;
+      this.synchronize();
+    }, randInt(3, 8) * 1000);
   }
 
   // Returns the color the player that should be voted out, or `null` if no player is voted out.
@@ -208,6 +243,12 @@ class Lobby {
     return votedOutPlayer;
   }
 
+  #assignTasks() {
+    for (const player of Object.values(this.players)) {
+      player.assignTasks(this.activities);
+    }
+  }
+
   #stopVote() {
     const votedOutPlayer = this.#determineVoteResult();
     if (votedOutPlayer != null) this.killPlayer(votedOutPlayer);
@@ -218,11 +259,17 @@ class Lobby {
     this.status = {
       state: "voteResultAnnounced",
       votedOutPlayer,
+      countDown: VOTE_RESULT_DISPLAY_SECS,
     };
     this.synchronize();
-    setTimeout(() => {
-      this.#startNewRound();
-    }, VOTE_RESULT_DISPLAY_SECS);
+    const counter = setInterval(() => {
+      this.status.countDown -= 1;
+      this.synchronizeCountDown();
+      if (this.countDown === 0) {
+        clearInterval(counter);
+        this.#startNewRound();
+      }
+    }, 1000);
   }
 
   // After a vote result has been announced and displayed for VOTE_RESULT_DISPLAY_SECS seconds,
@@ -237,7 +284,8 @@ class Lobby {
   // Does NOT check for sabotage victories, as these are triggered instantly when the sabotage completes.
   #determineVictors() {
     // Tasks completed - Crew win
-    if (this.taskProgression >= TASK_PROGRESSION_VICTORY_AMOUNT) return "crew";
+    if (this.taskProgression.real >= TASK_PROGRESSION_VICTORY_AMOUNT)
+      return "crew";
 
     // Impostors all dead - Crew win
     const impostorsLeft = this.players.reduce(({ role, status }, n) => {
@@ -253,6 +301,7 @@ class Lobby {
     }, 0);
 
     if (crewLeft === impostorsLeft) return "impostors";
+    return null;
   }
 
   // Instantly end the game, with a victory for `victors` ("crew" or "impostors")
@@ -263,18 +312,21 @@ class Lobby {
 
   #assignRolesRandomly() {
     // First make everyone crew
-    for (const player of this.players) {
-      player.role = "crew";
+    for (const color of Object.keys(this.players)) {
+      this.players[color].role = "crew";
     }
 
     // Determine impostors
-    const impostorIndices = new Set();
-    while (impostorIndices.size < N_IMPOSTORS)
-      impostorIndices.add(randInt(0, this.players.length));
+    const impostorColors = new Set();
+    while (impostorColors.size < N_IMPOSTORS) {
+      const players = Object.keys(this.players);
+      const randPlayerColor = players[randInt(0, players.length)];
+      impostorColors.add(randPlayerColor);
+    }
 
     // Set the selected players to impostor
-    for (const impostorIdx of impostorIndices) {
-      this.players[impostorIdx].role = "impostor";
+    for (const impostorColor of impostorColors) {
+      this.players[impostorColor].role = "impostor";
     }
     console.log(`Player roles decided`, JSON.stringify(this.players, null, 4));
   }
@@ -291,9 +343,9 @@ export function createLobby(creatorName) {
   const lobbyId = nanoid();
   const lobby = new Lobby({
     id: lobbyId,
-    players: [player],
+    players: { [player.color]: player },
     creator: creatorName,
-    status: "notStarted",
+    status: { state: "settingRooms", readyPlayers: {} },
   });
   lobbies[lobbyId] = lobby;
   return { lobby, player };
@@ -305,16 +357,16 @@ export function joinLobby(lobbyId, playerName) {
   if (lobby == null) return [false, `Lobby with id ${lobbyId} does not exist`];
 
   const players = lobby.players;
-  if (players.length === MAX_PLAYERS)
+  if (Object.values(players).length === MAX_PLAYERS)
     return [false, `Maximum amount of players reached`];
 
-  if (players.find(({ name }) => playerName === name))
+  if (Object.values(players).find(({ name }) => playerName === name))
     return [false, `Name ${playerName} is already taken`];
 
   // Give player a random, non-used color
   let color = randomPlayerColor();
   // Loop until we find a color that is not in use yet
-  while (players.find(({ usedColor }) => usedColor === color) != null) {
+  while (players[color] != null) {
     color = randomPlayerColor();
   }
   const player = new Player({
@@ -333,19 +385,19 @@ export function joinLobby(lobbyId, playerName) {
 
 // Remove player from an existing lobby. Also remove the lobby if this was the last player left.
 // If player does not exist in this lobby, returns `null` if there is no lobby (anymore), else returns the lobby.
-export function removePlayer(lobbyId, playerName) {
+export function removePlayer(lobbyId, playerColor) {
   const lobby = lobbies[lobbyId];
   if (lobby == null) return null;
-  const playerIdx = lobby.players.findIndex(({ name }) => name === playerName);
-  console.debug(`Player ${playerName} left lobby ${lobbyId}`);
+  console.debug(
+    `Player ${lobby.players[playerColor].name} left lobby ${lobbyId}`
+  );
+  delete lobby.players[playerColor];
   // Remove lobby entirely if this is the last player left
-  if (lobby.players.length === 1) {
+  if (Object.values(lobby.players).length === 0) {
     delete lobbies[lobbyId];
     console.debug(`Remove lobby ${lobbyId} because it has no players left`);
     return null;
   }
-  // Remove the player from the list of players
-  lobby.players.splice(playerIdx, 1);
   return lobby;
 }
 

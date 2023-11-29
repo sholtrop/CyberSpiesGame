@@ -1,6 +1,5 @@
 import { io } from "./socketio.js";
-import { createLobby, getLobby, joinLobby, removePlayer } from "./lobbies.js";
-import { nfcAction } from "./nfc.js";
+import { createLobby, joinLobby, removePlayer } from "./lobbies.js";
 import { playerNameValid } from "./player.js";
 
 io.on("connection", (client) => {
@@ -24,9 +23,10 @@ io.on("connection", (client) => {
     console.debug(`${player.name} created lobby ${playerLobby.id}`);
   });
 
-  client.on("addRooms", ({ rooms }) => {
+  client.on("setActivities", ({ activities }) => {
     if (currentPlayer == null || playerLobby == null) return;
-    playerLobby.addRooms(rooms);
+    console.log({ activities });
+    playerLobby.setActivities(activities);
   });
 
   client.on("joinLobby", ({ name, lobbyId }) => {
@@ -52,8 +52,42 @@ io.on("connection", (client) => {
     console.debug(`${name} joined lobby ${lobby.id}`);
   });
 
-  client.on("nfcScanned", ({ nfcTag }) => {
-    nfcAction(currentPlayer, playerLobby, nfcTag);
+  client.on("gameAction", ({ action, ...info }) => {
+    switch (action) {
+      case "callMeeting":
+        playerLobby?.startMeetingCall(info.type, currentPlayer.color);
+        break;
+      case "playerReady":
+        playerLobby?.addReady(currentPlayer.color);
+        break;
+      case "vote":
+        playerLobby?.addVote(currentPlayer.color, info.playerColor);
+        break;
+      case "killPlayer":
+        playerLobby?.killPlayer(info.playerColor);
+        break;
+      case "startTask":
+        currentPlayer?.startTask(info.taskNumber);
+        playerLobby?.synchronize();
+        break;
+      case "startSabotageFix":
+        currentPlayer?.startSabotageFix();
+        playerLobby?.synchronize();
+        break;
+      case "taskCompleted":
+        currentPlayer?.finishTask(info.taskNumber);
+        // increaseTaskBar will synchronize lobby state
+        playerLobby?.increaseTaskBar();
+        break;
+      case "sabotageFixCompleted":
+        currentPlayer?.finishSabotageFix();
+        // TODO: cancel everyone else's sabotage fix
+        playerLobby?.synchronize();
+        break;
+      case "virusScanFailed":
+        // TODO: Lock player out of completing scan actions
+        break;
+    }
   });
 
   client.on("startGame", () => {
@@ -65,7 +99,7 @@ io.on("connection", (client) => {
       `Client disconnected ${currentPlayer ? currentPlayer.name : ""}`
     );
     if (playerLobby != null) {
-      const lobby = removePlayer(playerLobby.id, currentPlayer.name);
+      const lobby = removePlayer(playerLobby.id, currentPlayer.color);
       if (lobby != null) lobby.synchronize();
     }
   });

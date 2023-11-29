@@ -1,13 +1,14 @@
 <script lang="ts">
   import { DEV_PANEL_KEY, N_TOTAL_TASKS } from "./consts";
-  import { lobbyStore, playerStore } from "./lobbyStore";
+  import { lobbyStore, playerStore } from "$lib/stores";
   import { getSocketIO } from "./websocket";
+  import type { GameAction } from "./types";
 
   const io = getSocketIO();
 
   let startTask = 0;
   function cycleTasks() {
-    const players = [...$lobbyStore!.players];
+    const players = { ...$lobbyStore!.players };
     const me = $playerStore!;
     me.tasks = [];
     let i = startTask;
@@ -21,19 +22,22 @@
 
   const buttons = {
     "Make me impostor": () => {
-      const players = [...$lobbyStore!.players];
+      const players = { ...$lobbyStore!.players };
       const me = $playerStore!;
       me.role = "impostor";
       io.emit("devSetLobby", { lobby: { players } });
     },
-    "Scan meeting point": () => {
-      io.emit("nfcScanned", { nfcTag: "meeting:button" });
+    "Call meeting": () => {
+      io.emit("gameAction", {
+        action: "callMeeting",
+        type: "emergency",
+      } as GameAction);
     },
-    "Scan task": () =>
+    "Start task": () =>
       $lobbyStore != null
         ? (screen = "scanTaskScreen")
-        : alert("Cannot scan task as you're not in a lobby"),
-    "Scan player": () =>
+        : alert("Cannot start task as you're not in a lobby"),
+    "Kill player": () =>
       $lobbyStore != null
         ? (screen = "scanPlayerScreen")
         : alert("Cannot kill a player as you're not in a lobby"),
@@ -68,15 +72,15 @@
         <h1
           class="text-2xl text-white font-semibold m-2 flex flex-col items-center"
         >
-          Scan player
+          Kill player
         </h1>
         <div class="grid grid-cols-2 grid-rows-4 gap-y-4 gap-x-4 mt-4">
-          {#each $lobbyStore.players as player}
+          {#each Object.values($lobbyStore.players) as player}
             <button
               class="border text-white border-green-300 p-3"
               on:click={() =>
-                io.emit("nfcScanned", { nfcTag: `player:${player.color}` })}
-              >Scan {player.name} ({player.color})</button
+                io.emit("killPlayer", { playerColor: player.color })}
+              >Kill {player.name} ({player.color})</button
             >
           {/each}
         </div>
@@ -90,7 +94,7 @@
         <h1
           class="text-2xl text-white font-semibold m-2 flex flex-col items-center"
         >
-          Scan Task
+          Start Task
         </h1>
         <div class="flex flex-col items-center">
           <button
@@ -102,8 +106,8 @@
               <button
                 class="border text-white border-green-300 p-3"
                 on:click={() =>
-                  io.emit("nfcScanned", { nfcTag: `task:${task.number}` })}
-                >Scan task {task.number}<br />(status: {task.status})</button
+                  io.emit("startTask", { taskNumber: task.number })}
+                >Start task {task.number}<br />(status: {task.status})</button
               >
             {/each}
           </div>

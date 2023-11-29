@@ -1,3 +1,5 @@
+export { TASKS, N_TOTAL_TASKS, NFC_ACTIVITIES } from "../../server/consts";
+
 export const MINIMUM_N_PLAYERS = 5;
 
 // N.B. not all of these are actually used.
@@ -14,6 +16,3 @@ export const COLORS = {
 
 // Pressing ctrl and this key will open/close the dev panel
 export const DEV_PANEL_KEY = ".";
-
-// Number of minigames that are available in general
-export const N_TOTAL_TASKS = 7;

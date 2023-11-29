@@ -1,43 +1,18 @@
-import { derived, writable, type Readable } from "svelte/store";
-
-// All data of the entire lobby
-export const lobbyStore = writable<Lobby | null>(null);
-
-// Color of the current player
-export const playerColorStore = writable<Color | null>(null);
-
-// All data related to this player.
-// Player store is derived from the lobbyStore by finding the
-// player corresponding to our color in the lobby's `players` array
-export const playerStore: Readable<Player | null> = derived(
-  [lobbyStore, playerColorStore],
-  ([lobby, color], set) => {
-    if (lobby == null || color == null) set(null);
-    else {
-      const me = lobby.players.find((player) => player.color === color);
-      if (me == null)
-        console.error(
-          `Could not find own color (${color}) in the players array: ${JSON.stringify(
-            lobby.players
-          )}`
-        );
-      else set(me);
-    }
-  }
-);
+import type { NFC_ACTIVITIES, TASKS } from "./consts";
 
 export type Lobby = {
   id: string;
-  players: Player[];
+  players: { [K in Color]: Player };
   creator: string;
   status:
-    | { state: "notStarted" }
+    | { state: "settingRooms" }
+    | { state: "inLobby"; readyPlayers: { [K in Color]: boolean } }
     | { state: "roleExplanation"; countDown: number }
     | { state: "started" }
     | {
         state: "meetingCalled";
         type: "emergency" | "bodyFound";
-        presentPlayers: Set<string>;
+        presentPlayers: { [K in Color]: boolean };
       }
     | {
         state: "meeting";
@@ -46,11 +21,20 @@ export type Lobby = {
         votes: { [name: string]: string | null };
         nVoters: number;
       }
-    | { state: "voteResultAnnounced"; votedOutPlayer: string | null }
+    | {
+        state: "voteResultAnnounced";
+        votedOutPlayer: string | null;
+        countDown: number;
+      }
     | { state: "gameEnded"; victors: "impostors" | "crew" };
   // Between 0 and 100. At 100, crew win the game.
-  taskProgression: number;
-  rooms: Room[];
+  // Has a displayed value and a real value.
+  // Displayed value may differ from the actual value.
+  taskProgression: {
+    real: number;
+    displayed: number;
+  };
+  activities: NfcActivities;
   activeEffects: Effect[];
 };
 
@@ -61,24 +45,27 @@ export type Player = {
   role: "crew" | "impostor" | "undecided";
   color: Color;
   tasks: Task[];
+  currentlyDoing:
+    | {
+        activity: "task";
+        number: number;
+      }
+    | {
+        activity: "nothing";
+      }
+    | {
+        activity: "fixSabotage";
+      };
 };
 
 // A room has a name and one or more activities (NFC tags)
-export type Room = {
-  roomName: string;
-  activities: Activity[];
+export type NfcActivities = {
+  [name: string]: {
+    id: number;
+    room: string;
+    name: (typeof NFC_ACTIVITIES)[number];
+  };
 };
-
-// An activity has an NFC tag and is assigned to a room
-export type Activity =
-  | {
-      type: "task";
-      taskNumber: number;
-    }
-  | {
-      type: "sabotageFix";
-    }
-  | { type: "meetingPoint" };
 
 // Effects that are active in the lobby, from e.g. impostor powers
 export type Effect =
@@ -94,7 +81,7 @@ export type Effect =
       effect: "firewallBreach";
       affectedPlayers: {
         color: Color;
-        destinationRoom: Room;
+        destinationRoom: string;
       };
       countDown: number;
     }
@@ -109,6 +96,41 @@ export type Effect =
 export type Color = "green" | "blue" | "yellow" | "white" | "red";
 
 export type Task = {
+  name: (typeof TASKS)[number];
   number: number;
-  status: "available" | "doing" | "completed";
+  description: string;
+  status: "available" | "completed";
 };
+
+// Game actions taken by players that the frontend needs to communicate to the backend
+export type GameAction =
+  | {
+      action: "callMeeting";
+      type: "emergency" | "bodyFound";
+    }
+  | {
+      action: "vote";
+      playerColor: Color;
+    }
+  | {
+      action: "killPlayer";
+      playerColor: Color;
+    }
+  | {
+      action: "startTask";
+      taskNumber: number;
+    }
+  | {
+      action: "startSabotageFix";
+    }
+  | {
+      action: "taskCompleted";
+      taskNumber: number;
+    }
+  | {
+      action: "sabotageFixCompleted";
+    }
+  | {
+      // Moved during the virus scan
+      action: "virusScanFailed";
+    };

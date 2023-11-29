@@ -7,7 +7,8 @@
   import NameInput from "$lib/NameInput.svelte";
   import { deviceIsSupported } from "$lib/util";
   import type { Socket } from "socket.io-client";
-  import { lobbyStore, playerColorStore, playerStore } from "$lib/lobbyStore";
+  import { lobbyStore, playerColorStore, playerStore } from "$lib/stores";
+
   let deviceSupported: boolean;
 
   let playerName = "";
@@ -34,7 +35,7 @@
       console.debug({ lobby, color });
       playerColorStore.set(color);
       lobbyStore.set(lobby);
-      goto(`/lobby?id=${lobby.id}`, { replaceState: true });
+      goto(`/setuprooms?id=${lobby.id}`, { replaceState: true });
     });
 
     // From `onMount` we can return a cleanup function that Svelte runs whenever a component unmounts (disappears).
@@ -46,11 +47,12 @@
   });
 </script>
 
-<div class="h-full flex flex-col justify-between items-center">
+<div class="h-screen flex flex-col items-center justify-between">
   {#if deviceSupported}
     <Title />
-    <NameInput bind:playerName bind:showError />
-    <div class="mb-10">
+
+    <div class="pb-20 space-y-20 flex flex-col items-center justify-center">
+      <NameInput bind:playerName bind:showError />
       <MainButton on:click={() => createLobby()}>Create Lobby</MainButton>
     </div>
   {:else}
