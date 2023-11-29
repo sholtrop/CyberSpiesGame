@@ -273,6 +273,13 @@
   dependencies:
     "@types/node" "*"
 
+"@types/w3c-generic-sensor@^1.0.9":
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/@types/w3c-generic-sensor/-/w3c-generic-sensor-1.0.9.tgz#03a359c76bb3a6153f5047dd5b7060510961f0a1"
+  integrity sha512-1nj7Pja/MJI2iqWchqLLn+ItbHh3cOV/DmGydlUm6or0AbbY2Jx9bnsh34WOFG7wfEbJ/WLa4NBBOPA///VObg==
+  dependencies:
+    typescript "^2.2.2"
+
 "@types/w3c-web-nfc@^1.0.1":
   version "1.0.1"
   resolved "https://registry.npmjs.org/@types/w3c-web-nfc/-/w3c-web-nfc-1.0.1.tgz"
@@ -1392,6 +1399,11 @@ tslib@^2.4.1:
   version "2.6.2"
   resolved "https://registry.npmjs.org/tslib/-/tslib-2.6.2.tgz"
   integrity sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==
+
+typescript@^2.2.2:
+  version "2.9.2"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.9.2.tgz#1cbf61d05d6b96269244eb6a3bce4bd914e0f00c"
+  integrity sha512-Gr4p6nFNaoufRIY4NMdpQRNmgxVIGMs4Fcu/ujdYk3nAZqk7supzBE9idmvfZIlH/Cuj//dvi+019qEue9lV0w==
 
 typescript@^5.0.0, typescript@^5.0.3:
   version "5.2.2"

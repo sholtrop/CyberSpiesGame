@@ -18,7 +18,7 @@ export type Lobby = {
         state: "meeting";
         type: "emergency" | "bodyFound";
         countDown: number;
-        votes: { [name: string]: string | null };
+        votes: { [K in Color]: Color | null };
         nVoters: number;
       }
     | {

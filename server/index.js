@@ -119,6 +119,11 @@ io.on("connection", (client) => {
     }
     playerLobby.synchronize();
   });
+
+  client.on("devChangeTasks", () => {
+    currentPlayer?.assignTasks();
+    playerLobby?.synchronize();
+  });
 });
 
 const port = 3000;

@@ -11,10 +11,11 @@
   }
 
   const buttons = {
-    "Make me impostor": () => {
+    "Switch roles": () => {
       const players = { ...$lobbyStore!.players };
       const me = $playerStore!;
-      me.role = "impostor";
+      if (me.role === "impostor") me.role = "crew";
+      else me.role = "impostor";
       io.emit("devSetLobby", { lobby: { players } });
     },
     "Call meeting": () => {
@@ -96,7 +97,10 @@
               <button
                 class="border text-white border-green-300 p-3"
                 on:click={() =>
-                  io.emit("startTask", { taskNumber: task.number })}
+                  io.emit("gameAction", {
+                    action: "startTask",
+                    taskNumber: task.number,
+                  })}
                 >Start task {task.number}<br />(status: {task.status})</button
               >
             {/each}
