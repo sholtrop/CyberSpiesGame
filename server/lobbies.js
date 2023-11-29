@@ -69,6 +69,7 @@ class Lobby {
       state: "meetingCalled",
       type,
       presentPlayers: {},
+      caller: initiatorColor,
     };
     // If the meeting is an emergency meeting, the initiator just scanned
     // the meeting point, and is therefore already present.

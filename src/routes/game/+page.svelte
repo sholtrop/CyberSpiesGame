@@ -141,7 +141,7 @@
       </div>
     </div>
 
-    {#if spy}
+    {#if $playerStore.role === "impostor"}
       <div bind:this={spyDiv} class="h-screen px-10 flex flex-col gap-10">
         <div>
           <p class="font-bold text-2xl">Status Report</p>

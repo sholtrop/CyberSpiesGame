@@ -12,6 +12,7 @@ export type Lobby = {
     | {
         state: "meetingCalled";
         type: "emergency" | "bodyFound";
+        caller: Color;
         presentPlayers: { [K in Color]: boolean };
       }
     | {
