@@ -73,8 +73,7 @@ class Lobby {
     };
     // If the meeting is an emergency meeting, the initiator just scanned
     // the meeting point, and is therefore already present.
-    if (type === "emergency")
-      this.status.state.presentPlayers[initiatorColor] = true;
+    if (type === "emergency") this.status.presentPlayers[initiatorColor] = true;
 
     // TODO calling a meeting is special, and it interrupts/disables a lot of things:
     // - Tasks are cancelled and left uncompleted
