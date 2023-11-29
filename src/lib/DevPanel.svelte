@@ -77,8 +77,10 @@
             <button
               class="border text-white border-green-300 p-3"
               on:click={() =>
-                io.emit("killPlayer", { playerColor: player.color })}
-              >Kill {player.name} ({player.color})</button
+                io.emit("gameAction", {
+                  action: "killPlayer",
+                  playerColor: player.color,
+                })}>Kill {player.name} ({player.color})</button
             >
           {/each}
         </div>
