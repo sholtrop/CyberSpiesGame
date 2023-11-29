@@ -55,13 +55,16 @@ io.on("connection", (client) => {
   client.on("gameAction", ({ action, ...info }) => {
     switch (action) {
       case "callMeeting":
-        playerLobby?.startMeetingCall(info.type, currentPlayer.color);
+        playerLobby?.startMeetingCall("emergency", currentPlayer?.color);
         break;
       case "playerReady":
         playerLobby?.addReady(currentPlayer.color);
         break;
       case "vote":
         playerLobby?.addVote(currentPlayer.color, info.playerColor);
+        break;
+      case "reportDeadBody":
+        playerLobby?.startMeetingCall("bodyFound", currentPlayer?.color);
         break;
       case "killPlayer":
         playerLobby?.killPlayer(info.playerColor);
