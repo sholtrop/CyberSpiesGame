@@ -5,6 +5,10 @@
   import TaskBar from "$lib/TaskBar.svelte";
   import { press, swipe } from "svelte-gestures";
   import { lobbyStore, playerStore } from "$lib/lobbyStore";
+  import { onMount } from "svelte";
+  import type { Socket } from "socket.io-client";
+  import { goto } from "$app/navigation";
+  import { getSocketIO } from "$lib/websocket";
 
 
   let mainDiv: HTMLDivElement;
@@ -14,6 +18,7 @@
   let taskProgress: number;
   let killCD: number;
   let sabotageCD: number;
+  let socket: Socket;
 
   // just died and dead to show whether the player was killed after the previous meeting or before.
   const players = [
@@ -33,6 +38,20 @@
     purple: "bg-purple-700",
     white: "bg-white",
   } as { [key: string]: string };
+
+
+  onMount(() => {
+    if ($lobbyStore == null) {
+      // You can only access this page if you're in a lobby
+      goto("/", { replaceState: true });
+    }
+    socket = getSocketIO();
+    console.log("mounting");
+    socket.on("emergencyCalled", ({playerColor}) => {
+      console.log("emergency call received");
+      goto("/meetingcall", { replaceState: true });
+    });
+  });
 
   function goFullScreen() {
     mainDiv.requestFullscreen();

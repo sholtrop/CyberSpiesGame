@@ -1,14 +1,16 @@
 <script lang="ts">
   import TaskBar from "$lib/TaskBar.svelte";
   import { browser } from "$app/environment";
-  import { goto } from "$app/navigation";
+  import { goto } from "$app/navigation"; 
+  import { lobbyStore } from "$lib/lobbyStore";
 
   let taskProgress = 50;
   let playerPick: string;
   let voted = false;
   let resultsShown = false;
-  let voteTime = 5; // voting duration
+  let voteTime = 0; // voting duration
   let timer = voteTime;
+  let resultTime = 10000;
 
   const players = [
     { name: "Lochyin", color: "green", status: "alive" },
@@ -43,6 +45,7 @@
     resultsShown = true;
     // Remove selection if not confirmed before results are shown.
     if (playerPick && !voted) playerPick = "";
+    // TODO
   }
 
   function startTimer() {
@@ -60,7 +63,19 @@
     }, 1000);
   }
 
-  startTimer();
+  $: if ($lobbyStore?.status.state === "meeting") {
+    if ($lobbyStore.status.countDown > voteTime) voteTime = $lobbyStore.status.countDown;
+    if ($lobbyStore.status.countDown === 0) {
+      showResults();
+    }
+  }
+
+  $: if ($lobbyStore?.status.state === "voteResultAnnounced") {
+    goto("/voteover", {replaceState: true});
+  }
+
+  // startTimer();
+
 </script>
 
 <div class="min-h-full flex flex-col justify-between">
@@ -82,7 +97,7 @@
       <p class="font-bold text-lg">
         {resultsShown ? "Voting results:" : "Vote off the spy!"}
       </p>
-      <progress id="voteTimerBar" value={timer} max={voteTime} class="w-full" />
+      <progress id="voteTimerBar" value={$lobbyStore?.status.state === "meeting" ? $lobbyStore.status.countDown : voteTime} max={voteTime} class="w-full" />
       {#each players as player}
         {#if player.status == "alive"}
           <button
