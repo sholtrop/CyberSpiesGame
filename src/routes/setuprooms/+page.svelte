@@ -2,27 +2,27 @@
   import { dev } from "$app/environment";
   import { goto } from "$app/navigation";
   import MainButton from "$lib/MainButton.svelte";
-  import type { ACTIVITIES } from "$lib/consts";
-  imporNFC_ACTIVITIEStore, playerStore } from "$lib/stores";
-  import type { Activities } from "$lib/types";
-  import { getSocketIO }NfcActivitiesb/websocket";
+  import { lobbyStore } from "$lib/stores";
+  import type { NfcActivities } from "$lib/types";
+  import { getSocketIO } from "$lib/websocket";
   import { onMount } from "svelte";
+  import type { NFC_ACTIVITIES } from "../../../server/consts";
 
   let nfcs: {
-    id: number;NFC_ACTIVITIES
-    name: (typeof ACTIVITIES)[number];
-    location: string;
+    id: number;
+    name: (typeof NFC_ACTIVITIES)[number];
+    room: string;
   }[] = [
-    { id: 1, name: "meeting", location: dev ? "meetingroom" : "" },
-    { id: 2, name: "simonsays", location: dev ? "room1" : "" },
-    { id: 3, name: "wiretap1", location: dev ? "room2" : "" },
-    { id: 4, name: "wiretap2", location: dev ? "room3" : "" },
-    { id: 5, name: "wiretap3", location: dev ? "room4" : "" },
-    { id: 6, name: "passwordcrack", location: dev ? "room5" : "" },
-    { id: 7, name: "bitcoinmine", location: dev ? "room6" : "" },
-    { id: 8, name: "killthevirus", location: dev ? "room7" : "" },
-    { id: 9, name: "firewallbutton1", location: dev ? "room8" : "" },
-    { id: 10, name: "firewallbutton2", location: dev ? "room9" : "" },
+    { id: 1, name: "meeting", room: dev ? "Snellius Kantine" : "" },
+    { id: 2, name: "simonsays", room: dev ? "Snellius 101" : "" },
+    { id: 3, name: "wiretap1", room: dev ? "Snellius 307" : "" },
+    { id: 4, name: "wiretap2", room: dev ? "Snellius 308" : "" },
+    { id: 5, name: "wiretap3", room: dev ? "Snellius 309" : "" },
+    { id: 6, name: "passwordcrack", room: dev ? "Snellius 310" : "" },
+    { id: 7, name: "bitcoinmine", room: dev ? "Snellius 311" : "" },
+    { id: 8, name: "killthevirus", room: dev ? "Snellius 312" : "" },
+    { id: 9, name: "firewallbutton1", room: dev ? "Snellius 313" : "" },
+    { id: 10, name: "firewallbutton2", room: dev ? "Snellius 314" : "" },
   ];
   let error: string | null = null;
   let form: HTMLFormElement;
@@ -40,14 +40,15 @@
   function setupLobby() {
     const formData = new FormData(form);
 
-    const formDataJson = {} as Activities;
+    const formDataJson = {} as NfcActivities;
     let id = 1;
     for (const [key, value] of formData.entries()) {
       if (value === "" || value == null) {
         error = `Fill in all the rooms first`;
         return;
       }
-      formDataJson[key] NfcActivitiesroom: value.toString(),
+      formDataJson[key.toString()] = {
+        room: value.toString(),
         id,
         name: key as any,
       };
@@ -88,7 +89,7 @@
           <input
             name={nfc.name}
             type="text"
-            bind:value={nfc.location}
+            bind:value={nfc.room}
             class="text-black px-1 w-1/2"
           />
         </div>

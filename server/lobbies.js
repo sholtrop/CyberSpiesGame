@@ -2,9 +2,12 @@ import { nanoid } from "nanoid";
 import {
   MAX_PLAYERS,
   N_IMPOSTORS,
-  PLAYER_COLORS,
+  N_TOTAL_TASKS,
   ROLE_DISPLAY_SECS,
+  TASKS,
+  TASK_BATCH_SIZE,
   TASK_PROGRESSION_VICTORY_AMOUNT,
+  VOTE_RESULT_DISPLAY_SECS,
 } from "./consts.js";
 import { io } from "./socketio.js";
 import { Player, randomPlayerColor } from "./player.js";
@@ -39,6 +42,7 @@ class Lobby {
   // Start the game for this lobby. Will decide a role for each player and show
   // them information about this role for `ROLE_DISPLAY_SECS`, then start the actual game.
   startGame() {
+    this.#assignTasks();
     this.#assignRolesRandomly();
     this.status = { state: "roleExplanation", countDown: ROLE_DISPLAY_SECS };
     this.synchronize();
@@ -240,7 +244,9 @@ class Lobby {
   }
 
   #assignTasks() {
-    // TODO assign tasks
+    for (const player of Object.values(this.players)) {
+      player.assignTasks(this.activities);
+    }
   }
 
   #stopVote() {
@@ -253,11 +259,17 @@ class Lobby {
     this.status = {
       state: "voteResultAnnounced",
       votedOutPlayer,
+      countDown: VOTE_RESULT_DISPLAY_SECS,
     };
     this.synchronize();
-    setTimeout(() => {
-      this.#startNewRound();
-    }, VOTE_RESULT_DISPLAY_SECS);
+    const counter = setInterval(() => {
+      this.status.countDown -= 1;
+      this.synchronizeCountDown();
+      if (this.countDown === 0) {
+        clearInterval(counter);
+        this.#startNewRound();
+      }
+    }, 1000);
   }
 
   // After a vote result has been announced and displayed for VOTE_RESULT_DISPLAY_SECS seconds,

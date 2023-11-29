@@ -1,4 +1,4 @@
-import type { NFC_ACTIVITIES } from "./consts";
+import type { NFC_ACTIVITIES, TASKS } from "./consts";
 
 export type Lobby = {
   id: string;
@@ -21,7 +21,11 @@ export type Lobby = {
         votes: { [name: string]: string | null };
         nVoters: number;
       }
-    | { state: "voteResultAnnounced"; votedOutPlayer: string | null }
+    | {
+        state: "voteResultAnnounced";
+        votedOutPlayer: string | null;
+        countDown: number;
+      }
     | { state: "gameEnded"; victors: "impostors" | "crew" };
   // Between 0 and 100. At 100, crew win the game.
   // Has a displayed value and a real value.
@@ -56,19 +60,11 @@ export type Player = {
 
 // A room has a name and one or more activities (NFC tags)
 export type NfcActivities = {
-  [K in (typeof NFC_ACTIVITIES)[number]]: {
+  [name: string]: {
     id: number;
     room: string;
-    name: K;
-    description: string;
+    name: (typeof NFC_ACTIVITIES)[number];
   };
-};
-
-// An activity has an NFC tag and is assigned to a room
-export type Activity = {
-  id: number;
-  room: string;
-  name: (typeof NFC_ACTIVITIES)[number];
 };
 
 // Effects that are active in the lobby, from e.g. impostor powers
@@ -100,9 +96,9 @@ export type Effect =
 export type Color = "green" | "blue" | "yellow" | "white" | "red";
 
 export type Task = {
-  name: (typeof NFC_ACTIVITIES)[number];
+  name: (typeof TASKS)[number];
+  number: number;
   description: string;
-  room: string;
   status: "available" | "completed";
 };
 

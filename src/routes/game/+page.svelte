@@ -101,27 +101,6 @@
     startSabotageCD();
   }
 
-  // setKillCD();
-  // setSabotageCD();
-  // function getTaskRoom(task: Task): Room {
-  //   const room = $lobbyStore?.rooms.find((room) =>
-  //     room.activities.find(
-  //       (activity) =>
-  //         activity.type === "task" && activity.taskNumber === task.number,
-  //     ),
-  //   );
-  //   if (room == null) {
-  //     if (dev) {
-  //       return {
-  //         roomName: "Test room",
-  //         activities: [{ type: "task", taskNumber: task.number }],
-  //       };
-  //     } else {
-  //       throw Error(`Task ${task.number} does not have an assigned room`);
-  //     }
-  //   }
-  //   return room;
-  // }
   setKillCD();
   setSabotageCD();
 
@@ -137,7 +116,7 @@
     bind:this={mainDiv}
     use:swipe={{ timeframe: 300, minSwipeDistance: 100 }}
     on:swipe={swipeHandler}
-    class="mainDiv overflow-hidden whitespace-nowrap h-screen"
+    class="mainDiv overflow-y-hidden h-screen"
   >
     <div class="h-full w-screen flex flex-col justify-between items-center">
       <div class="w-full px-5">
@@ -145,27 +124,16 @@
           <TaskBar taskProgress={$lobbyStore.taskProgression.displayed} />
         </div>
         <p class="text-lg mt-8">Tasks:</p>
-        <ul class="list-disc list-inside">
+        <ul class="list-disc list-inside space-y-3 mt-2">
           {#each $playerStore.tasks as task}
             <li
               use:press={{ timeframe: 600, triggerBeforeFinished: true }}
               on:press={pressHandler}
             >
-              <span>{task.description}</span> <span>({task.room})</span>
+              <span>{task.description}</span>
             </li>
           {/each}
         </ul>
-        <!-- <div>
-          <p class="text-lg">Tasks:</p>
-          <ul class="list-disc list-inside">
-            {#each $playerStore.tasks as task}
-              <li>
-                <span>{task.description}</span>
-                <span>in {task.room}</span>
-              </li>
-            {/each}
-          </ul>
-        </div> -->
       </div>
       <div class="self-center mb-10">
         <MainButton on:click={() => scanNfc()}>Scan</MainButton>

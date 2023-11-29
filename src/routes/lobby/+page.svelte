@@ -126,7 +126,7 @@
         <div class="mb-4 flex space-x-2 justify-around w-20 mt-2">
           {#each Array(4) as _, idx}
             <div
-              class="w-4 h-4 rounded-full"
+              class="w-3 h-3 rounded-full"
               class:bg-gray-300={idx === infoPage}
               class:bg-gray-700={idx !== infoPage}
             ></div>

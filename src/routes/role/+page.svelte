@@ -27,7 +27,7 @@
     {/if}
   </div>
   {#if $lobbyStore?.status.state === "roleExplanation"}
-    <div class="mb-10">
+    <div class="mb-20">
       <MainButton disabled={!dev} on:click={() => goto("/game")}
         >Game will start in {$lobbyStore.status.countDown}<br />
         <span class="text-sm text-gray-300">(Dev mode: Click to start now)</span
