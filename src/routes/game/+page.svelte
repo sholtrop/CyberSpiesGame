@@ -37,7 +37,8 @@
   } as { [key: string]: string };
 
   onMount(() => {
-    if (!$lobbyStore || !$playerStore) goto(`/`, { replaceState: true });
+    if ($lobbyStore == null || $playerStore == null)
+      goto(`/`, { replaceState: true });
   });
 
   function goFullScreen() {

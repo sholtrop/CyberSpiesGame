@@ -70,7 +70,8 @@
     Object.values($lobbyStore.status.readyPlayers).length === MINIMUM_N_PLAYERS;
 
   $: canStartGame =
-    (enoughPlayers && playerIsCreator && allPlayersReady) || dev;
+    (enoughPlayers && playerIsCreator && allPlayersReady) ||
+    (playerIsCreator && dev);
 </script>
 
 {#if $lobbyStore != null && $lobbyStore.status.state === "inLobby"}

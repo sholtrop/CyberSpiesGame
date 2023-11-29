@@ -8,7 +8,7 @@
   import NameInput from "$lib/NameInput.svelte";
   import { deviceIsSupported } from "$lib/util";
   import type { Socket } from "socket.io-client";
-  import { lobbyStore } from "$lib/stores";
+  import { lobbyStore, playerColorStore } from "$lib/stores";
 
   let socket: Socket;
   let joinCode: string;
@@ -32,10 +32,11 @@
     else joinCode = urlCode;
     socket = getSocketIO();
     socket.on("error", console.error);
-    socket.on("joinedLobby", ({ lobby }) => {
-      console.debug({ lobby });
+    socket.on("joinedLobby", ({ lobby, color }) => {
+      console.debug({ lobby, color });
+      playerColorStore.set(color);
       lobbyStore.set(lobby);
-      goto(`/lobby?id=${lobby.id}`, { replaceState: true });
+      goto(`/setuprooms?id=${lobby.id}`, { replaceState: true });
     });
 
     // From `onMount` we can return a cleanup function that Svelte runs whenever a component unmounts (disappears).
