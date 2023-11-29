@@ -47,7 +47,7 @@ io.on("connection", (client) => {
     // Let the lobby know a new player joined
     lobby.synchronize();
     client.join(lobby.id);
-    client.emit("joinedLobby", { lobby });
+    client.emit("joinedLobby", { lobby, color: player.color });
 
     console.debug(`${name} joined lobby ${lobby.id}`);
   });

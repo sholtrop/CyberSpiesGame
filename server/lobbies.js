@@ -386,9 +386,11 @@ export function joinLobby(lobbyId, playerName) {
 export function removePlayer(lobbyId, playerColor) {
   const lobby = lobbies[lobbyId];
   if (lobby == null) return null;
-  console.debug(
-    `Player ${lobby.players[playerColor].name} left lobby ${lobbyId}`
-  );
+
+  if (lobby.players[playerColor] != null)
+    console.debug(
+      `Player ${lobby.players[playerColor].name} left lobby ${lobbyId}`
+    );
   delete lobby.players[playerColor];
   // Remove lobby entirely if this is the last player left
   if (Object.values(lobby.players).length === 0) {
