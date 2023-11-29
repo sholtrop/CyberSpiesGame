@@ -2,10 +2,7 @@ import { nanoid } from "nanoid";
 import {
   MAX_PLAYERS,
   N_IMPOSTORS,
-  N_TOTAL_TASKS,
   ROLE_DISPLAY_SECS,
-  TASKS,
-  TASK_BATCH_SIZE,
   TASK_PROGRESSION_VICTORY_AMOUNT,
   VOTE_RESULT_DISPLAY_SECS,
 } from "./consts.js";

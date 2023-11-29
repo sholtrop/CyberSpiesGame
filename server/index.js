@@ -57,6 +57,9 @@ io.on("connection", (client) => {
       case "callMeeting":
         playerLobby?.startMeetingCall("emergency", currentPlayer?.color);
         break;
+      case "enterMeeting":
+        playerLobby?.addPlayerToMeeting(currentPlayer?.color);
+        break;
       case "playerReady":
         playerLobby?.addReady(currentPlayer.color);
         break;
