@@ -1,4 +1,9 @@
 <script lang="ts">
+  import Header from "$lib/Header.svelte";
+  import MainButton from "$lib/MainButton.svelte";
+
+  const N_WINS_REQUIRED = 4;
+
   let buttonlit = [
     false,
     false,
@@ -12,13 +17,12 @@
   ];
 
   let mistake = false;
-  let blockinput = true;
-  let sequence = Array(4);
+  let sequence = Array(N_WINS_REQUIRED);
   let level = 0;
   let nextclick = 0;
+  let started = false;
 
   function handleClick(index: number) {
-    if (blockinput) return;
     if (index === sequence[nextclick]) {
       if (nextclick < level) {
         nextclick += 1;
@@ -35,7 +39,8 @@
       }
     } else {
       mistake = true;
-      level = 1;
+      started = false;
+      level = 0;
       nextclick = 0;
       setTimeout(() => {
         mistake = false;
@@ -53,7 +58,6 @@
 
   function lightUpNext(index: number, total: number) {
     if (index >= total) {
-      blockinput = false;
       return;
     }
     buttonlit[sequence[index]] = true;
@@ -63,7 +67,6 @@
     }, 900);
   }
   function showSequence(total: number) {
-    blockinput = true;
     if (total > sequence.length) {
       return;
     }
@@ -73,46 +76,46 @@
   function reset() {
     level = 1;
     nextclick = 0;
-    blockinput = true;
     for (var i = 0; i < sequence.length; i++) {
       sequence[i] = Math.floor(Math.random() * 9);
     }
   }
 </script>
 
-<body>
-  <div>
-    <button
-      on:click={() => {
-        if (level === 0) {
-          reset();
-        }
-        nextclick = 0;
-        showSequence(level);
-      }}
-    >
-      SHOW
-    </button>
-  </div>
-  <div class="grid grid-cols-3 grid-rows-3 gap-4">
+<div class="flex flex-col justify-between items-center mt-10">
+  <Header>Repeat the pattern that lights up</Header>
+  <p class="text-sm text-gray-300 text-center">
+    Must complete {N_WINS_REQUIRED} times.<br /> Pattern becomes more difficult each
+    time.
+  </p>
+  <div class="grid grid-cols-3 grid-rows-3 gap-6 mt-8">
     {#each Array(9) as _, i}
       <button
         class="btn"
+        disabled={!started}
         class:btn-light-up={buttonlit[i] && !mistake}
         class:btn-wrong={buttonlit[i] && mistake}
         on:click={() => handleClick(i)}
       />
     {/each}
   </div>
-</body>
+  <div class="mt-8">
+    <MainButton
+      on:click={() => {
+        reset();
+        started = true;
+        showSequence(level);
+      }}>{started ? "Restart" : "Start"}</MainButton
+    >
+  </div>
+</div>
 
 <style>
   .btn {
-    @apply font-bold py-4 px-4 rounded;
-    @apply bg-green-500;
+    @apply font-bold py-6 px-6 rounded bg-green-700 border border-green-400;
   }
   .btn-light-up {
-    @apply bg-white;
+    @apply bg-green-400;
   }
   .btn-wrong {
     @apply bg-red-600;

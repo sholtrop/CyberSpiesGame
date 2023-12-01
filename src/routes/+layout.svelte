@@ -7,7 +7,7 @@
   import { getSocketIO } from "$lib/websocket";
   import { onMount } from "svelte";
   import "../app.postcss";
-    import { goto } from "$app/navigation";
+  import { goto } from "$app/navigation";
 
   let showDevPanel = false;
   let showNotification = false;
@@ -45,13 +45,14 @@
   onMount(() => {
     const unsubscribeLobby = lobbyStore.subscribe((lobby) => {
       if (lobby == null) return;
-      switch(lobby.status.state) {
-        case 'meetingCalled':
+      switch (lobby.status.state) {
+        case "meetingCalled":
           console.log("in meetingCalled");
-          if ($playerStore?.status != 'foundDead') goto("/meetingcall", { replaceState: true });
+          if ($playerStore?.status != "foundDead")
+            goto("/meetingcall", { replaceState: true });
           break;
-        
-        case 'gameEnded':
+
+        case "gameEnded":
           goto("/gameover", { replaceState: true });
           break;
 
@@ -64,12 +65,12 @@
 
     const unsubscribePlayer = playerStore.subscribe((player) => {
       if (player == null) return;
-      switch(player.status) {
-        case 'dead':
+      switch (player.status) {
+        case "dead":
           goto("/killed", { replaceState: true });
           break;
 
-        case 'foundDead':
+        case "foundDead":
           goto("/dead", { replaceState: true });
 
         default:
@@ -78,29 +79,28 @@
     });
 
     function unsubscribe() {
-      unsubscribeLobby(); 
+      unsubscribeLobby();
       unsubscribePlayer();
     }
     return unsubscribe;
   });
-
+  addNotification();
 </script>
 
 <div
-  class="bg-black min-h-screen flex flex-col items-center text-white font-mono px-2 select-none"
+  class="min-h-screen bg-black flex flex-col items-center text-white font-mono px-2 select-none"
 >
-  <slot />
-</div>
-
-{#if showNotification}
   <NotificationBar {notificationMessage}></NotificationBar>
-{/if}
+
+  <slot />
+
+  {#if dev && showDevPanel}
+    <DevPanel />
+  {/if}
+</div>
 
 <svelte:window
   on:keydown={(e) => {
     if (e.ctrlKey && e.key === DEV_PANEL_KEY) showDevPanel = !showDevPanel;
   }}
 />
-{#if dev && showDevPanel}
-  <DevPanel />
-{/if}

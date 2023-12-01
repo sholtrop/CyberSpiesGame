@@ -1,7 +1,15 @@
 <script lang="ts">
-  export let notificationMessage: string;
+  export let notificationMessage: string | null;
 </script>
 
-<div class="absolute z-5 w-screen top-5 bg-green-600 h-12 flex flex-col justify-center items-center">
-  <p>{notificationMessage}</p>
+<div
+  class="w-screen bg-green-900 text-green-50 h-12 flex flex-col justify-center items-center"
+>
+  <p>
+    {#if notificationMessage !== null}
+      {notificationMessage}
+    {:else}
+      No notifications
+    {/if}
+  </p>
 </div>
