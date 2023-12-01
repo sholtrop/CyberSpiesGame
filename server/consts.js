@@ -9,7 +9,7 @@ export const VOTE_RESULT_DISPLAY_SECS = 10;
 
 export const TASK_PROGRESSION_VICTORY_AMOUNT = 100;
 
-export const ROLE_DISPLAY_SECS = 30;
+export const ROLE_DISPLAY_SECS = 5;
 
 const N_TASKS_TO_WIN = 15;
 
@@ -21,7 +21,7 @@ export const SINGLE_TASK_PROGRESSION_AMOUNT =
 // since the previous display update
 export const TASK_PROGRESS_DISPLAY_THRESHOLD = 20;
 
-export const PLAYER_COLORS = ["green", "blue", "yellow", "white", "red"];
+export const PLAYER_COLORS = ["green", "blue", "yellow", "pink", "red"];
 
 // Position in the array is the id of the activity. The id is encoded on the NFC tag.
 export const NFC_ACTIVITIES = [

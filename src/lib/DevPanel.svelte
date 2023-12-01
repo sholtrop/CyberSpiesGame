@@ -25,7 +25,9 @@
       } as GameAction);
     },
     "Join meeting": () => {
-      io.emit("enterMeeting");
+      io.emit("gameAction", {
+        action: "enterMeeting"
+      });
     },
     // "Report dead body": () => {
     //   // TODO: get dead body screen
