@@ -9,7 +9,7 @@ export type Lobby = {
     | { state: "settingRooms" }
     | { state: "inLobby"; readyPlayers: { [K in Color]: boolean } }
     | { state: "roleExplanation"; countDown: number }
-    | { state: "started" }
+    | { state: "started"; meetingCooldownCountDown: number }
     | {
         state: "meetingCalled";
         type: "emergency" | "bodyFound";

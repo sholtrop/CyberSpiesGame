@@ -72,3 +72,6 @@ export const N_TOTAL_TASKS = TASKS.length;
 
 // How many tasks do players get at a time
 export const TASK_BATCH_SIZE = 3;
+
+// For this amount of seconds after starting a new round, players cannot call emergency meetings
+export const MEETING_BUTTON_CD = 20;
