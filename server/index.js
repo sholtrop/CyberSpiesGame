@@ -25,7 +25,6 @@ io.on("connection", (client) => {
 
   client.on("setActivities", ({ activities }) => {
     if (currentPlayer == null || playerLobby == null) return;
-    console.log({ activities });
     playerLobby.setActivities(activities);
   });
 
@@ -53,6 +52,7 @@ io.on("connection", (client) => {
   });
 
   client.on("gameAction", ({ action, ...info }) => {
+    console.debug("gameAction", { action, ...info });
     switch (action) {
       case "callMeeting":
         playerLobby?.startMeetingCall("emergency", currentPlayer?.color);

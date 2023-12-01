@@ -3,6 +3,7 @@
   import { lobbyStore, playerStore } from "$lib/stores";
   import { getSocketIO } from "./websocket";
   import type { GameAction } from "./types";
+  import { goto } from "$app/navigation";
 
   const io = getSocketIO();
 
@@ -18,33 +19,30 @@
       else me.role = "impostor";
       io.emit("devSetLobby", { lobby: { players } });
     },
-    "Call meeting": () => {
-      io.emit("gameAction", {
-        action: "callMeeting",
-        type: "emergency",
-      } as GameAction);
-    },
+    "Call meeting": () => goto("/meetingbutton", { replaceState: true }),
+
     "Join meeting": () => {
       io.emit("enterMeeting");
     },
-    // "Report dead body": () => {
-    //   // TODO: get dead body screen
-    //   io.emit("reportDeadBody", {bodyColor: });
-    // },
+
     "Start task": () =>
       $lobbyStore != null
         ? (screen = "scanTaskScreen")
         : alert("Cannot start task as you're not in a lobby"),
-    "Kill player": () =>
+    "Kill/Report player": () =>
       $lobbyStore != null
         ? (screen = "scanPlayerScreen")
-        : alert("Cannot kill a player as you're not in a lobby"),
+        : alert("Cannot kill/report a player as you're not in a lobby"),
+    "Start sabotage fix": () =>
+      $lobbyStore != null
+        ? io.emit("gameAction", { action: "startSabotageFix" })
+        : alert("Cannot fix sabotage as you're not in a lobby"),
   };
 
   let screen = "main" as "main" | "scanPlayerScreen" | "scanTaskScreen";
 </script>
 
-<div class="inset-0 absolute flex m-20 z-10 bg-green-800 text-white">
+<div class="inset-0 absolute h-min flex m-6 z-10 bg-green-800 text-white">
   <div class="flex flex-col items-center px-2 py-4 w-full">
     {#if screen === "main"}
       <h1 class="text-2xl font-semibold m-2 flex flex-col items-center">
@@ -70,7 +68,7 @@
         <h1
           class="text-2xl text-white font-semibold m-2 flex flex-col items-center"
         >
-          Kill player
+          Kill/Report player
         </h1>
         <div class="grid grid-cols-2 grid-rows-4 gap-y-4 gap-x-4 mt-4">
           {#each Object.values($lobbyStore.players) as player}
@@ -83,9 +81,18 @@
                     playerColor: player.color,
                   })}>Kill {player.name} ({player.color})</button
               >
+            {:else if player.status === "dead"}
+              <button
+                class="border text-white border-green-300 p-3"
+                on:click={() =>
+                  io.emit("gameAction", {
+                    action: "reportDeadBody",
+                    playerColor: player.color,
+                  })}>Report {player.name}'s ({player.color}) dead body</button
+              >
             {:else}
               <div class="border text-green-300 border-green-300 p-3">
-                {player.name} ({player.color}) is {player.status}
+                {player.name} ({player.color}) is found dead
               </div>
             {/if}
           {/each}
@@ -129,5 +136,45 @@
         </div>
       </div>
     {/if}
+    <h1 class="text-lg font-semibold m-2 flex flex-col items-center">
+      Status info
+    </h1>
+    <div class="grid grid-cols-2">
+      <div>Color: <span class="font-semibold">{$playerStore?.color}</span></div>
+      <div>Role: <span class="font-semibold">{$playerStore?.role}</span></div>
+      <div>
+        Status: <span class="font-semibold">{$playerStore?.status}</span>
+      </div>
+      <div>
+        Activity: <span class="font-semibold"
+          >{$playerStore?.currentlyDoing.activity}</span
+        >
+      </div>
+      <div>
+        Tasks: <span class="text-sm"
+          >{($playerStore?.tasks.length ?? 0) > 0
+            ? $playerStore?.tasks.reduce(
+                (list, t) => (list += `${t.name}(${t.number}), `),
+                ""
+              )
+            : "none"}</span
+        >
+      </div>
+      <div>
+        Lobby state:
+        <span class="font-semibold">{$lobbyStore?.status.state}</span>
+      </div>
+      <div>
+        Active effects:
+        <span class="font-semibold"
+          >{($lobbyStore?.activeEffects.length ?? 0) > 0
+            ? $lobbyStore?.activeEffects.reduce(
+                (list, effect) => (list += `${effect.effect}, `),
+                ""
+              )
+            : "none"}</span
+        >
+      </div>
+    </div>
   </div>
 </div>

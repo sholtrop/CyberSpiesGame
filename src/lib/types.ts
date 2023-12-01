@@ -82,9 +82,9 @@ export type Effect =
       // a specific destination room and scan its NFC tag to fix it.
       // Failing to do so before the countDown reaches 0 results in impostor victory
       effect: "firewallBreach";
-      affectedPlayers: {
-        color: Color;
-        destinationRoom: string;
+      buttonsPressed: {
+        firewallbutton1: boolean;
+        firewallbutton2: boolean;
       };
       countDown: number;
     }
@@ -99,7 +99,7 @@ export type Effect =
 export type Color = "green" | "blue" | "yellow" | "white" | "red";
 
 export type Task = {
-  name: (typeof TASKS)[number];
+  name: string;
   number: number;
   description: string;
   status: "available" | "completed";

@@ -136,11 +136,17 @@
         {#if canStartGame}
           <MainButton on:click={startGame}>Start game</MainButton>
         {:else if !enoughPlayers}
-          <MainButton disabled>Waiting for players to join...</MainButton>
+          <MainButton disabled
+            ><span class="text-sm">Waiting for players to join...</span
+            ></MainButton
+          >
         {:else if !allPlayersReady}
           <MainButton disabled>Not all players are ready</MainButton>
         {:else if !playerIsCreator}
-          <MainButton disabled>Waiting for creator to start game</MainButton>
+          <MainButton disabled
+            ><span class="text-sm">Waiting for creator to start game</span
+            ></MainButton
+          >
         {:else}
           <MainButton on:click={setReady}>Tap when ready</MainButton>
         {/if}
