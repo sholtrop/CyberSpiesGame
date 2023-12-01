@@ -171,7 +171,7 @@ class Lobby {
 
   // Total number of players, both impostors and crew, that are not dead
   nAlivePlayers() {
-    return this.players.reduce(
+    return Object.values(this.players).reduce(
       (n, player) => (player.status === "alive" ? n + 1 : n),
       0
     );
@@ -180,7 +180,7 @@ class Lobby {
   // Number of players that will need to attend the next meeting (== scan the meeting point)
   // I.e., all alive players + all unfound dead players
   nMeetingAttendees() {
-    return this.players.reduce(
+    return Object.values(this.players).reduce(
       (n, player) => (player.status !== "foundDead" ? n + 1 : n),
       0
     );
@@ -299,17 +299,23 @@ class Lobby {
       return "crew";
 
     // Impostors all dead - Crew win
-    const impostorsLeft = this.players.reduce(({ role, status }, n) => {
-      if (role === "impostor" && status === "alive") return n + 1;
-      else return n;
-    }, 0);
+    const impostorsLeft = Object.values(this.players).reduce(
+      ({ role, status }, n) => {
+        if (role === "impostor" && status === "alive") return n + 1;
+        else return n;
+      },
+      0
+    );
     if (impostorsLeft === 0) return "crew";
 
     // Equal impostors and crew - Impostors win
-    const crewLeft = this.players.reduce(({ role, status }, n) => {
-      if (role === "crew" && status === "alive") return n + 1;
-      else return n;
-    }, 0);
+    const crewLeft = Object.values(this.players).reduce(
+      ({ role, status }, n) => {
+        if (role === "crew" && status === "alive") return n + 1;
+        else return n;
+      },
+      0
+    );
 
     if (crewLeft === impostorsLeft) return "impostors";
     return null;
