@@ -29,7 +29,7 @@ export type Lobby = {
         votedOutPlayer: string | null;
         countDown: number;
       }
-    | { state: "gameEnded"; victors: "impostors" | "crew" };
+    | { state: "gameEnded"; victors: "impostor" | "crew" };
   // Between 0 and 100. At 100, crew win the game.
   // Has a displayed value and a real value.
   // Displayed value may differ from the actual value.

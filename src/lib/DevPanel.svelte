@@ -37,6 +37,14 @@
       $lobbyStore != null
         ? io.emit("gameAction", { action: "startSabotageFix" })
         : alert("Cannot fix sabotage as you're not in a lobby"),
+    "Trigger victory": () =>
+      $playerStore?.role !== "undecided"
+        ? io.emit("devSetLobby", {
+            lobby: {
+              status: { state: "gameEnded", victors: $playerStore?.role },
+            },
+          })
+        : alert("Role is 'undecided', cannot trigger victory"),
   };
 
   let screen = "main" as "main" | "scanPlayerScreen" | "scanTaskScreen";

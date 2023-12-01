@@ -116,12 +116,14 @@ io.on("connection", (client) => {
       console.error(`Cannot set a lobby; must join a lobby first`);
       return;
     }
-    console.debug(`Updating lobby`);
+    console.debug(`DEV: lobby`);
     for (const key of Object.keys(playerLobby)) {
       if (lobby[key] !== undefined) {
         playerLobby[key] = lobby[key];
 
-        console.debug(`Changed lobby.${key} to ${JSON.stringify(lobby[key])}`);
+        console.debug(
+          `DEV: Changed lobby.${key} to ${JSON.stringify(lobby[key])}`
+        );
       }
     }
     playerLobby.synchronize();

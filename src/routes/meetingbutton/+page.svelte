@@ -1,12 +1,9 @@
 <script lang="ts">
   import MainButton from "$lib/MainButton.svelte";
-  import { browser } from "$app/environment";
-
   let buttonTimer: number;
 
   function callMeeting() {
     if (!buttonTimer) {
-      
     }
   }
 
@@ -24,7 +21,6 @@
   }
 
   setTimer();
-
 </script>
 
 <div class="h-full flex flex-col justify-center">
