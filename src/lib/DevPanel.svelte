@@ -74,14 +74,20 @@
         </h1>
         <div class="grid grid-cols-2 grid-rows-4 gap-y-4 gap-x-4 mt-4">
           {#each Object.values($lobbyStore.players) as player}
-            <button
-              class="border text-white border-green-300 p-3"
-              on:click={() =>
-                io.emit("gameAction", {
-                  action: "killPlayer",
-                  playerColor: player.color,
-                })}>Kill {player.name} ({player.color})</button
-            >
+            {#if player.status === "alive"}
+              <button
+                class="border text-white border-green-300 p-3"
+                on:click={() =>
+                  io.emit("gameAction", {
+                    action: "killPlayer",
+                    playerColor: player.color,
+                  })}>Kill {player.name} ({player.color})</button
+              >
+            {:else}
+              <div class="border text-green-300 border-green-300 p-3">
+                {player.name} ({player.color}) is {player.status}
+              </div>
+            {/if}
           {/each}
         </div>
       </div>

@@ -14,14 +14,13 @@
   let joinCode: string;
   let deviceSupported: boolean;
   let playerName = "";
-  let showError = false;
+  let error = "";
 
   function joinLobby() {
     if (playerName) {
       socket.emit("joinLobby", { name: playerName, lobbyId: joinCode });
-      goto("/lobby", { replaceState: true });
     } else {
-      showError = true;
+      error = "Please enter a name";
     }
   }
 
@@ -31,12 +30,14 @@
     if (urlCode === null) goto("/", { replaceState: true });
     else joinCode = urlCode;
     socket = getSocketIO();
+    socket.on("error", ({ error: err }) => (error = err));
     socket.on("error", console.error);
+
     socket.on("joinedLobby", ({ lobby, color }) => {
       console.debug({ lobby, color });
       playerColorStore.set(color);
       lobbyStore.set(lobby);
-      goto(`/setuprooms?id=${lobby.id}`, { replaceState: true });
+      goto("/lobby", { replaceState: true });
     });
 
     // From `onMount` we can return a cleanup function that Svelte runs whenever a component unmounts (disappears).
@@ -51,7 +52,10 @@
 <div class="min-h-screen flex flex-col justify-between items-center">
   {#if deviceSupported}
     <Title />
-    <NameInput bind:playerName bind:showError />
+    <div class="w-full flex flex-col items-center">
+      <NameInput bind:playerName />
+      <p class:invisible={error === ""} class="text-red-500">{error}&nbsp;</p>
+    </div>
     <div class="mb-10">
       <MainButton on:click={() => joinLobby()}>Join Lobby</MainButton>
     </div>

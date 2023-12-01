@@ -12,16 +12,14 @@
   let deviceSupported: boolean;
 
   let playerName = "";
-  let showError = false;
+  let error = "";
   let socket: Socket;
-
-  function emitPlayerName() {}
 
   function createLobby() {
     if (playerName) {
       socket.emit("createLobby", { name: playerName });
     } else {
-      showError = true;
+      error = "Please enter a name";
     }
   }
 
@@ -30,7 +28,7 @@
     if (!deviceIsSupported) return;
     socket = getSocketIO();
     // TODO: Display the error to the user somehow
-    socket.on("error", console.error);
+    socket.on("error", ({ error: err }) => (error = err));
     socket.on("joinedLobby", ({ lobby, color }) => {
       console.debug({ lobby, color });
       playerColorStore.set(color);
@@ -52,7 +50,10 @@
     <Title />
 
     <div class="pb-20 space-y-20 flex flex-col items-center justify-center">
-      <NameInput bind:playerName bind:showError />
+      <div>
+        <NameInput bind:playerName />
+        <p class:invisible={error === ""} class="text-red-500">{error}&nbsp;</p>
+      </div>
       <MainButton on:click={() => createLobby()}>Create Lobby</MainButton>
     </div>
   {:else}

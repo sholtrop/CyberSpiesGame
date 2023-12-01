@@ -11,7 +11,7 @@ io.on("connection", (client) => {
   client.on("createLobby", ({ name }) => {
     const [nameValid, error] = playerNameValid(name);
     if (!nameValid) {
-      client.emit("error", error);
+      client.emit("error", { error });
       return;
     }
     const { lobby, player } = createLobby(name);
@@ -32,13 +32,13 @@ io.on("connection", (client) => {
   client.on("joinLobby", ({ name, lobbyId }) => {
     const [nameValid, error] = playerNameValid(name);
     if (!nameValid) {
-      client.emit("error", error);
+      client.emit("error", { error });
       return;
     }
     const [joinSuccess, joinResult] = joinLobby(lobbyId, name);
     if (!joinSuccess) {
       // If join didn't work `joinResult` contains an error message
-      client.emit("error", joinResult);
+      client.emit("error", { error: joinResult });
       return;
     }
     const { lobby, player } = joinResult;
