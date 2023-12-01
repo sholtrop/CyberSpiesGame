@@ -5,13 +5,13 @@ const SERVER = ``;
 let socket: socketIO.Socket | null = null;
 
 export function getSocketIO(): socketIO.Socket {
-  if (socket == null)
+  if (socket == null) {
     socket = socketIO
       .connect(dev ? `http://localhost:3000` : SERVER)
       .on("connect", () => {
         console.debug(`Connected to socketIO`);
-      })
-      .on("message", (data) => {});
-
+      });
+    console.debug("Created new socket");
+  }
   return socket;
 }
