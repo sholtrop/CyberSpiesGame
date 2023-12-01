@@ -1,3 +1,4 @@
+import type { PLAYER_COLORS } from "../../server/consts";
 import type { NFC_ACTIVITIES, TASKS } from "./consts";
 
 export type Lobby = {
@@ -96,7 +97,7 @@ export type Effect =
     };
 
 // Each player has one of these colors assigned to them
-export type Color = "green" | "blue" | "yellow" | "white" | "red";
+export type Color = "green" | "blue" | "yellow" | "pink" | "red";
 
 export type Task = {
   name: string;

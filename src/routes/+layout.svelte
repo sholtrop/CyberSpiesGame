@@ -3,9 +3,11 @@
   import DevPanel from "$lib/DevPanel.svelte";
   import NotificationBar from "$lib/NotificationBar.svelte";
   import { DEV_PANEL_KEY } from "$lib/consts";
-  import { lobbyStore } from "$lib/stores";
+  import { lobbyStore, playerStore } from "$lib/stores";
   import { getSocketIO } from "$lib/websocket";
+  import { onMount } from "svelte";
   import "../app.postcss";
+    import { goto } from "$app/navigation";
 
   let showDevPanel = false;
   let showNotification = false;
@@ -39,6 +41,49 @@
       return null;
     });
   });
+
+  onMount(() => {
+    const unsubscribeLobby = lobbyStore.subscribe((lobby) => {
+      if (lobby == null) return;
+      switch(lobby.status.state) {
+        case 'meetingCalled':
+          console.log("in meetingCalled");
+          if ($playerStore?.status != 'foundDead') goto("/meetingcall", { replaceState: true });
+          break;
+        
+        case 'gameEnded':
+          goto("/gameover", { replaceState: true });
+          break;
+
+        // TODO: add case for sabotage
+
+        default:
+          console.log("Unrecognised lobby state: ", lobby.status.state);
+      }
+    });
+
+    const unsubscribePlayer = playerStore.subscribe((player) => {
+      if (player == null) return;
+      switch(player.status) {
+        case 'dead':
+          goto("/killed", { replaceState: true });
+          break;
+
+        case 'foundDead':
+          goto("/dead", { replaceState: true });
+
+        default:
+          console.log("Unknown player status: ", player.status);
+      }
+    });
+
+    function unsubscribe() {
+      unsubscribeLobby(); 
+      unsubscribePlayer();
+    }
+    return unsubscribe;
+  });
+
 </script>
 
 <div

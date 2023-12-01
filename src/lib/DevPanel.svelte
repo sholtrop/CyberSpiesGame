@@ -22,7 +22,9 @@
     "Call meeting": () => goto("/meetingbutton", { replaceState: true }),
 
     "Join meeting": () => {
-      io.emit("enterMeeting");
+      io.emit("gameAction", {
+        action: "enterMeeting"
+      });
     },
 
     "Start task": () =>
