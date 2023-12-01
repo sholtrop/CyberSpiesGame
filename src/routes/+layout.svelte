@@ -48,7 +48,8 @@
       switch(lobby.status.state) {
         case 'meetingCalled':
           console.log("in meetingCalled");
-          if ($playerStore?.status != 'foundDead') goto("/meetingcall", { replaceState: true });
+          console.log($playerStore?.status);
+          if ($playerStore?.status !== 'foundDead') goto("/meetingcall", { replaceState: true });
           break;
         
         case 'gameEnded':
@@ -63,14 +64,15 @@
     });
 
     const unsubscribePlayer = playerStore.subscribe((player) => {
+      let gameState = $lobbyStore?.status.state;
       if (player == null) return;
       switch(player.status) {
         case 'dead':
-          goto("/killed", { replaceState: true });
+          if (gameState !== "meetingCalled" && gameState !== "gameEnded") goto("/killed", { replaceState: true });
           break;
 
         case 'foundDead':
-          goto("/dead", { replaceState: true });
+          if (gameState !== "gameEnded") goto("/dead", { replaceState: true });
 
         default:
           console.log("Unknown player status: ", player.status);
