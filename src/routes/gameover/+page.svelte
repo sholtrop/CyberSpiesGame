@@ -3,9 +3,15 @@
   import MainButton from "$lib/MainButton.svelte";
   import { COLORS } from "$lib/consts";
   import { lobbyStore } from "$lib/stores";
+    import { getSocketIO } from "$lib/websocket";
+    import type { Socket } from "socket.io-client";
   import { onMount } from "svelte";
 
-  onMount(() => {});
+  let io = getSocketIO();
+
+  onMount(() => {
+    io.on("lobbyReset", gotoLobby);
+  });
 
   // let winningRole: string;
 

@@ -133,6 +133,11 @@ io.on("connection", (client) => {
     currentPlayer?.assignTasks();
     playerLobby?.synchronize();
   });
+
+  client.on("restartLobby", () => {
+    // TODO
+    throw Error("not implemented");
+  })
 });
 
 const port = 3000;
