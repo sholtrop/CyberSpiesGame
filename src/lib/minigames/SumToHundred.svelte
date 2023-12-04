@@ -51,7 +51,9 @@
 
 <div class="flex flex-col items-center mt-10 text-base">
   <Header>Select two numbers that sum up to 100</Header>
-
+  <p class="text-sm text-gray-300">
+    Must succeed {nRepeats - wins} times in a row
+  </p>
   <div class="grid grid-rows-4 grid-cols-3 w-full mt-10">
     {#each numbers as n}
       <button
@@ -62,10 +64,11 @@
     {/each}
   </div>
 
-  <div class=" mt-10">
+  <div class="mt-10">
     <button
       on:click={clearNumber}
-      class="border border-gray-500 px-10 py-3 bg-gray-800">Clear</button
+      class="border border-gray-300 px-10 py-3 bg-transparent"
+      disabled={firstSelectedNumber == null}>Clear</button
     >
   </div>
 
@@ -73,7 +76,7 @@
   <div class="mt-10 flex space-x-3">
     {#each { length: nRepeats } as _, i}
       <div
-        class="border border-gray-400 w-10 h-10 text-xl flex items-baseline pt-0.5 justify-center"
+        class="border border-gray-400 w-10 h-10 text-xl flex items-baseline pt-0.5 justify-center text-green-600"
       >
         {#if wins > i}
           ✔

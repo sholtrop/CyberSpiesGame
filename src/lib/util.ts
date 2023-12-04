@@ -47,15 +47,24 @@ export function asyncSleep(timeMs: number): Promise<void> {
 
 // Start the phone's NFC scanner and give the user `timeoutSecs` seconds to scan an NFC tag.
 // Returns the contents of the NFC tag as a string, or null if the user did not scan a tag in time.
-export async function scanNfc(timeoutSecs = 10): Promise<string | null> {
-  try {
-    const ndef = new NDEFReader();
-    await ndef.scan();
-    console.debug(`NFC Scanner activated`);
-    return new Promise((resolve, reject) => {
+export function scanNfc(
+  options: { timeOutSecs: number } = { timeOutSecs: 10 }
+): [cancel: () => void, promise: Promise<string | null>] {
+  let cancelled = false;
+  const cancel = () => {
+    cancelled = true;
+  };
+
+  async function scan(): Promise<string | null> {
+    try {
+      let message = null;
+      const ndef = new NDEFReader();
+      await ndef.scan();
+      console.debug(`NFC Scanner activated`);
+      // return new Promise((resolve, reject) => {
       ndef.onreadingerror = (err) => {
         console.error(`Cannot read data from the NFC tag: ${err}`);
-        reject();
+        return null;
       };
       ndef.onreading = (event) => {
         let msg = ``;
@@ -64,16 +73,23 @@ export async function scanNfc(timeoutSecs = 10): Promise<string | null> {
           msg += textDecoder.decode(m.data);
         });
         // Got a message from an NFC tag, so return the message
-        resolve(msg);
+        message = msg;
       };
-      // Keep scanning for `timeoutSecs` seconds, then resolve to null as we did not scan something within the time limit
-      asyncSleep(timeoutSecs * 1000).then(() => resolve(null));
-    });
-  } catch (err) {
-    if (err instanceof Error) console.error(err.toString());
-    else console.error(`Unknown error occurred while activating NFC reader`);
-    return null;
+      // Keep scanning for `timeoutSecs` seconds, checking every 0.5 secs
+      // Stop scanning if we hit the timeout limit or if scanning cancelled by the user
+      let timer = options.timeOutSecs * 1000; // to miliseconds
+      while (!cancelled && timer > 0 && message == null) {
+        await asyncSleep(300);
+        timer -= 300;
+      }
+      return message;
+    } catch (err) {
+      if (err instanceof Error) console.error(err.toString());
+      else console.error(`Unknown error occurred while activating NFC reader`);
+      return null;
+    }
   }
+  return [cancel, scan()];
 }
 
 export function deviceIsSupported(): boolean {

@@ -26,3 +26,5 @@ export const playerStore: Readable<Player | null> = derived(
     }
   }
 );
+
+export const notificationStore = writable<string | null>(null);

@@ -1,6 +1,7 @@
 import { nanoid } from "nanoid";
 import {
   MAX_PLAYERS,
+  MEETING_BUTTON_CD,
   N_IMPOSTORS,
   ROLE_DISPLAY_SECS,
   TASK_PROGRESSION_VICTORY_AMOUNT,
@@ -49,8 +50,7 @@ class Lobby {
       this.synchronizeCountDown();
       if (this.status.countDown === 0) {
         clearInterval(cancel);
-        this.status = { state: "started" };
-        this.synchronize();
+        this.#startNewRound();
       }
     }, 1000);
   }
@@ -286,7 +286,17 @@ class Lobby {
   // After a vote result has been announced and displayed for VOTE_RESULT_DISPLAY_SECS seconds,
   // a new round starts.
   #startNewRound() {
-    this.status = { state: "started" };
+    this.status = {
+      state: "started",
+      meetingCooldownCountDown: MEETING_BUTTON_CD,
+    };
+    const cancel = setInterval(() => {
+      this.status.meetingCooldownCountDown -= 1;
+      if (this.status.meetingCooldownCountDown === 0) {
+        clearInterval(cancel);
+      }
+      this.synchronizeCountDown();
+    }, 1000);
     this.synchronize();
   }
 
