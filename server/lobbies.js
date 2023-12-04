@@ -87,7 +87,7 @@ class Lobby {
     const presentPlayers = this.status.presentPlayers;
     presentPlayers[playerColor] = true;
     if (presentPlayers.size === this.nMeetingAttendees()) this.startMeeting();
-    else this.synchronize();
+    else this.synchronize(); 
   }
 
   // Start a meeting in this lobby, depending on which type of meeting was previously called.

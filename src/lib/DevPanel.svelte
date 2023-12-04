@@ -1,14 +1,30 @@
 <script lang="ts">
   import { DEV_PANEL_KEY } from "./consts";
   import { lobbyStore, playerStore } from "$lib/stores";
-  import { getSocketIO } from "./websocket";
-  import type { GameAction } from "./types";
+  import { emitGameAction, getSocketIO } from "./websocket";
   import { goto } from "$app/navigation";
+    import type { Color } from "./types";
 
   const io = getSocketIO();
+  let playerColor: Color;
+  if ($playerStore) {
+    playerColor = $playerStore.color;
+  }
 
   function changeTasks() {
     io.emit("devChangeTasks");
+  }
+
+  function killPlayerHandler(killedPlayer: Color) {
+    emitGameAction({action: "killPlayer", playerColor: killedPlayer});
+  }
+
+  function reportDeadBodyHandler(bodyColor: Color) {
+    emitGameAction({action: "reportDeadBody", bodyColor});
+  }
+
+  function startTaskHandler(taskNumber: number) {
+    emitGameAction({action: "startTask", taskNumber});
   }
 
   const buttons = {
@@ -22,9 +38,7 @@
     "Call meeting": () => goto("/meetingbutton", { replaceState: true }),
 
     "Join meeting": () => {
-      io.emit("gameAction", {
-        action: "enterMeeting"
-      });
+      emitGameAction({action: "enterMeeting"});
     },
 
     "Start task": () =>
@@ -37,7 +51,7 @@
         : alert("Cannot kill/report a player as you're not in a lobby"),
     "Start sabotage fix": () =>
       $lobbyStore != null
-        ? io.emit("gameAction", { action: "startSabotageFix" })
+        ? emitGameAction({action: "startSabotageFix"}) 
         : alert("Cannot fix sabotage as you're not in a lobby"),
     "Trigger victory": () =>
       $playerStore?.role !== "undecided"
@@ -85,20 +99,12 @@
             {#if player.status === "alive"}
               <button
                 class="border text-white border-green-300 p-3"
-                on:click={() =>
-                  io.emit("gameAction", {
-                    action: "killPlayer",
-                    playerColor: player.color,
-                  })}>Kill {player.name} ({player.color})</button
+                on:click={() => killPlayerHandler(player.color)}>Kill {player.name} ({player.color})</button
               >
             {:else if player.status === "dead"}
               <button
                 class="border text-white border-green-300 p-3"
-                on:click={() =>
-                  io.emit("gameAction", {
-                    action: "reportDeadBody",
-                    playerColor: player.color,
-                  })}>Report {player.name}'s ({player.color}) dead body</button
+                on:click={() => reportDeadBodyHandler(player.color)}>Report {player.name}'s ({player.color}) dead body</button
               >
             {:else}
               <div class="border text-green-300 border-green-300 p-3">
@@ -128,11 +134,7 @@
             {#each $playerStore.tasks as task}
               <button
                 class="border text-white border-green-300 p-3"
-                on:click={() =>
-                  io.emit("gameAction", {
-                    action: "startTask",
-                    taskNumber: task.number,
-                  })}
+                on:click={() => startTaskHandler(task.number)}
                 >Start task {task.number}<br />(status: {task.status})</button
               >
             {/each}

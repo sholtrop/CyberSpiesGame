@@ -1,9 +1,16 @@
 <script lang="ts">
   import MainButton from "$lib/MainButton.svelte";
+    import { emitGameAction, getSocketIO } from "$lib/websocket";
+    import type { Socket } from "socket.io-client";
+    import { onMount } from "svelte";
+
+
   let buttonTimer: number;
+  let io = getSocketIO();
 
   function callMeeting() {
     if (!buttonTimer) {
+      emitGameAction({action: "callMeeting"})
     }
   }
 

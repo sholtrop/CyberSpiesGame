@@ -1,11 +1,12 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { browser } from '$app/environment';
+    import { lobbyStore } from "$lib/stores";
 
   function gotoDead() {
     setTimeout(() => {
       if (browser) {
-          goto("/dead", {replaceState: true});
+          if ($lobbyStore?.status.state != "meetingCalled") goto("/dead", {replaceState: true});
       }
     }, 5000);
   }

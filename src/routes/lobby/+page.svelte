@@ -11,7 +11,7 @@
   import { dev } from "$app/environment";
   import AgentRoleExplanation from "$lib/AgentRoleExplanation.svelte";
   import { swipe } from "svelte-gestures";
-  import { getSocketIO } from "$lib/websocket";
+  import { emitGameAction, getSocketIO } from "$lib/websocket";
 
   const N_PAGES = 4;
 
@@ -56,7 +56,7 @@
   }
 
   function setReady() {
-    socket.emit("gameAction", { action: "playerReady" });
+    emitGameAction({action: "playerReady"});
   }
 
   // Game can only be started by the creator after enough playes are present
