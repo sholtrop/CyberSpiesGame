@@ -55,7 +55,14 @@ io.on("connection", (client) => {
     console.debug("gameAction", { action, ...info });
     switch (action) {
       case "callMeeting":
-        playerLobby?.startMeetingCall("emergency", currentPlayer?.color);
+        if (currentPlayer?.emergencyMeetingsLeft > 0) {
+          currentPlayer.emergencyMeetingsLeft -= 1;
+          playerLobby?.startMeetingCall("emergency", currentPlayer?.color);
+        } else {
+          console.error(
+            `Player ${currentPlayer.name} has no emergency meetings left but tried to call one`
+          );
+        }
         break;
       case "enterMeeting":
         playerLobby?.addPlayerToMeeting(currentPlayer?.color);

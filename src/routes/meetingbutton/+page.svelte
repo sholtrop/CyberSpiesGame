@@ -1,38 +1,30 @@
 <script lang="ts">
+  import { dev } from "$app/environment";
   import MainButton from "$lib/MainButton.svelte";
-    import { emitGameAction, getSocketIO } from "$lib/websocket";
-    import type { Socket } from "socket.io-client";
-    import { onMount } from "svelte";
-
-
-  let buttonTimer: number;
-  let io = getSocketIO();
+  import { lobbyStore } from "$lib/stores";
+  import { emitGameAction } from "$lib/websocket";
 
   function callMeeting() {
-    if (!buttonTimer) {
-      emitGameAction({action: "callMeeting"})
-    }
+    emitGameAction({ action: "callMeeting" });
   }
-
-  function setTimer() {
-    let timer = 15;
-    buttonTimer = timer;
-    countDown();
-  }
-
-  function countDown() {
-    let interval = setInterval(() => {
-      buttonTimer--;
-      if (buttonTimer <= 0) clearInterval(interval);
-    }, 1000);
-  }
-
-  setTimer();
 </script>
 
-<div class="h-full flex flex-col justify-center">
-  <p>{buttonTimer ? "Remaining time: " + buttonTimer : "Ready!"}</p>
-  <div>
-    <MainButton on:click={callMeeting}>Call a rendezvous!</MainButton>
+{#if $lobbyStore != null && $lobbyStore.status.state === "started"}
+  <div class="h-full flex flex-col justify-center flex-1">
+    <p>
+      {$lobbyStore.status.countDown > 0
+        ? "Remaining time: " + $lobbyStore.status.countDown
+        : "Ready!"}
+    </p>
+    <div>
+      <MainButton
+        disabled={$lobbyStore.status.countDown > 0 && !dev}
+        on:click={callMeeting}
+        >Call a Rendezvous!
+        {#if dev}
+          <div class="text-xs text-gray-400">(Dev mode: Can always click)</div>
+        {/if}
+      </MainButton>
+    </div>
   </div>
-</div>
+{/if}

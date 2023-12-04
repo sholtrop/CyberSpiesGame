@@ -9,7 +9,7 @@ export type Lobby = {
     | { state: "settingRooms" }
     | { state: "inLobby"; readyPlayers: { [K in Color]: boolean } }
     | { state: "roleExplanation"; countDown: number }
-    | { state: "started"; meetingCooldownCountDown: number }
+    | { state: "started"; countDown: number }
     | {
         state: "meetingCalled";
         type: "emergency" | "bodyFound";
@@ -47,6 +47,7 @@ export type Player = {
   connection: "connected" | "disconnected";
   status: "alive" | "dead" | "foundDead";
   role: "crew" | "impostor" | "undecided";
+  emergencyMeetingsLeft: number;
   color: Color;
   tasks: Task[];
   currentlyDoing:

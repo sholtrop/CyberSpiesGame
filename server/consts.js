@@ -75,3 +75,6 @@ export const TASK_BATCH_SIZE = 3;
 
 // For this amount of seconds after starting a new round, players cannot call emergency meetings
 export const MEETING_BUTTON_CD = 20;
+
+// How many emergency meetings a player may call per game
+export const EMERGENCY_MEETINGS_PER_PLAYER = 1;

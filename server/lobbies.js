@@ -2,6 +2,7 @@ import { nanoid } from "nanoid";
 import {
   MAX_PLAYERS,
   MEETING_BUTTON_CD,
+  MEETING_TIME,
   N_IMPOSTORS,
   ROLE_DISPLAY_SECS,
   SINGLE_TASK_PROGRESSION_AMOUNT,
@@ -87,7 +88,12 @@ class Lobby {
     if (this.status.state !== "meetingCalled") return;
     const presentPlayers = this.status.presentPlayers;
     presentPlayers[playerColor] = true;
-    if (presentPlayers.size === this.nMeetingAttendees()) this.startMeeting();
+    const nPresentPlayers = Object.values(presentPlayers).reduce(
+      (total, present) => (present ? total + 1 : total),
+      0
+    );
+
+    if (nPresentPlayers === this.nMeetingAttendees()) this.startMeeting();
     else this.synchronize();
   }
 
@@ -289,16 +295,16 @@ class Lobby {
   #startNewRound() {
     this.status = {
       state: "started",
-      meetingCooldownCountDown: MEETING_BUTTON_CD,
+      countDown: MEETING_BUTTON_CD,
     };
+    this.synchronize();
     const cancel = setInterval(() => {
-      this.status.meetingCooldownCountDown -= 1;
-      if (this.status.meetingCooldownCountDown === 0) {
+      this.status.countDown -= 1;
+      this.synchronizeCountDown();
+      if (this.status.countDown === 0) {
         clearInterval(cancel);
       }
-      this.synchronizeCountDown();
     }, 1000);
-    this.synchronize();
   }
 
   // Determine whether the game in its current state should end, and who the victors are.

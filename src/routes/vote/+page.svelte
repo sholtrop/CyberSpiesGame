@@ -60,7 +60,7 @@
     }, 1000);
   }
 
-  startTimer();
+  // startTimer();
 </script>
 
 <div class="min-h-full flex flex-col justify-between">

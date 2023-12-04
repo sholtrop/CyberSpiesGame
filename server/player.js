@@ -1,4 +1,5 @@
 import {
+  EMERGENCY_MEETINGS_PER_PLAYER,
   N_TOTAL_TASKS,
   PLAYER_COLORS,
   TASKS,
@@ -15,6 +16,7 @@ export class Player {
     this.tasks = [];
     this.color = color || randomPlayerColor();
     this.currentlyDoing = { activity: "nothing" };
+    this.emergencyMeetingsLeft = EMERGENCY_MEETINGS_PER_PLAYER;
   }
 
   assignTasks(activities) {
@@ -26,7 +28,6 @@ export class Player {
       .filter((t) => t !== null);
 
     const newTasks = new Set();
-    console.log({ pastTasks, availableTasks });
     while (newTasks.size < TASK_BATCH_SIZE) {
       if (
         availableTasks.length < TASK_BATCH_SIZE &&
@@ -36,12 +37,10 @@ export class Player {
         const taskNr = randInt(0, pastTasks.size - 1);
         const task = Array.from(pastTasks.values())[taskNr];
         newTasks.add(task);
-        console.log("Add old task", newTasks);
       } else {
         // Give a new task
         const task = randInt(0, availableTasks.length - 1);
         newTasks.add(task);
-        console.log("Add new task", newTasks);
       }
     }
     this.tasks = [];

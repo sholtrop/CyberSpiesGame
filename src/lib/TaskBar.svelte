@@ -3,7 +3,11 @@
 </script>
 
 <div class="flex flex-col space-y-1 items-center">
-  <label for="taskbar" class="text-lg">Task progress</label>
+  <label for="taskbar" class="text-lg"
+    >Task progress <span class="text-xs text-gray-400"
+      >(Does not update real-time)</span
+    ></label
+  >
   <progress
     id="taskbar"
     class="border border-gray-600 w-full"

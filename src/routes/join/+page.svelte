@@ -9,6 +9,7 @@
   import { deviceIsSupported } from "$lib/util";
   import type { Socket } from "socket.io-client";
   import { lobbyStore, playerColorStore } from "$lib/stores";
+  import { dev } from "$app/environment";
 
   let socket: Socket;
   let joinCode: string;
