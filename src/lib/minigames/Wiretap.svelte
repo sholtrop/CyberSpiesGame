@@ -5,7 +5,7 @@
 
     let windowWidth : number;
     let windowHeight : number;
-    let imagewidth : number
+    let imagewidth : number;
     let wiretapWidth : number;
 
     let left = 100;
@@ -15,9 +15,18 @@
     let moving = false;
     
     function setImageParams(){
-        left = windowWidth / 2;
-        top = windowWidth;
         wiretapWidth = 0.2*imagewidth;
+        left = (windowWidth - wiretapWidth) / 2;
+        top = 0.1*imagewidth;
+    }
+
+    function checkPocket() {
+        if ((left > 0.24*imagewidth) 
+            && (left < 0.76*imagewidth + wiretapWidth)
+            && (top > 0.66*imagewidth)
+            && (top < 1.13*imagewidth + 2.3*wiretapWidth)){
+                alert("gewonnen")
+            }
     }
 
     function onStart(event) {
@@ -27,12 +36,29 @@
     }
     function onMove(event){
         if (moving) {
-            left = event.touches[0].clientX - leftdif;
-            top = event.touches[0].clientY - topdif;
+            if (event.touches[0].clientX - leftdif < 0){
+                left = 0;
+            }
+            else if (event.touches[0].clientX - leftdif + wiretapWidth > window.innerWidth){
+                left = window.innerWidth - wiretapWidth;
+            }
+            else{
+                left = event.touches[0].clientX - leftdif;
+            }
+            if (event.touches[0].clientY - topdif < 0){
+                top = 0;
+            }
+            else if (event.touches[0].clientY - topdif + 2.3*wiretapWidth > window.innerHeight){
+                top = window.innerHeight - wiretapWidth*2.3;
+            }
+            else{
+                top = event.touches[0].clientY - topdif;
+            }
         }
     }
     function onEnd(){
         moving = false
+        checkPocket();
     }
 </script>
 
@@ -60,12 +86,11 @@
 <body>
 
 <div bind:clientWidth={imagewidth}>
-    <img src={pocket} alt="pocket" class="pocket"/>
+    <img src={pocket} alt="pocket" class="pocket" on:load={setImageParams}>
 </div>
 
 <section role="none" on:touchstart={onStart} style="left: {left}px; top: {top}px;" class="draggable">
-	<img src={wiretap} alt="wiretap" style="TOP:{top};LEFT:{left}px;" width="{wiretapWidth}px"
-    on:load={setImageParams}>
+	<img src={wiretap} alt="wiretap" style="TOP:{top};LEFT:{left}px;" width="{wiretapWidth}px">
 </section>
 
 </body>
