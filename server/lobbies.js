@@ -283,7 +283,7 @@ class Lobby {
     const counter = setInterval(() => {
       this.status.countDown -= 1;
       this.synchronizeCountDown();
-      if (this.countDown === 0) {
+      if (this.status.countDown === 0) {
         clearInterval(counter);
         this.#startNewRound();
       }
