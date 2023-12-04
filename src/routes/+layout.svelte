@@ -46,6 +46,7 @@
   onMount(() => {
     const unsubscribeLobby = lobbyStore.subscribe((lobby) => {
       if (lobby == null) return;
+      console.log("Lobby state is now ", lobby.status.state);
       switch (lobby.status.state) {
         case "meetingCalled":
           if ($playerStore?.status !== "foundDead")
@@ -57,9 +58,6 @@
           break;
 
         // TODO: add case for sabotage
-
-        default:
-          console.log("Unrecognised lobby state: ", lobby.status.state);
       }
     });
 
@@ -74,9 +72,6 @@
 
         case "foundDead":
           if (gameState !== "gameEnded") goto("/dead", { replaceState: true });
-
-        default:
-          console.log("Unknown player status: ", player.status);
       }
     });
 

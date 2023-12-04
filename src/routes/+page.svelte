@@ -8,6 +8,7 @@
   import { deviceIsSupported } from "$lib/util";
   import type { Socket } from "socket.io-client";
   import { lobbyStore, playerColorStore, playerStore } from "$lib/stores";
+  import { dev } from "$app/environment";
 
   let deviceSupported: boolean;
 
@@ -33,7 +34,7 @@
       console.debug({ lobby, color });
       playerColorStore.set(color);
       lobbyStore.set(lobby);
-      document.getElementById("main-panel")!.requestFullscreen();
+      if (!dev) document.getElementById("main-panel")!.requestFullscreen();
       goto(`/setuprooms?id=${lobby.id}`, { replaceState: true });
     });
 

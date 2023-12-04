@@ -20,15 +20,29 @@ export class Player {
   assignTasks(activities) {
     const pastTasks = new Set(this.tasks.map((t) => t.number));
 
-    // New tasks can not overlap with previous tasks
+    // New tasks should not overlap with previous tasks if possible
     const availableTasks = Array.from(Array(N_TOTAL_TASKS).keys())
       .map((idx) => (pastTasks.has(idx) ? null : idx))
       .filter((t) => t !== null);
-    const newTasks = new Set();
 
+    const newTasks = new Set();
+    console.log({ pastTasks, availableTasks });
     while (newTasks.size < TASK_BATCH_SIZE) {
-      const task = randInt(0, availableTasks.length);
-      newTasks.add(task);
+      if (
+        availableTasks.length < TASK_BATCH_SIZE &&
+        newTasks.size === availableTasks.length
+      ) {
+        // We need to give a task they've already completed as we don't have enough new tasks
+        const taskNr = randInt(0, pastTasks.size - 1);
+        const task = Array.from(pastTasks.values())[taskNr];
+        newTasks.add(task);
+        console.log("Add old task", newTasks);
+      } else {
+        // Give a new task
+        const task = randInt(0, availableTasks.length - 1);
+        newTasks.add(task);
+        console.log("Add new task", newTasks);
+      }
     }
     this.tasks = [];
     for (const taskNumber of newTasks.values()) {
@@ -52,9 +66,11 @@ export class Player {
   }
 
   finishTask(taskNumber) {
-    if (this.currentlyDoing.activity !== "task") return;
+    if (this.currentlyDoing.activity !== "task" && this.role !== "impostor")
+      return;
     // Task that was finished is not the one that was started
-    if (this.currentlyDoing.number !== taskNumber) return;
+    if (this.currentlyDoing.number !== taskNumber && this.role !== "impostor")
+      return;
     const task = this.tasks.find((task) => task.number === taskNumber);
     if (task == null) return;
     task.status = "completed";

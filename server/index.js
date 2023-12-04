@@ -86,8 +86,14 @@ io.on("connection", (client) => {
         break;
       case "taskCompleted":
         currentPlayer?.finishTask(info.taskNumber);
-        // increaseTaskBar will synchronize lobby state
-        playerLobby?.increaseTaskBar();
+        if (currentPlayer?.role === "crew") playerLobby?.increaseTaskBar();
+
+        // Give player new tasks if they've completed all of them
+        if (currentPlayer?.tasks.every((t) => t.status === "completed")) {
+          console.debug("Give new tasks");
+          currentPlayer?.assignTasks(playerLobby?.activities);
+        }
+        playerLobby?.synchronize();
         break;
       case "sabotageFixCompleted":
         currentPlayer?.finishSabotageFix();
@@ -137,7 +143,7 @@ io.on("connection", (client) => {
   client.on("restartLobby", () => {
     // TODO
     throw Error("not implemented");
-  })
+  });
 });
 
 const port = 3000;

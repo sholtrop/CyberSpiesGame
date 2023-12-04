@@ -6,6 +6,7 @@
   import { COLORS } from "$lib/consts";
   import { lobbyStore, playerStore } from "$lib/stores";
   import type { Task } from "$lib/types";
+  import { emitGameAction } from "$lib/websocket";
   import { onMount } from "svelte";
   import { press, swipe } from "svelte-gestures";
 
@@ -61,8 +62,9 @@
   setKillCD();
   setSabotageCD();
 
-  function pressHandler(task: Task) {
+  function pressHandler(task: number) {
     if ($playerStore?.role === "impostor") {
+      emitGameAction({ action: "taskCompleted", taskNumber: task });
     }
   }
 </script>
@@ -85,9 +87,11 @@
           {#each $playerStore.tasks as task}
             <li
               use:press={{ timeframe: 600, triggerBeforeFinished: true }}
-              on:press={() => pressHandler(task)}
+              on:press={() => pressHandler(task.number)}
             >
-              <span>{task.description}</span>
+              <span class:line-through={task.status === "completed"}
+                >{task.description}}</span
+              >
             </li>
           {/each}
         </ul>

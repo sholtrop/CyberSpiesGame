@@ -4,6 +4,7 @@ import {
   MEETING_BUTTON_CD,
   N_IMPOSTORS,
   ROLE_DISPLAY_SECS,
+  SINGLE_TASK_PROGRESSION_AMOUNT,
   TASK_PROGRESSION_VICTORY_AMOUNT,
   VOTE_RESULT_DISPLAY_SECS,
 } from "./consts.js";
@@ -87,7 +88,7 @@ class Lobby {
     const presentPlayers = this.status.presentPlayers;
     presentPlayers[playerColor] = true;
     if (presentPlayers.size === this.nMeetingAttendees()) this.startMeeting();
-    else this.synchronize(); 
+    else this.synchronize();
   }
 
   // Start a meeting in this lobby, depending on which type of meeting was previously called.
@@ -347,7 +348,7 @@ class Lobby {
     const impostorColors = new Set();
     while (impostorColors.size < N_IMPOSTORS) {
       const players = Object.keys(this.players);
-      const randPlayerColor = players[randInt(0, players.length)];
+      const randPlayerColor = players[randInt(0, players.length - 1)];
       impostorColors.add(randPlayerColor);
     }
 
