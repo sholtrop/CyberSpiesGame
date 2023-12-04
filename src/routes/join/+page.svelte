@@ -37,6 +37,7 @@
       console.debug({ lobby, color });
       playerColorStore.set(color);
       lobbyStore.set(lobby);
+      document.getElementById("main-panel")!.requestFullscreen();
       goto("/lobby", { replaceState: true });
     });
 

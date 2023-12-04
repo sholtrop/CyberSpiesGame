@@ -33,6 +33,7 @@
       console.debug({ lobby, color });
       playerColorStore.set(color);
       lobbyStore.set(lobby);
+      document.getElementById("main-panel")!.requestFullscreen();
       goto(`/setuprooms?id=${lobby.id}`, { replaceState: true });
     });
 
@@ -45,7 +46,7 @@
   });
 </script>
 
-<div class="h-screen flex flex-col items-center justify-between">
+<div class="flex flex-col items-center justify-between flex-1">
   {#if deviceSupported}
     <Title />
 

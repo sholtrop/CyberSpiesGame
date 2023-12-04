@@ -3,11 +3,12 @@
   import DevPanel from "$lib/DevPanel.svelte";
   import NotificationBar from "$lib/NotificationBar.svelte";
   import { DEV_PANEL_KEY } from "$lib/consts";
-  import { lobbyStore, playerStore } from "$lib/stores";
+  import { lobbyStore, notificationStore, playerStore } from "$lib/stores";
   import { getSocketIO } from "$lib/websocket";
   import { onMount } from "svelte";
   import "../app.postcss";
   import { goto } from "$app/navigation";
+  import { page } from "$app/stores";
 
   let showDevPanel = false;
   let showNotification = false;
@@ -84,16 +85,22 @@
     }
     return unsubscribe;
   });
-  addNotification();
+
+  // These pages dont get a notification bar
+  const noNotiBarPages = ["/", "/setuprooms", "/lobby", "/role", "/join"];
+
+  $: displayNotificationBar =
+    noNotiBarPages.find((page) => $page.route.id == page) == null;
 </script>
 
 <div
-  class="min-h-screen bg-black flex flex-col items-center text-white font-mono px-2 select-none"
+  id="main-panel"
+  class="min-h-screen bg-black items-center flex flex-col text-white font-mono px-2 select-none"
 >
-  <NotificationBar {notificationMessage}></NotificationBar>
-
-  <slot />
-
+  {#if displayNotificationBar}
+    <NotificationBar notificationMessage={$notificationStore}></NotificationBar>
+  {/if}
+  <slot class="flex-1" />
   {#if dev && showDevPanel}
     <DevPanel />
   {/if}

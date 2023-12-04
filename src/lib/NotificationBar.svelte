@@ -3,13 +3,11 @@
 </script>
 
 <div
-  class="w-screen bg-green-900 text-green-50 h-12 flex flex-col justify-center items-center"
+  class="w-screen bg-green-900 text-green-50 h-10 flex flex-col justify-center items-center"
 >
   <p>
     {#if notificationMessage !== null}
       {notificationMessage}
-    {:else}
-      No notifications
     {/if}
   </p>
 </div>

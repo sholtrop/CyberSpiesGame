@@ -86,9 +86,9 @@
           <div class="flex flex-col justify-between">
             <div class="flex flex-col items-center">
               <Title />
-              <div class="my-10 flex flex-col items-center">
+              <div class="my-2 flex flex-col items-center">
                 <p class="text-center mb-3">
-                  Invite Link (click to copy): <br />
+                  Invite Link (tap to copy): <br />
                   <InviteLink {roomLink} />
                 </p>
                 <QrCode link={roomLink} />
