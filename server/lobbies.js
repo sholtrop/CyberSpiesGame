@@ -125,6 +125,7 @@ class Lobby {
       );
     const votes = Object.values(this.players).reduce((votes, player) => {
       votes[player.color] = "noVote";
+      return votes;
     }, {});
 
     this.status = {
@@ -165,6 +166,8 @@ class Lobby {
   }
 
   killPlayer(targetColor, killerColor) {
+    // We DON'T check whether killing is off cooldown because that is managed in the frontend.
+    // This means the dev panel will allow kills even when it's on CD, which is what we want for tests.
     const target = this.players[targetColor];
     if (target != null) {
       target.status = "dead";

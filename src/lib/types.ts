@@ -128,7 +128,7 @@ export type GameAction =
     }
   | {
       action: "killPlayer";
-      playerColor: Color;
+      targetColor: Color;
     }
   | {
       action: "startTask";

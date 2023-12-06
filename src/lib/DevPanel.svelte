@@ -17,7 +17,7 @@
   }
 
   function killPlayerHandler(killedPlayer: Color) {
-    emitGameAction({ action: "killPlayer", playerColor: killedPlayer });
+    emitGameAction({ action: "killPlayer", targetColor: killedPlayer });
   }
 
   function reportDeadBodyHandler(bodyColor: Color) {
