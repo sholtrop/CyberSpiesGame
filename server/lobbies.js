@@ -201,6 +201,7 @@ class Lobby {
       );
     const { votes } = this.status;
     votes[voterColor] = vote;
+    this.synchronize();
   }
 
   // Total number of players, both impostors and crew, that are not dead
@@ -447,7 +448,7 @@ class Lobby {
     }
 
     // Set the selected players to impostor
-    for (const impostorColor of impostorColors) {
+    for (const impostorColor of impostorColors.values()) {
       this.players[impostorColor].role = {
         name: "impostor",
         killCooldown: KILL_COOLDOWN_SECS,
