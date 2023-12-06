@@ -111,7 +111,7 @@
             }
             return;
         }
-        if (index == 11){ /* backspace*/
+        if (index == 11){ /* clear all*/
             while (current > 0){
                 current -= 1;
                 input[current] = "_";
@@ -212,6 +212,7 @@
         {#each Array(4) as _,i}
             <div  
                 class="screen" 
+                class:history={waiting}
                 class:screen-right={right[i]} 
                 class:screen-almost={almost[i]}>
                     {input[i]}
