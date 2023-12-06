@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid";
 import {
   EMERGENCY_MEETINGS_PER_PLAYER,
   N_TOTAL_TASKS,
@@ -8,15 +9,16 @@ import {
 import { randInt } from "./util.js";
 
 export class Player {
-  constructor({ name, connection, status, role, color }) {
+  constructor({ name, connection, status, color }) {
     this.name = name;
     this.connection = connection;
     this.status = status;
-    this.role = role;
+    this.role = { name: "undecided" };
     this.tasks = [];
     this.color = color || randomPlayerColor();
     this.currentlyDoing = { activity: "nothing" };
     this.emergencyMeetingsLeft = EMERGENCY_MEETINGS_PER_PLAYER;
+    this.id = nanoid();
   }
 
   assignTasks(activities) {
@@ -65,10 +67,16 @@ export class Player {
   }
 
   finishTask(taskNumber) {
-    if (this.currentlyDoing.activity !== "task" && this.role !== "impostor")
+    if (
+      this.currentlyDoing.activity !== "task" &&
+      this.role.name !== "impostor"
+    )
       return;
     // Task that was finished is not the one that was started
-    if (this.currentlyDoing.number !== taskNumber && this.role !== "impostor")
+    if (
+      this.currentlyDoing.number !== taskNumber &&
+      this.role.name !== "impostor"
+    )
       return;
     const task = this.tasks.find((task) => task.number === taskNumber);
     if (task == null) return;

@@ -4,7 +4,7 @@
   import ScanButton from "$lib/ScanButton.svelte";
   import { lobbyStore, playerStore } from "$lib/stores";
   import type { Color, Lobby } from "$lib/types";
-  import { scanNfc } from "$lib/util";
+  import { gotoReplace, scanNfc } from "$lib/util";
   import { onMount } from "svelte";
 
   let meetingCall: string;
@@ -23,9 +23,8 @@
         lobby.status.state == "meetingCalled" &&
         lobby.status.presentPlayers[$playerStore!.color]
       ) {
-        goto("/awaitMeeting", { replaceState: true });
-      } else if (lobby.status.state == "meeting")
-        goto("/vote", { replaceState: true });
+        gotoReplace("/awaitMeeting");
+      } else if (lobby.status.state == "meeting") gotoReplace("/vote");
     });
   });
 

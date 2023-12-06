@@ -5,7 +5,7 @@
   import MainButton from "$lib/MainButton.svelte";
   import Title from "$lib/Title.svelte";
   import NameInput from "$lib/NameInput.svelte";
-  import { deviceIsSupported } from "$lib/util";
+  import { deviceIsSupported, gotoReplace } from "$lib/util";
   import type { Socket } from "socket.io-client";
   import { lobbyStore, playerColorStore, playerStore } from "$lib/stores";
   import { dev } from "$app/environment";
@@ -34,8 +34,17 @@
       console.debug({ lobby, color });
       playerColorStore.set(color);
       lobbyStore.set(lobby);
+      localStorage.setItem(
+        "gameInfo",
+        JSON.stringify({
+          playerId: $playerStore!.id,
+          lobbyId: $lobbyStore!.id,
+          color: $playerColorStore!,
+        })
+      );
+
       if (!dev) document.getElementById("main-panel")!.requestFullscreen();
-      goto(`/setuprooms?id=${lobby.id}`, { replaceState: true });
+      gotoReplace(`/setuprooms?id=${lobby.id}`);
     });
 
     // From `onMount` we can return a cleanup function that Svelte runs whenever a component unmounts (disappears).

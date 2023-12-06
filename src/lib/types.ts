@@ -21,6 +21,7 @@ export type Lobby = {
     | {
         state: "meeting";
         type: "emergency" | "bodyFound";
+        caller: Color;
         countDown: number;
         votes: { [K in Color]: Color | null };
         nVoters: number;
@@ -43,10 +44,14 @@ export type Lobby = {
 };
 
 export type Player = {
+  id: string;
   name: string;
   connection: "connected" | "disconnected";
   status: "alive" | "dead" | "foundDead";
-  role: "crew" | "impostor" | "undecided";
+  role:
+    | { name: "crew" }
+    | { name: "impostor"; killCooldown: number; sabotageCooldown: number }
+    | { name: "undecided" };
   emergencyMeetingsLeft: number;
   color: Color;
   tasks: Task[];
@@ -120,7 +125,7 @@ export type GameAction =
   | { action: "enterMeeting" }
   | {
       action: "vote";
-      playerColor: Color;
+      vote: Vote;
     }
   | {
       action: "killPlayer";
@@ -142,3 +147,5 @@ export type GameAction =
     }
   // Player ready in lobby
   | { action: "playerReady" };
+
+export type Vote = Color | "noVote" | "skip";

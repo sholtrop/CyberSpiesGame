@@ -1,6 +1,7 @@
 import { dev } from "$app/environment";
 import * as socketIO from "socket.io-client";
-import type { GameAction } from "./types";
+import type { Color, GameAction } from "./types";
+import { lobbyStore, playerColorStore } from "./stores";
 
 const SERVER = ``;
 let socket: socketIO.Socket | null = null;

@@ -1,23 +1,18 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
   import ScanButton from "$lib/ScanButton.svelte";
   import SmallButton from "$lib/SmallButton.svelte";
   import TaskBar from "$lib/TaskBar.svelte";
   import { COLORS } from "$lib/consts";
   import { lobbyStore, playerStore } from "$lib/stores";
-  import type { Task } from "$lib/types";
+  import { gotoReplace } from "$lib/util";
   import { emitGameAction } from "$lib/websocket";
   import { onMount } from "svelte";
   import { press, swipe } from "svelte-gestures";
 
   let mainDiv: HTMLDivElement;
   let spyDiv: HTMLDivElement;
-  let killCD: number;
-  let sabotageCD: number;
-
   onMount(() => {
-    if ($lobbyStore == null || $playerStore == null)
-      goto(`/`, { replaceState: true });
+    if ($lobbyStore == null || $playerStore == null) gotoReplace(`/`);
   });
 
   function scrollDown() {
@@ -33,37 +28,8 @@
     if (event.detail.direction === "bottom") scrollUp();
   }
 
-  function startKillCD() {
-    let interval = setInterval(() => {
-      killCD--;
-      if (killCD <= 0) clearInterval(interval);
-    }, 1000);
-  }
-
-  function setKillCD() {
-    let cd = 5;
-    killCD = cd;
-    startKillCD();
-  }
-
-  function startSabotageCD() {
-    let interval = setInterval(() => {
-      sabotageCD--;
-      if (sabotageCD <= 0) clearInterval(interval);
-    }, 1000);
-  }
-
-  function setSabotageCD() {
-    let cd = 7;
-    sabotageCD = cd;
-    startSabotageCD();
-  }
-
-  setKillCD();
-  setSabotageCD();
-
   function pressHandler(task: number) {
-    if ($playerStore?.role === "impostor") {
+    if ($playerStore?.role.name === "impostor") {
       emitGameAction({ action: "taskCompleted", taskNumber: task });
     }
   }
@@ -103,7 +69,7 @@
       </div>
     </div>
 
-    {#if $playerStore.role === "impostor"}
+    {#if $playerStore.role.name === "impostor"}
       <div
         bind:this={spyDiv}
         class="px-10 flex flex-col gap-10"
@@ -122,7 +88,9 @@
         <div class="flex flex-col">
           <p class="font-bold text-2xl mb-1">
             Sabotage <span class="text-base font-thin text-gray-400"
-              >{sabotageCD ? "Ready in " + sabotageCD : "Ready"}</span
+              >{$playerStore.role?.sabotageCooldown
+                ? "Ready in " + $playerStore?.role.sabotageCooldown
+                : "Ready"}</span
             >
           </p>
           <!-- TODO: grey out buttons when cd is up -->
@@ -135,7 +103,11 @@
           <SmallButton>Power 2</SmallButton>
         </div>
         <div class="flex flex-col items-center">
-          <p>Ready to kill{killCD ? " in " + killCD : ""}.</p>
+          <p>
+            Ready to kill{$playerStore?.role.killCooldown
+              ? ` in ${$playerStore?.role.killCooldown}`
+              : ""}.
+          </p>
           <div class="self-center mb-4 mt-2">
             <ScanButton
               on:scanned={(contents) => console.log("Scanned", contents)}

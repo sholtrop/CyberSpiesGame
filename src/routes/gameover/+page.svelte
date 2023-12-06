@@ -3,9 +3,10 @@
   import MainButton from "$lib/MainButton.svelte";
   import { COLORS } from "$lib/consts";
   import { lobbyStore } from "$lib/stores";
-    import type { Lobby } from "$lib/types";
-    import { getSocketIO } from "$lib/websocket";
-    import type { Socket } from "socket.io-client";
+  import type { Lobby } from "$lib/types";
+  import { gotoReplace } from "$lib/util";
+  import { getSocketIO } from "$lib/websocket";
+  import type { Socket } from "socket.io-client";
   import { onMount } from "svelte";
 
   let io = getSocketIO();
@@ -16,15 +17,11 @@
     if ($lobbyStore != null) playerOverview = $lobbyStore.players;
   });
 
-
-
   function gotoLobby() {
-    goto("/lobby", { replaceState: true });
+    gotoReplace("/lobby");
   }
 
-  onMount(() => {
-
-  });
+  onMount(() => {});
 </script>
 
 {#if $lobbyStore != null && $lobbyStore.status.state === "gameEnded"}

@@ -9,7 +9,7 @@ export const VOTE_RESULT_DISPLAY_SECS = 10;
 
 export const TASK_PROGRESSION_VICTORY_AMOUNT = 100;
 
-export const ROLE_DISPLAY_SECS = 5;
+export const ROLE_DISPLAY_SECS = 60;
 
 const N_TASKS_TO_WIN = 15;
 
@@ -78,3 +78,7 @@ export const MEETING_BUTTON_CD = 20;
 
 // How many emergency meetings a player may call per game
 export const EMERGENCY_MEETINGS_PER_PLAYER = 1;
+
+export const KILL_COOLDOWN_SECS = 20;
+
+export const SABO_COOLDOWN_SECS = 45;

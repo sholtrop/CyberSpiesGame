@@ -3,58 +3,116 @@
   import DevPanel from "$lib/DevPanel.svelte";
   import NotificationBar from "$lib/NotificationBar.svelte";
   import { DEV_PANEL_KEY } from "$lib/consts";
-  import { lobbyStore, notificationStore, playerStore } from "$lib/stores";
+  import {
+    lobbyStore,
+    notificationStore,
+    playerColorStore,
+    playerStore,
+  } from "$lib/stores";
   import { getSocketIO } from "$lib/websocket";
   import { onMount } from "svelte";
   import "../app.postcss";
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
+  import type { Color } from "$lib/types";
+  import { gotoReplace } from "$lib/util";
 
   let showDevPanel = false;
-  let showNotification = false;
-  let notificationMessage: string;
-
-  function addNotification() {
-    let msg = "Warning: Firewall breached!";
-    notificationMessage = msg;
-    showNotification = true;
-  }
-
-  function rmNotification() {
-    showNotification = false;
-  }
-
   const socket = getSocketIO();
 
-  // The 'lobbyUpdate' event sends the entire state of the lobby to all players
-  socket.on("lobbyUpdate", ({ lobby }) => {
-    lobbyStore.set(lobby);
-  });
+  // Use the current lobbyState to determine which page the player should navigate to after reconnecting
+  function navigateAfterReconnect() {
+    if ($lobbyStore == null) {
+      gotoReplace("/");
+      return;
+    }
 
-  // The 'countDown' event sends only the current countDown (if there is any),
-  // making it a more light-weight update
-  socket.on("countDown", ({ count }) => {
-    lobbyStore.update((lobby) => {
-      if (lobby != null && "countDown" in lobby.status) {
-        lobby.status.countDown = count;
-        return lobby;
-      }
-      return null;
-    });
-  });
+    switch ($lobbyStore.status.state) {
+      case "meetingCalled":
+        if ($playerStore?.status !== "foundDead") gotoReplace("/meetingcall");
+        break;
+      case "inLobby":
+        gotoReplace("/lobby");
+        break;
+      case "meeting":
+        if ($playerStore?.status === "alive") gotoReplace("/vote");
+        break;
+      case "roleExplanation":
+        gotoReplace("/role");
+        break;
+      case "settingRooms":
+        gotoReplace("/setuprooms");
+        break;
+      case "started":
+        gotoReplace("/game");
+        break;
+      case "voteResultAnnounced":
+        gotoReplace("/voteover");
+        break;
+      case "gameEnded":
+        gotoReplace("/gameover");
+        break;
+      default:
+        // Unreachable: Every case must be handled
+        $lobbyStore.status satisfies never;
+    }
+  }
+
+  function tryReconnect() {
+    const storedGameInfo = localStorage.getItem("gameInfo");
+    let gameInfo: { playerId: string; lobbyId: string; color: Color } | null =
+      null;
+    if (storedGameInfo != null) {
+      gameInfo = JSON.parse(storedGameInfo);
+    }
+    if (gameInfo) {
+      socket.once("reconnected", ({ success, lobby, color }) => {
+        if (success) {
+          playerColorStore.set(color);
+          lobbyStore.set(lobby);
+          navigateAfterReconnect();
+        } else {
+          console.debug("Lobby does not exist anymore, redirect to start page");
+          localStorage.removeItem("gameInfo");
+          gotoReplace("/");
+        }
+      });
+      socket.emit("reconnect", {
+        color: gameInfo.color,
+        playerId: gameInfo.playerId,
+        lobbyId: gameInfo.lobbyId,
+      });
+    }
+  }
 
   onMount(() => {
+    // The 'lobbyUpdate' event sends the entire state of the lobby to all players
+    socket.on("lobbyUpdate", ({ lobby }) => {
+      console.log("Lobby was updated", { lobby });
+      lobbyStore.set(lobby);
+    });
+
+    // The 'countDown' event sends only the current countDown (if there is any),
+    // making it a more light-weight update
+    socket.on("countDown", ({ count }) => {
+      lobbyStore.update((lobby) => {
+        if (lobby != null && "countDown" in lobby.status) {
+          lobby.status.countDown = count;
+          return lobby;
+        }
+        return null;
+      });
+    });
+
     const unsubscribeLobby = lobbyStore.subscribe((lobby) => {
       if (lobby == null) return;
-      console.log("Lobby state is now ", lobby.status.state);
       switch (lobby.status.state) {
         case "meetingCalled":
-          if ($playerStore?.status !== "foundDead")
-            goto("/meetingcall", { replaceState: true });
+          if ($playerStore?.status !== "foundDead") gotoReplace("/meetingcall");
           break;
 
         case "gameEnded":
-          goto("/gameover", { replaceState: true });
+          gotoReplace("/gameover");
           break;
 
         // TODO: add case for sabotage
@@ -67,11 +125,11 @@
       switch (player.status) {
         case "dead":
           if (gameState !== "meetingCalled" && gameState !== "gameEnded")
-            goto("/killed", { replaceState: true });
+            gotoReplace("/killed");
           break;
 
         case "foundDead":
-          if (gameState !== "gameEnded") goto("/dead", { replaceState: true });
+          if (gameState !== "gameEnded") gotoReplace("/dead");
       }
     });
 
@@ -79,6 +137,8 @@
       unsubscribeLobby();
       unsubscribePlayer();
     }
+
+    tryReconnect();
     return unsubscribe;
   });
 

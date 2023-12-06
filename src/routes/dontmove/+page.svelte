@@ -2,6 +2,7 @@
   import { dev } from "$app/environment";
   import { goto } from "$app/navigation";
   import { VIRUS_FAIL_TIME, VIRUS_SCAN_TIME } from "$lib/consts";
+  import { gotoReplace } from "$lib/util";
   import { onMount } from "svelte";
   let x_diff: number, y_diff: number, z_diff: number;
   let hasAccelerometer = false;
@@ -14,7 +15,7 @@
       scanFailedCounter -= 1;
       if (scanFailedCounter === 0) {
         clearInterval(cancel);
-        goto("/game", { replaceState: true });
+        gotoReplace("/game");
       }
     }, 1000);
   }
@@ -30,7 +31,7 @@
 
       if (virusScanCounter === 0) {
         clearInterval(cancel);
-        goto("/game", { replaceState: true });
+        gotoReplace("/game");
       }
     }, 1000);
   }

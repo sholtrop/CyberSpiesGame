@@ -1,4 +1,5 @@
 import { dev } from "$app/environment";
+import { goto } from "$app/navigation";
 
 // Return an array of `amount` numbers of which AT LEAST two sum up to 100
 export function makeNumberListWith100Sum(amount: number): number[] {
@@ -94,4 +95,9 @@ export function scanNfc(
 
 export function deviceIsSupported(): boolean {
   return ("NDEFReader" in window && window.isSecureContext) || dev;
+}
+
+// Navigate to a page and replace browser history, preventing use of the back button
+export function gotoReplace(link: string) {
+  goto(link, { replaceState: true });
 }

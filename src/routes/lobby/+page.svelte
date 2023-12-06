@@ -12,6 +12,7 @@
   import AgentRoleExplanation from "$lib/AgentRoleExplanation.svelte";
   import { swipe } from "svelte-gestures";
   import { emitGameAction, getSocketIO } from "$lib/websocket";
+  import { gotoReplace } from "$lib/util";
 
   const N_PAGES = 4;
 
@@ -22,7 +23,7 @@
   onMount(() => {
     if ($lobbyStore == null) {
       // You can only access this page if you're in a lobby
-      goto("/", { replaceState: true });
+      gotoReplace("/");
     }
     roomLink = getRoomLink();
     socket = getSocketIO();
@@ -56,7 +57,7 @@
   }
 
   function setReady() {
-    emitGameAction({action: "playerReady"});
+    emitGameAction({ action: "playerReady" });
   }
 
   // Game can only be started by the creator after enough playes are present
