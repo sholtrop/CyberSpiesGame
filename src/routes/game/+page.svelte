@@ -56,7 +56,7 @@
               on:press={() => pressHandler(task.number)}
             >
               <span class:line-through={task.status === "completed"}
-                >{task.description}}</span
+                >{task.description}</span
               >
             </li>
           {/each}
