@@ -87,7 +87,7 @@ io.on("connection", (client) => {
         );
         break;
       case "killPlayer":
-        playerLobby?.killPlayer(info.playerColor);
+        playerLobby?.killPlayer(info.targetColor, currentPlayer.color);
         break;
       case "startTask":
         currentPlayer?.startTask(info.taskNumber);
