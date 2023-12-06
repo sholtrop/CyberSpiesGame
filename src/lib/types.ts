@@ -43,6 +43,7 @@ export type Lobby = {
 };
 
 export type Player = {
+  id: string;
   name: string;
   connection: "connected" | "disconnected";
   status: "alive" | "dead" | "foundDead";

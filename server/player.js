@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid";
 import {
   EMERGENCY_MEETINGS_PER_PLAYER,
   N_TOTAL_TASKS,
@@ -17,6 +18,7 @@ export class Player {
     this.color = color || randomPlayerColor();
     this.currentlyDoing = { activity: "nothing" };
     this.emergencyMeetingsLeft = EMERGENCY_MEETINGS_PER_PLAYER;
+    this.id = nanoid();
   }
 
   assignTasks(activities) {

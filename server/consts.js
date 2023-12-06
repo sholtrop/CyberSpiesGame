@@ -9,7 +9,7 @@ export const VOTE_RESULT_DISPLAY_SECS = 10;
 
 export const TASK_PROGRESSION_VICTORY_AMOUNT = 100;
 
-export const ROLE_DISPLAY_SECS = 5;
+export const ROLE_DISPLAY_SECS = 60;
 
 const N_TASKS_TO_WIN = 15;
 

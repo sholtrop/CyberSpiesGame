@@ -6,9 +6,9 @@
   import MainButton from "$lib/MainButton.svelte";
   import Title from "$lib/Title.svelte";
   import NameInput from "$lib/NameInput.svelte";
-  import { deviceIsSupported } from "$lib/util";
+  import { deviceIsSupported, gotoReplace } from "$lib/util";
   import type { Socket } from "socket.io-client";
-  import { lobbyStore, playerColorStore } from "$lib/stores";
+  import { lobbyStore, playerColorStore, playerStore } from "$lib/stores";
   import { dev } from "$app/environment";
 
   let socket: Socket;
@@ -28,7 +28,7 @@
   onMount(() => {
     deviceSupported = deviceIsSupported();
     const urlCode = $page.url.searchParams.get("code");
-    if (urlCode === null) goto("/", { replaceState: true });
+    if (urlCode === null) gotoReplace("/");
     else joinCode = urlCode;
     socket = getSocketIO();
     socket.on("error", ({ error: err }) => (error = err));
@@ -38,8 +38,16 @@
       console.debug({ lobby, color });
       playerColorStore.set(color);
       lobbyStore.set(lobby);
+      localStorage.setItem(
+        "gameInfo",
+        JSON.stringify({
+          playerId: $playerStore!.id,
+          lobbyId: $lobbyStore!.id,
+          color: $playerColorStore!,
+        })
+      );
       if (!dev) document.getElementById("main-panel")!.requestFullscreen();
-      goto("/lobby", { replaceState: true });
+      gotoReplace("/lobby");
     });
 
     // From `onMount` we can return a cleanup function that Svelte runs whenever a component unmounts (disappears).

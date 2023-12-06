@@ -6,6 +6,7 @@
   import { COLORS } from "$lib/consts";
   import { lobbyStore, playerStore } from "$lib/stores";
   import type { Task } from "$lib/types";
+  import { gotoReplace } from "$lib/util";
   import { emitGameAction } from "$lib/websocket";
   import { onMount } from "svelte";
   import { press, swipe } from "svelte-gestures";
@@ -16,8 +17,7 @@
   let sabotageCD: number;
 
   onMount(() => {
-    if ($lobbyStore == null || $playerStore == null)
-      goto(`/`, { replaceState: true });
+    if ($lobbyStore == null || $playerStore == null) gotoReplace(`/`);
   });
 
   function scrollDown() {

@@ -7,6 +7,7 @@
   import { getSocketIO } from "$lib/websocket";
   import { onMount } from "svelte";
   import type { NFC_ACTIVITIES } from "../../../server/consts";
+  import { gotoReplace } from "$lib/util";
 
   let nfcs: {
     id: number;
@@ -28,10 +29,9 @@
   let form: HTMLFormElement;
 
   onMount(() => {
-    if ($lobbyStore == null) goto("/", { replaceState: true });
+    if ($lobbyStore == null) gotoReplace("/");
 
     return lobbyStore.subscribe((lobby) => {
-      console.log({ lobby });
       if (lobby == null) return;
       if (lobby.status.state === "inLobby") goto("/lobby");
     });

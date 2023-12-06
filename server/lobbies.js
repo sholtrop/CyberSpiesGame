@@ -25,11 +25,16 @@ class Lobby {
     this.taskProgression = { real: 0, displayed: 0 };
     this.activities = null;
     this.activeEffects = [];
+    this._lobbyDeleteTimeout = null;
   }
 
   // Emit the current lobby status to all players in the lobby
   synchronize() {
-    io.to(this.id).emit("lobbyUpdate", { lobby: this });
+    const lobbyState = { ...this };
+    Object.keys(lobbyState).forEach((key) =>
+      key.startsWith("_") ? delete lobbyState[key] : ""
+    );
+    io.to(this.id).emit("lobbyUpdate", { lobby: lobbyState });
   }
 
   // A light-weight synchronize that synchronizes ONLY the current countdown.
@@ -218,6 +223,59 @@ class Lobby {
         ) * TASK_PROGRESS_DISPLAY_THRESHOLD;
       this.synchronize();
     }, randInt(3, 8) * 1000);
+  }
+
+  reconnectPlayer(color, id) {
+    if (this.players[color].id !== id) {
+      console.error(`Player ${color} tried to reconnect but id did not match`);
+      return;
+    }
+    this.players[color].connection = "connected";
+    if (this._lobbyDeleteTimeout != null) {
+      clearTimeout(this._lobbyDeleteTimeout);
+      this._lobbyDeleteTimeout = null;
+      console.debug(
+        `Lobby ${this.id} no longer scheduled for deletion because player reconnected`
+      );
+    }
+    this.synchronize();
+    return this.players[color];
+  }
+
+  // Mark player as disconnected from the lobby.
+  // If all players are disconnected also remove the lobby.
+  // If player does not exist in this lobby, returns `null` if there is no lobby (anymore), else returns the lobby.
+  disconnectPlayer(playerColor) {
+    if (this.players[playerColor] != null)
+      console.debug(
+        `Player ${this.players[playerColor].name} disconnected from lobby ${this.id}`
+      );
+    this.players[playerColor].connection = "disconnected";
+
+    const nConnectedPlayers = Object.values(this.players).filter(
+      (p) => p.connection === "connected"
+    ).length;
+
+    // Remove lobby entirely after 1 minute if this is the last player left
+    if (nConnectedPlayers === 0) {
+      console.debug(
+        `Lobby ${this.id} scheduled for deletion because it has no connected players left`
+      );
+      this._lobbyDeleteTimeout = setTimeout(() => {
+        const nConnectedPlayers = Object.values(this.players).filter(
+          (p) => p.connection === "connected"
+        ).length;
+        if (nConnectedPlayers === 0) {
+          delete lobbies[this.id];
+          console.log(`Deleted lobby ${this.id}`);
+        }
+      }, 1000 * 60);
+
+      return null;
+    } else {
+      this.synchronize();
+      return this;
+    }
   }
 
   // Returns the color the player that should be voted out, or `null` if no player is voted out.
@@ -414,26 +472,6 @@ export function joinLobby(lobbyId, playerName) {
   lobby.players[color] = player;
 
   return [true, { lobby, player }];
-}
-
-// Remove player from an existing lobby. Also remove the lobby if this was the last player left.
-// If player does not exist in this lobby, returns `null` if there is no lobby (anymore), else returns the lobby.
-export function removePlayer(lobbyId, playerColor) {
-  const lobby = lobbies[lobbyId];
-  if (lobby == null) return null;
-
-  if (lobby.players[playerColor] != null)
-    console.debug(
-      `Player ${lobby.players[playerColor].name} left lobby ${lobbyId}`
-    );
-  delete lobby.players[playerColor];
-  // Remove lobby entirely if this is the last player left
-  if (Object.values(lobby.players).length === 0) {
-    delete lobbies[lobbyId];
-    console.debug(`Remove lobby ${lobbyId} because it has no players left`);
-    return null;
-  }
-  return lobby;
 }
 
 export function getLobby(lobbyId) {

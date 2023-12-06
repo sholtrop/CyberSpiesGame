@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { browser } from '$app/environment';
+  import { browser } from "$app/environment";
+  import { gotoReplace } from "$lib/util";
 
   let voteResult: string;
 
@@ -11,14 +12,13 @@
   function gotoGame() {
     setTimeout(() => {
       if (browser) {
-          goto("/game", {replaceState: true});
+        gotoReplace("/game");
       }
     }, 5000);
   }
 
   setVoteResult();
   gotoGame();
-
 </script>
 
 <div>

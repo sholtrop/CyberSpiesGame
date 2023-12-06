@@ -1,5 +1,5 @@
 import { io } from "./socketio.js";
-import { createLobby, joinLobby, removePlayer } from "./lobbies.js";
+import { createLobby, getLobby, joinLobby } from "./lobbies.js";
 import { playerNameValid } from "./player.js";
 
 io.on("connection", (client) => {
@@ -19,12 +19,18 @@ io.on("connection", (client) => {
     playerLobby = lobby;
     client.join(playerLobby.id);
     client.join(player.id);
-    client.emit("joinedLobby", { lobby, color: player.color });
+    client.emit("joinedLobby", { lobby, color: player.color, id: player.id });
     console.debug(`${player.name} created lobby ${playerLobby.id}`);
   });
 
   client.on("setActivities", ({ activities }) => {
-    if (currentPlayer == null || playerLobby == null) return;
+    if (currentPlayer == null || playerLobby == null) {
+      console.error(`Cannot set activities as one of these is null`, {
+        currentPlayer,
+        playerLobby,
+      });
+      return;
+    }
     playerLobby.setActivities(activities);
   });
 
@@ -114,14 +120,31 @@ io.on("connection", (client) => {
     if (playerLobby != null) playerLobby.startGame();
   });
 
+  client.on("reconnect", ({ color, playerId, lobbyId }) => {
+    const lobby = getLobby(lobbyId);
+    if (!lobby) {
+      console.debug(`Lobby ${lobbyId} does not exist anymore, can't reconnect`);
+      client.emit("reconnected", { success: false });
+      return;
+    }
+    playerLobby = lobby;
+    currentPlayer = playerLobby.reconnectPlayer(color, playerId);
+    client.join(lobby.id);
+    console.debug(`Client reconnected ${currentPlayer.name}`);
+    client.emit("reconnected", {
+      success: true,
+      lobby,
+      color: currentPlayer.color,
+    });
+
+    console.debug(`Player ${currentPlayer.name} reconnected successfully`);
+  });
+
   client.on("disconnect", () => {
     console.debug(
       `Client disconnected ${currentPlayer ? currentPlayer.name : ""}`
     );
-    if (playerLobby != null) {
-      const lobby = removePlayer(playerLobby.id, currentPlayer.color);
-      if (lobby != null) lobby.synchronize();
-    }
+    playerLobby?.disconnectPlayer(currentPlayer?.color);
   });
 
   client.on("devSetLobby", ({ lobby }) => {
