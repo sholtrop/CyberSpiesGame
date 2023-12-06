@@ -2,9 +2,9 @@
   import { DEV_PANEL_KEY } from "./consts";
   import { lobbyStore, playerStore } from "$lib/stores";
   import { emitGameAction, getSocketIO } from "./websocket";
-  import { goto } from "$app/navigation";
   import type { Color } from "./types";
   import { gotoReplace } from "./util";
+  import { KILL_COOLDOWN_SECS, SABO_COOLDOWN_SECS } from "../../server/consts";
 
   const io = getSocketIO();
   let playerColor: Color;
@@ -32,8 +32,13 @@
     "Switch roles": () => {
       const players = { ...$lobbyStore!.players };
       const me = $playerStore!;
-      if (me.role === "impostor") me.role = "crew";
-      else me.role = "impostor";
+      if (me.role.name === "impostor") me.role = { name: "crew" };
+      else
+        me.role = {
+          name: "impostor",
+          killCooldown: KILL_COOLDOWN_SECS,
+          sabotageCooldown: SABO_COOLDOWN_SECS,
+        };
       io.emit("devSetLobby", { lobby: { players } });
     },
     "Call meeting": () => gotoReplace("/meetingbutton"),
@@ -55,7 +60,7 @@
         ? emitGameAction({ action: "startSabotageFix" })
         : alert("Cannot fix sabotage as you're not in a lobby"),
     "Trigger victory": () =>
-      $playerStore?.role !== "undecided"
+      $playerStore?.role.name !== "undecided"
         ? io.emit("devSetLobby", {
             lobby: {
               status: { state: "gameEnded", victors: $playerStore?.role },
@@ -156,7 +161,19 @@
     </h1>
     <div class="grid grid-cols-2">
       <div>Color: <span class="font-semibold">{$playerStore?.color}</span></div>
-      <div>Role: <span class="font-semibold">{$playerStore?.role}</span></div>
+      <div>
+        Role: <span class="font-semibold">{$playerStore?.role}</span>
+        {#if $playerStore?.role.name === "impostor"}
+          <div class="text-sm ml-4">
+            Kill CD:
+            <span class="font-bold">{$playerStore?.role.killCooldown}</span><br
+            />
+            Sabo CD:
+            <span class="font-bold">{$playerStore?.role.sabotageCooldown}</span>
+          </div>
+        {/if}
+      </div>
+
       <div>
         Status: <span class="font-semibold">{$playerStore?.status}</span>
       </div>
@@ -179,6 +196,7 @@
         Lobby state:
         <span class="font-semibold">{$lobbyStore?.status.state}</span>
       </div>
+
       <div>
         Active effects:
         <span class="font-semibold"

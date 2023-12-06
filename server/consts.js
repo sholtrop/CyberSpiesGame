@@ -78,3 +78,7 @@ export const MEETING_BUTTON_CD = 20;
 
 // How many emergency meetings a player may call per game
 export const EMERGENCY_MEETINGS_PER_PLAYER = 1;
+
+export const KILL_COOLDOWN_SECS = 20;
+
+export const SABO_COOLDOWN_SECS = 45;

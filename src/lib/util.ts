@@ -97,6 +97,7 @@ export function deviceIsSupported(): boolean {
   return ("NDEFReader" in window && window.isSecureContext) || dev;
 }
 
+// Navigate to a page and replace browser history, preventing use of the back button
 export function gotoReplace(link: string) {
   goto(link, { replaceState: true });
 }

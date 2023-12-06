@@ -1,10 +1,12 @@
 import { nanoid } from "nanoid";
 import {
+  KILL_COOLDOWN_SECS,
   MAX_PLAYERS,
   MEETING_BUTTON_CD,
   MEETING_TIME,
   N_IMPOSTORS,
   ROLE_DISPLAY_SECS,
+  SABO_COOLDOWN_SECS,
   SINGLE_TASK_PROGRESSION_AMOUNT,
   TASK_PROGRESSION_VICTORY_AMOUNT,
   VOTE_RESULT_DISPLAY_SECS,
@@ -26,6 +28,7 @@ class Lobby {
     this.activities = null;
     this.activeEffects = [];
     this._lobbyDeleteTimeout = null;
+    this._impostorCdInterval = null;
   }
 
   // Emit the current lobby status to all players in the lobby
@@ -109,12 +112,15 @@ class Lobby {
       throw Error(
         `Cannot start a meeting: No meeting was called beforehand. Lobby status was ${state}`
       );
+    const votes = Object.values(this.players).reduce((votes, player) => {
+      votes[player.color] = "noVote";
+    }, {});
 
     this.status = {
       state: "meeting",
       type: this.status.type,
       countDown: MEETING_TIME,
-      votes: {},
+      votes,
       nVoters: this.nAlivePlayers(),
     };
 
@@ -231,6 +237,7 @@ class Lobby {
       return;
     }
     this.players[color].connection = "connected";
+
     if (this._lobbyDeleteTimeout != null) {
       clearTimeout(this._lobbyDeleteTimeout);
       this._lobbyDeleteTimeout = null;
@@ -284,9 +291,14 @@ class Lobby {
     const { votes, nVoters } = this.status;
     const nTotalVotes = Object.values(votes).length;
     // Every player that voted skip (`null`) or did not vote, counts as a skip vote
-    const nSkipVotes =
-      Object.values(votes).filter((vote) => vote === null).length +
-      (nVoters - nTotalVotes);
+    const nSkipVotes = Object.values(votes).filter(
+      (vote) => vote === "skip"
+    ).length;
+
+    // Players that did not vote
+    const noVoters = Object.values(votes).filter(
+      (vote) => vote === "noVote"
+    ).length;
 
     // At least half voted to skip, thus no one is voted out
     if (nSkipVotes >= Math.ceil(nTotalVotes / 2)) {
@@ -297,6 +309,7 @@ class Lobby {
     const tally = {};
     // Tally all the votes per player
     for (const vote of Object.values(votes)) {
+      if (vote === "noVote") continue;
       if (tally[vote] != null) tally[vote] += 1;
       else tally[vote] = 1;
     }
@@ -355,6 +368,7 @@ class Lobby {
       state: "started",
       countDown: MEETING_BUTTON_CD,
     };
+    this.setImpostorCooldowns();
     this.synchronize();
     const cancel = setInterval(() => {
       this.status.countDown -= 1;
@@ -376,7 +390,7 @@ class Lobby {
     // Impostors all dead - Crew win
     const impostorsLeft = Object.values(this.players).reduce(
       ({ role, status }, n) => {
-        if (role === "impostor" && status === "alive") return n + 1;
+        if (role.name === "impostor" && status === "alive") return n + 1;
         else return n;
       },
       0
@@ -386,7 +400,7 @@ class Lobby {
     // Equal impostors and crew - Impostors win
     const crewLeft = Object.values(this.players).reduce(
       ({ role, status }, n) => {
-        if (role === "crew" && status === "alive") return n + 1;
+        if (role.name === "crew" && status === "alive") return n + 1;
         else return n;
       },
       0
@@ -405,7 +419,7 @@ class Lobby {
   #assignRolesRandomly() {
     // First make everyone crew
     for (const color of Object.keys(this.players)) {
-      this.players[color].role = "crew";
+      this.players[color].role = { name: "crew" };
     }
 
     // Determine impostors
@@ -418,9 +432,36 @@ class Lobby {
 
     // Set the selected players to impostor
     for (const impostorColor of impostorColors) {
-      this.players[impostorColor].role = "impostor";
+      this.players[impostorColor].role = {
+        name: "impostor",
+        killCooldown: KILL_COOLDOWN_SECS,
+        sabotageCooldown: SABO_COOLDOWN_SECS,
+      };
     }
     console.log(`Player roles decided`, JSON.stringify(this.players, null, 4));
+  }
+
+  #getImpostors() {
+    return Object.values(this.players).filter(
+      (p) => p.role.name === "impostor"
+    );
+  }
+
+  #setImpostorCooldowns() {
+    const impostors = this.#getImpostors();
+    for (const player of impostors) {
+      player.role.killCooldown = KILL_COOLDOWN_SECS;
+      player.role.sabotageCooldown = SABO_COOLDOWN_SECS;
+    }
+    if (_impostorCdInterval != null) clearInterval(this._impostorCdInterval);
+
+    this._impostorCdInterval = setInterval(() => {
+      for (const player of impostors) {
+        player.role.killCooldown -= 1;
+        player.role.sabotageCooldown -= 1;
+      }
+      this.synchronize();
+    });
   }
 }
 
@@ -430,7 +471,6 @@ export function createLobby(creatorName) {
     name: creatorName,
     status: "alive",
     connection: "connected",
-    role: "undecided",
   });
   const lobbyId = nanoid();
   const lobby = new Lobby({
@@ -465,7 +505,6 @@ export function joinLobby(lobbyId, playerName) {
     name: playerName,
     status: "alive",
     connection: "connected",
-    role: "undecided",
     color,
   });
 

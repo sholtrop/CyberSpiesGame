@@ -99,7 +99,7 @@ io.on("connection", (client) => {
         break;
       case "taskCompleted":
         currentPlayer?.finishTask(info.taskNumber);
-        if (currentPlayer?.role === "crew") playerLobby?.increaseTaskBar();
+        if (currentPlayer?.role.name === "crew") playerLobby?.increaseTaskBar();
 
         // Give player new tasks if they've completed all of them
         if (currentPlayer?.tasks.every((t) => t.status === "completed")) {
