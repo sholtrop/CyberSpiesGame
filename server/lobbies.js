@@ -121,6 +121,7 @@ class Lobby {
       type: this.status.type,
       countDown: MEETING_TIME,
       votes,
+      caller: this.status.caller,
       nVoters: this.nAlivePlayers(),
     };
 
@@ -152,16 +153,17 @@ class Lobby {
     }
   }
 
-  killPlayer(playerColor) {
-    const target = this.players[playerColor];
+  killPlayer(targetColor, killerColor) {
+    const target = this.players[targetColor];
     if (target != null) {
       target.status = "dead";
+      this.players[killerColor].role.killCooldown = KILL_COOLDOWN_SECS;
       this.synchronize();
       return [true];
     } else {
       return [
         false,
-        `Player with color ${playerColor} was not found in lobby ${this.id}`,
+        `Player with color ${targetColor} was not found in lobby ${this.id}`,
       ];
     }
   }
@@ -368,7 +370,7 @@ class Lobby {
       state: "started",
       countDown: MEETING_BUTTON_CD,
     };
-    this.setImpostorCooldowns();
+    this.#setImpostorCooldowns();
     this.synchronize();
     const cancel = setInterval(() => {
       this.status.countDown -= 1;
@@ -456,11 +458,18 @@ class Lobby {
     if (_impostorCdInterval != null) clearInterval(this._impostorCdInterval);
 
     this._impostorCdInterval = setInterval(() => {
+      let sync = false; // Only sync if a timer actually changed
       for (const player of impostors) {
-        player.role.killCooldown -= 1;
-        player.role.sabotageCooldown -= 1;
+        if (player.role.killCooldown > 0) {
+          player.role.killCooldown -= 1;
+          sync = true;
+        }
+        if (player.role.sabotageCooldown > 0) {
+          player.role.sabotageCooldown -= 1;
+          sync = true;
+        }
       }
-      this.synchronize();
+      if (sync) this.synchronize();
     });
   }
 }
@@ -515,12 +524,4 @@ export function joinLobby(lobbyId, playerName) {
 
 export function getLobby(lobbyId) {
   return lobbies[lobbyId];
-}
-
-export function killPlayer(lobbyId, playerColor) {
-  const lobby = lobbies[lobbyId];
-  if (lobby == null) return [false, `Lobby with id ${lobbyId} does not exist`];
-  const [ok, err] = lobby.killPlayer(playerColor);
-  if (ok) return [true];
-  if (err) return [false, err];
 }
