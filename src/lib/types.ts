@@ -1,5 +1,4 @@
-import type { PLAYER_COLORS } from "../../server/consts";
-import type { NFC_ACTIVITIES, TASKS } from "./consts";
+import type { NFC_ACTIVITIES } from "./consts";
 
 export type Lobby = {
   id: string;

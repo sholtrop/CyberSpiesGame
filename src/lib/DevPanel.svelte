@@ -162,7 +162,7 @@
     <div class="grid grid-cols-2">
       <div>Color: <span class="font-semibold">{$playerStore?.color}</span></div>
       <div>
-        Role: <span class="font-semibold">{$playerStore?.role}</span>
+        Role: <span class="font-semibold">{$playerStore?.role.name}</span>
         {#if $playerStore?.role.name === "impostor"}
           <div class="text-sm ml-4">
             Kill CD:

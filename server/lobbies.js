@@ -47,6 +47,17 @@ class Lobby {
       io.to(this.id).emit("countDown", { count: this.status.countDown });
   }
 
+  synchronizeCooldowns() {
+    const cooldowns = this.#getImpostors().reduce((cds, impostor) => {
+      cds[impostor.color] = {
+        killCooldown: impostor.role.killCooldown,
+        sabotageCooldown: impostor.role.sabotageCooldown,
+      };
+      return cds;
+    }, {});
+    io.to(this.id).emit("cooldownUpdate", { cooldowns });
+  }
+
   // Start the game for this lobby. Will decide a role for each player and show
   // them information about this role for `ROLE_DISPLAY_SECS`, then start the actual game.
   startGame() {
@@ -455,7 +466,9 @@ class Lobby {
       player.role.killCooldown = KILL_COOLDOWN_SECS;
       player.role.sabotageCooldown = SABO_COOLDOWN_SECS;
     }
-    if (_impostorCdInterval != null) clearInterval(this._impostorCdInterval);
+
+    if (this._impostorCdInterval != null)
+      clearInterval(this._impostorCdInterval);
 
     this._impostorCdInterval = setInterval(() => {
       let sync = false; // Only sync if a timer actually changed
@@ -469,8 +482,8 @@ class Lobby {
           sync = true;
         }
       }
-      if (sync) this.synchronize();
-    });
+      if (sync) this.synchronizeCooldowns();
+    }, 1000);
   }
 }
 

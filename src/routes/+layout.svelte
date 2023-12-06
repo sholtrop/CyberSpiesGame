@@ -104,6 +104,23 @@
       });
     });
 
+    socket.on("cooldownUpdate", ({ cooldowns }) => {
+      console.log("cd update");
+      lobbyStore.update((lobby) => {
+        if (lobby != null) {
+          for (const [color, cds] of Object.entries(cooldowns)) {
+            const player = lobby.players[color as Color];
+            const cooldown = cds as any;
+            if (player.role.name === "impostor") {
+              player.role.killCooldown = cooldown.killCooldown;
+              player.role.sabotageCooldown = cooldown.sabotageCooldown;
+            }
+          }
+        }
+        return lobby;
+      });
+    });
+
     const unsubscribeLobby = lobbyStore.subscribe((lobby) => {
       if (lobby == null) return;
       switch (lobby.status.state) {
@@ -137,8 +154,7 @@
       unsubscribeLobby();
       unsubscribePlayer();
     }
-
-    tryReconnect();
+    if ($page.route.id !== "/join" && $page.route.id !== "/") tryReconnect();
     return unsubscribe;
   });
 
