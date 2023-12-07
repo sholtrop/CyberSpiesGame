@@ -22,7 +22,7 @@ export type Lobby = {
         type: "emergency" | "bodyFound";
         caller: Color;
         countDown: number;
-        votes: { [K in Color]: Color | null };
+        votes: { [K in Color]: Vote };
         nVoters: number;
       }
     | {
