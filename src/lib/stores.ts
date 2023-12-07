@@ -27,4 +27,17 @@ export const playerStore: Readable<Player | null> = derived(
   }
 );
 
-export const notificationStore = writable<string | null>(null);
+export const notificationStore: Readable<string | null> = derived(
+  lobbyStore,
+  (lobby) => {
+    if (lobby == null) return null;
+    if (
+      lobby.activeEffects.firewallBreach != null &&
+      lobby.status.state !== "gameEnded"
+    )
+      return `EMERGENCY: Firewall has been breached. Fix it in ${lobby.activities.firewallbutton1.room} and ${lobby.activities.firewallbutton2.room}. ${lobby.activeEffects.firewallBreach.countDown} seconds left.`;
+    return null;
+  }
+);
+
+export const showNotificationBar = writable(true);

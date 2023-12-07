@@ -35,7 +35,7 @@
 
 <button
   on:click={() => (scanning ? cancel() : scan())}
-  class="border h-20 px-6 text-lg border-green-600 disabled:text-gray-400 min-w-[12rem]"
+  class="border h-16 px-6 text-lg border-green-600 disabled:text-gray-400 min-w-[12rem]"
   class:scanning
   {disabled}
 >

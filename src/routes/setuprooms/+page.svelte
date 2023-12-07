@@ -8,6 +8,7 @@
   import { onMount } from "svelte";
   import type { NFC_ACTIVITIES } from "../../../server/consts";
   import { gotoReplace } from "$lib/util";
+  import type { Socket } from "socket.io-client";
 
   let nfcs: {
     id: number;
@@ -27,8 +28,10 @@
   ];
   let error: string | null = null;
   let form: HTMLFormElement;
+  let socket: Socket;
 
   onMount(() => {
+    socket = getSocketIO();
     if ($lobbyStore == null) gotoReplace("/");
 
     return lobbyStore.subscribe((lobby) => {
@@ -56,9 +59,7 @@
     }
     console.log(JSON.stringify(formDataJson));
 
-    const io = getSocketIO();
-
-    io.emit("setActivities", { activities: formDataJson });
+    socket.emit("setActivities", { activities: formDataJson });
   }
 </script>
 

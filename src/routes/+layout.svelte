@@ -8,17 +8,18 @@
     notificationStore,
     playerColorStore,
     playerStore,
+    showNotificationBar,
   } from "$lib/stores";
   import { getSocketIO } from "$lib/websocket";
   import { onMount } from "svelte";
   import "../app.postcss";
-  import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import type { Color } from "$lib/types";
   import { gotoReplace } from "$lib/util";
+  import type { Socket } from "socket.io-client";
 
   let showDevPanel = false;
-  const socket = getSocketIO();
+  let socket: Socket;
 
   // Use the current lobbyState to determine which page the player should navigate to after reconnecting
   function navigateAfterReconnect() {
@@ -59,7 +60,7 @@
   }
 
   function tryReconnect() {
-    const storedGameInfo = localStorage.getItem("gameInfo");
+    const storedGameInfo = sessionStorage.getItem("gameInfo");
     let gameInfo: { playerId: string; lobbyId: string; color: Color } | null =
       null;
     if (storedGameInfo != null) {
@@ -68,12 +69,13 @@
     if (gameInfo) {
       socket.once("reconnected", ({ success, lobby, color }) => {
         if (success) {
+          console.debug("Reconnecting to lobby");
           playerColorStore.set(color);
           lobbyStore.set(lobby);
           navigateAfterReconnect();
         } else {
           console.debug("Lobby does not exist anymore, redirect to start page");
-          localStorage.removeItem("gameInfo");
+          sessionStorage.removeItem("gameInfo");
           gotoReplace("/");
         }
       });
@@ -86,6 +88,8 @@
   }
 
   onMount(() => {
+    socket = getSocketIO();
+
     // The 'lobbyUpdate' event sends the entire state of the lobby to all players
     socket.on("lobbyUpdate", ({ lobby }) => {
       console.log("Lobby was updated", { lobby });
@@ -100,11 +104,11 @@
           lobby.status.countDown = count;
           return lobby;
         }
-        return null;
+        return lobby;
       });
     });
 
-    socket.on("cooldownUpdate", ({ cooldowns }) => {
+    socket.on("cooldownUpdate", ({ cooldowns, firewall }) => {
       console.log("cd update");
       lobbyStore.update((lobby) => {
         if (lobby != null) {
@@ -116,13 +120,18 @@
               player.role.sabotageCooldown = cooldown.sabotageCooldown;
             }
           }
+
+          if (firewall != null && lobby.activeEffects.firewallBreach != null) {
+            lobby.activeEffects.firewallBreach.countDown = firewall;
+          }
         }
         return lobby;
       });
     });
 
-    const unsubscribeLobby = lobbyStore.subscribe((lobby) => {
+    lobbyStore.subscribe((lobby) => {
       if (lobby == null) return;
+
       switch (lobby.status.state) {
         case "meetingCalled":
           if ($playerStore?.status !== "foundDead") gotoReplace("/meetingcall");
@@ -132,11 +141,21 @@
           gotoReplace("/gameover");
           break;
 
+        case "started":
+        // if (lobby.activeEffects.virusScan != null) {
+        //   if (
+        //     $page.route.id !== "/dontmove" &&
+        //     $playerStore?.status === "alive" &&
+        //     $playerStore.currentlyDoing.activity === "nothing"
+        //   )
+        //     gotoReplace("/dontmove");
+        // }
+
         // TODO: add case for sabotage
       }
     });
 
-    const unsubscribePlayer = playerStore.subscribe((player) => {
+    playerStore.subscribe((player) => {
       let gameState = $lobbyStore?.status.state;
       if (player == null) return;
       switch (player.status) {
@@ -150,24 +169,28 @@
       }
     });
 
-    function unsubscribe() {
-      unsubscribeLobby();
-      unsubscribePlayer();
-    }
     if ($page.route.id !== "/join" && $page.route.id !== "/") tryReconnect();
-    return unsubscribe;
   });
 
   // These pages dont get a notification bar
-  const noNotiBarPages = ["/", "/setuprooms", "/lobby", "/role", "/join"];
+  const noNotiBarPages = [
+    "/",
+    "/setuprooms",
+    "/lobby",
+    "/role",
+    "/join",
+    "/gameover",
+    "/awaitMeeting",
+  ];
 
   $: displayNotificationBar =
-    noNotiBarPages.find((page) => $page.route.id == page) == null;
+    noNotiBarPages.find((page) => $page.route.id == page) == null &&
+    $showNotificationBar;
 </script>
 
 <div
   id="main-panel"
-  class="min-h-screen bg-black items-center flex flex-col text-white font-mono px-2 select-none"
+  class="min-h-screen bg-black items-center flex flex-col text-white font-mono px-2 select-none relative"
 >
   {#if displayNotificationBar}
     <NotificationBar notificationMessage={$notificationStore}></NotificationBar>

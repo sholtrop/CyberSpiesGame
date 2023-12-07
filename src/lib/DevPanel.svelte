@@ -5,12 +5,18 @@
   import type { Color } from "./types";
   import { gotoReplace } from "./util";
   import { KILL_COOLDOWN_SECS, SABO_COOLDOWN_SECS } from "../../server/consts";
+  import type { Socket } from "socket.io-client";
+  import { onMount } from "svelte";
 
-  const io = getSocketIO();
+  let io: Socket;
   let playerColor: Color;
-  if ($playerStore) {
-    playerColor = $playerStore.color;
-  }
+
+  onMount(() => {
+    io = getSocketIO();
+    if ($playerStore) {
+      playerColor = $playerStore.color;
+    }
+  });
 
   function changeTasks() {
     io.emit("devChangeTasks");
@@ -57,13 +63,17 @@
         : alert("Cannot kill/report a player as you're not in a lobby"),
     "Start sabotage fix": () =>
       $lobbyStore != null
-        ? emitGameAction({ action: "startSabotageFix" })
-        : alert("Cannot fix sabotage as you're not in a lobby"),
+        ? emitGameAction({ action: "startFirewallFix" })
+        : alert("Cannot fix firewall as you're not in a lobby"),
     "Trigger victory": () =>
       $playerStore?.role.name !== "undecided"
         ? io.emit("devSetLobby", {
             lobby: {
-              status: { state: "gameEnded", victors: $playerStore?.role },
+              status: {
+                state: "gameEnded",
+                victors: $playerStore?.role,
+                reason: "Dev triggered",
+              },
             },
           })
         : alert("Role is 'undecided', cannot trigger victory"),
@@ -199,14 +209,13 @@
 
       <div>
         Active effects:
-        <span class="font-semibold"
-          >{($lobbyStore?.activeEffects.length ?? 0) > 0
-            ? $lobbyStore?.activeEffects.reduce(
-                (list, effect) => (list += `${effect.effect}, `),
-                ""
-              )
-            : "none"}</span
-        >
+        <span class="font-semibold">
+          {#each Object.entries($lobbyStore?.activeEffects ?? {}) as [effect, info]}
+            {#if info != null}
+              {effect}
+            {/if}
+          {/each}
+        </span>
       </div>
     </div>
   </div>

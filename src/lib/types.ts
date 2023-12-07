@@ -30,7 +30,7 @@ export type Lobby = {
         votedOutPlayer: string | null;
         countDown: number;
       }
-    | { state: "gameEnded"; victors: "impostor" | "crew" };
+    | { state: "gameEnded"; victors: "impostor" | "crew"; reason: string };
   // Between 0 and 100. At 100, crew win the game.
   // Has a displayed value and a real value.
   // Displayed value may differ from the actual value.
@@ -39,7 +39,7 @@ export type Lobby = {
     displayed: number;
   };
   activities: NfcActivities;
-  activeEffects: Effect[];
+  activeEffects: ActiveEffects;
 };
 
 export type Player = {
@@ -63,7 +63,7 @@ export type Player = {
         activity: "nothing";
       }
     | {
-        activity: "fixSabotage";
+        activity: "fixFirewall";
       };
 };
 
@@ -76,30 +76,17 @@ export type NfcActivities = {
   };
 };
 
-// Effects that are active in the lobby, from e.g. impostor powers
-export type Effect =
-  | {
-      // A player affected by this is unable to scan anything
-      effect: "hacked";
-      affectedPlayers: Color[];
-    }
-  | {
-      // Sabotage that forces one or more players to go to
-      // a specific destination room and scan its NFC tag to fix it.
-      // Failing to do so before the countDown reaches 0 results in impostor victory
-      effect: "firewallBreach";
-      buttonsPressed: {
-        firewallbutton1: boolean;
-        firewallbutton2: boolean;
-      };
-      countDown: number;
-    }
-  | {
-      // Sabotage that forces all affected players to stand still (checked by their mobile device)
-      // If they fail, they will become affected by 'hacked'
-      effect: "virusScan";
-      affectedPlayers: Color[];
+// `null` means the effect is not active
+export type ActiveEffects = {
+  hacked: { affectedPlayers: Color[] } | null;
+  firewallBreach: {
+    buttonsPressed: {
+      firewallbutton1: boolean;
+      firewallbutton2: boolean;
     };
+    countDown: number;
+  } | null;
+};
 
 // Each player has one of these colors assigned to them
 export type Color = "green" | "blue" | "yellow" | "pink" | "red";
@@ -135,16 +122,23 @@ export type GameAction =
       taskNumber: number;
     }
   | {
-      action: "startSabotageFix";
+      action: "startFirewallFix";
     }
   | {
       action: "taskCompleted";
       taskNumber: number;
     }
   | {
-      action: "sabotageFixCompleted";
+      action: "finishFirewallFix";
     }
   // Player ready in lobby
-  | { action: "playerReady" };
+  | { action: "playerReady" }
+  | {
+      action: "launchSabotage";
+      sabotage:
+        | { kind: "firewallBreach" }
+        | { kind: "hackPlayer"; target: Color }
+        | { kind: "virusScan" };
+    };
 
 export type Vote = Color | "noVote" | "skip";

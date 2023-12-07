@@ -3,27 +3,57 @@
   import SmallButton from "$lib/SmallButton.svelte";
   import TaskBar from "$lib/TaskBar.svelte";
   import { COLORS } from "$lib/consts";
-  import { lobbyStore, playerStore } from "$lib/stores";
+  import {
+    lobbyStore,
+    playerColorStore,
+    playerStore,
+    showNotificationBar,
+  } from "$lib/stores";
   import { gotoReplace } from "$lib/util";
-  import { emitGameAction } from "$lib/websocket";
+  import { emitGameAction, getSocketIO } from "$lib/websocket";
   import { onMount } from "svelte";
   import { press, swipe } from "svelte-gestures";
+  import {
+    FIREWALL_COOLDOWN,
+    FIREWALL_FIX_TIME,
+    HACKED_SECS,
+    HACK_COOLDOWN,
+    TASKS,
+    VIRUS_SCAN_COOLDOWN,
+  } from "../../../server/consts";
 
   let mainDiv: HTMLDivElement;
-  let spyDiv: HTMLDivElement;
+  let impostorDiv: HTMLDivElement;
+  let impostorScreen = false;
+
   onMount(() => {
+    const io = getSocketIO();
     if ($lobbyStore == null || $playerStore == null) gotoReplace(`/`);
+    io.on("virusScan", () => {
+      if (
+        $playerStore?.role.name === "crew" &&
+        $playerStore?.status === "alive" &&
+        $playerStore.currentlyDoing.activity === "nothing"
+      ) {
+        gotoReplace("/dontmove");
+      }
+    });
   });
 
   function scrollDown() {
+    $showNotificationBar = false;
+    impostorScreen = true;
     mainDiv.scroll({ top: mainDiv.scrollHeight, behavior: "smooth" });
   }
 
   function scrollUp() {
+    $showNotificationBar = true;
+    impostorScreen = false;
     mainDiv.scroll({ top: 0, behavior: "smooth" });
   }
 
   function swipeHandler(event: any) {
+    if ($playerStore?.role.name !== "impostor") return;
     if (event.detail.direction === "top") scrollDown();
     if (event.detail.direction === "bottom") scrollUp();
   }
@@ -41,9 +71,12 @@
     use:swipe={{ timeframe: 300, minSwipeDistance: 100 }}
     on:swipe={swipeHandler}
     class="mainDiv overflow-y-hidden"
-    style="height: calc(100vh - 2.5rem)"
+    style="height: calc(100vh - {impostorScreen ? 0 : 3.5}rem)"
   >
-    <div class="h-full w-screen flex flex-col justify-between items-center">
+    <div
+      class="w-screen flex flex-col justify-between items-center"
+      style="height: calc(100vh - 3.5rem)"
+    >
       <div class="w-full px-5">
         <div class="my-4">
           <TaskBar taskProgress={$lobbyStore.taskProgression.displayed} />
@@ -71,47 +104,130 @@
 
     {#if $playerStore.role.name === "impostor"}
       <div
-        bind:this={spyDiv}
-        class="px-10 flex flex-col gap-10"
-        style="height: calc(100vh - 2.5rem)"
+        bind:this={impostorDiv}
+        class="px-10 flex flex-col justify-between h-screen"
       >
-        <div class="h-24 mt-10">
-          <p class="font-bold text-2xl">Status Report</p>
-          <!-- I'm not making a component for a player list because I plan to style them all differently -->
-          {#each Object.values($lobbyStore.players) as player}
-            <div class="flex items-baseline space-x-1.5">
-              <div class={COLORS[player.color] + " w-3 h-3"} />
-              <div>{player.name} - {player.status}</div>
-            </div>
+        <div class="h-24 mt-2 text-sm">
+          <p class="font-bold text-2xl">Realtime Status</p>
+          <!-- Alive players -->
+          {#each Object.values($lobbyStore.players) as { color, name, status, currentlyDoing }}
+            {#if color !== $playerColorStore && status === "alive"}
+              <div class="flex items-baseline space-x-1.5">
+                <div class={COLORS[color] + " w-3 h-3"} />
+                <div>
+                  {name} - Activity:
+                  <span class="capitalize">{currentlyDoing.activity}</span>
+                  {currentlyDoing.activity === "task"
+                    ? `in ${
+                        $lobbyStore.activities[
+                          TASKS[currentlyDoing.number].name
+                        ].room
+                      }`
+                    : ""}
+                </div>
+              </div>
+            {/if}
+          {/each}
+          <!-- Dead players -->
+          <div class="w-full border-b border-gray-600 my-2" />
+          {#each Object.values($lobbyStore.players) as { color, name, status }}
+            {#if color !== $playerColorStore && status !== "alive"}
+              <div class="flex items-baseline space-x-1.5 text-gray-400">
+                <div class={COLORS[color] + " w-3 h-3"} />
+                <div>
+                  {name} - {status}
+                </div>
+              </div>
+            {/if}
           {/each}
         </div>
         <div class="flex flex-col">
           <p class="font-bold text-2xl mb-1">
-            Sabotage <span class="text-base font-thin text-gray-400"
+            Sabotage <span class="text-base font-thin text-gray-300"
               >{$playerStore.role?.sabotageCooldown
                 ? "Ready in " + $playerStore?.role.sabotageCooldown
                 : "Ready"}</span
             >
           </p>
-          <!-- TODO: grey out buttons when cd is up -->
-          <SmallButton>Sabotage 1</SmallButton>
-          <SmallButton>Sabotage 2</SmallButton>
-        </div>
-        <div class="flex flex-col">
-          <p class="font-bold text-2xl mb-1">Power</p>
-          <SmallButton>Power 1</SmallButton>
-          <SmallButton>Power 2</SmallButton>
+          <div class="flex flex-col space-y-6 mt-2">
+            <!-- TODO: grey out buttons when cd is up -->
+            <div class="flex flex-col">
+              <div class="flex space-x-2 items-center">
+                <SmallButton
+                  on:click={() =>
+                    emitGameAction({
+                      action: "launchSabotage",
+                      sabotage: {
+                        kind: "firewallBreach",
+                      },
+                    })}
+                  disabled={$playerStore.role.sabotageCooldown > 0}
+                  >Firewall Breach</SmallButton
+                >
+                <div class="text-gray-300 text-xs">
+                  {FIREWALL_COOLDOWN}s cooldown
+                </div>
+              </div>
+              <span class="text-gray-400 text-sm"
+                >Forces players to go to {$lobbyStore.activities[
+                  "firewallbutton1"
+                ].room} and {$lobbyStore.activities["firewallbutton2"].room} to fix
+                it within {FIREWALL_FIX_TIME} seconds</span
+              >
+            </div>
+
+            <div class="flex flex-col">
+              <div class="flex space-x-2 items-center">
+                <SmallButton disabled={$playerStore.role.sabotageCooldown > 0}
+                  >Hack Player</SmallButton
+                >
+                <div class="text-gray-300 text-xs">
+                  {HACK_COOLDOWN}s cooldown
+                </div>
+              </div>
+              <span class="text-gray-400 text-sm"
+                >Hacked players can not scan anything for {HACKED_SECS} seconds.
+                Interrupts any task they were doing.</span
+              >
+            </div>
+
+            <div class="flex flex-col">
+              <div class="flex space-x-2 items-center">
+                <SmallButton
+                  on:click={() =>
+                    emitGameAction({
+                      action: "launchSabotage",
+                      sabotage: { kind: "virusScan" },
+                    })}
+                  disabled={$playerStore.role.sabotageCooldown > 0}
+                  >Virus Scan</SmallButton
+                >
+                <div class="text-gray-300 text-xs">
+                  {VIRUS_SCAN_COOLDOWN}s cooldown
+                </div>
+              </div>
+              <span class="text-gray-400 text-sm"
+                >Force all players doing 'Nothing' to stand still. <span
+                  class="font-bold">Careful:</span
+                >
+                Moving may blow your cover.</span
+              >
+            </div>
+          </div>
         </div>
         <div class="flex flex-col items-center">
           <p>
             Ready to kill{$playerStore?.role.killCooldown
               ? ` in ${$playerStore?.role.killCooldown}`
-              : ""}.
+              : ""}
           </p>
-          <div class="self-center mb-4 mt-2">
+          <div class="self-center mb-2 mt-2 flex flex-col items-center">
             <ScanButton
               on:scanned={(contents) => console.log("Scanned", contents)}
             />
+            <span class="text-gray-400 text-xs"
+              >You can also use the normal scan button to kill</span
+            >
           </div>
         </div>
       </div>

@@ -16,6 +16,7 @@
   let deviceSupported: boolean;
   let playerName = "";
   let error = "";
+  let creator = "";
 
   function joinLobby() {
     if (playerName) {
@@ -30,6 +31,8 @@
     const urlCode = $page.url.searchParams.get("code");
     if (urlCode === null) gotoReplace("/");
     else joinCode = urlCode;
+    creator = $page.url.searchParams.get("creator")!;
+
     socket = getSocketIO();
     socket.on("error", ({ error: err }) => (error = err));
     socket.on("error", console.error);
@@ -38,7 +41,7 @@
       console.debug({ lobby, color });
       playerColorStore.set(color);
       lobbyStore.set(lobby);
-      localStorage.setItem(
+      sessionStorage.setItem(
         "gameInfo",
         JSON.stringify({
           playerId: $playerStore!.id,
@@ -66,6 +69,7 @@
       <NameInput bind:playerName />
       <p class:invisible={error === ""} class="text-red-500">{error}&nbsp;</p>
     </div>
+    <div>Join {creator}'s lobby</div>
     <div class="mb-10">
       <MainButton on:click={() => joinLobby()}>Join Lobby</MainButton>
     </div>

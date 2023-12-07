@@ -48,7 +48,9 @@
   }
 
   function getRoomLink(): string {
-    let link = window.location.origin + `/join?code=${$lobbyStore?.id}`;
+    let link =
+      window.location.origin +
+      `/join?code=${$lobbyStore?.id}&creator=${$lobbyStore?.creator}`;
     return link;
   }
 

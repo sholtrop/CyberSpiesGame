@@ -34,7 +34,7 @@
       console.debug({ lobby, color });
       playerColorStore.set(color);
       lobbyStore.set(lobby);
-      localStorage.setItem(
+      sessionStorage.setItem(
         "gameInfo",
         JSON.stringify({
           playerId: $playerStore!.id,
@@ -44,7 +44,7 @@
       );
 
       if (!dev) document.getElementById("main-panel")!.requestFullscreen();
-      gotoReplace(`/setuprooms?id=${lobby.id}`);
+      gotoReplace(`/setuprooms`);
     });
 
     // From `onMount` we can return a cleanup function that Svelte runs whenever a component unmounts (disappears).
@@ -60,8 +60,10 @@
   {#if deviceSupported}
     <Title />
 
-    <div class="pb-20 space-y-20 flex flex-col items-center justify-center">
-      <div>
+    <div
+      class="pb-20 space-y-20 flex flex-col items-center justify-center w-screen"
+    >
+      <div class="w-full flex flex-col items-center">
         <NameInput bind:playerName />
         <p class:invisible={error === ""} class="text-red-500">{error}&nbsp;</p>
       </div>

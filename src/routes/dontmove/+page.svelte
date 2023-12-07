@@ -1,6 +1,5 @@
 <script lang="ts">
   import { dev } from "$app/environment";
-  import { goto } from "$app/navigation";
   import { VIRUS_FAIL_TIME, VIRUS_SCAN_TIME } from "$lib/consts";
   import { gotoReplace } from "$lib/util";
   import { onMount } from "svelte";
@@ -88,7 +87,8 @@
   {:else if hasAccelerometer || dev}
     <div>
       {#if moved}
-        You moved! You are locked out of tasks for {scanFailedCounter} seconds
+        The virus scan caught you moving. You are locked out of tasks for {scanFailedCounter}
+        seconds
       {:else}
         Virus scan ongoing for {virusScanCounter} seconds<br />
         Stand still ...

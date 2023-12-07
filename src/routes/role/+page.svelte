@@ -23,13 +23,13 @@
   <div class="flex flex-col items-center justify-end h-full mb-4">
     <p class="mb-2 text-lg">
       Your role is: <span class="font-bold"
-        >{$playerStore?.role === "crew"
+        >{$playerStore?.role.name === "crew"
           ? "Cyber Criminal"
           : "Secret Agent"}</span
       >
     </p>
 
-    {#if $playerStore?.role === "impostor"}
+    {#if $playerStore?.role.name === "impostor"}
       TODO explanation
     {/if}
   </div>
