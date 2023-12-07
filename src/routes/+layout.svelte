@@ -180,6 +180,7 @@
     "/role",
     "/join",
     "/gameover",
+    "/awaitMeeting",
   ];
 
   $: displayNotificationBar =
