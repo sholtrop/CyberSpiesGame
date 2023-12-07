@@ -60,7 +60,7 @@
   }
 
   function tryReconnect() {
-    const storedGameInfo = localStorage.getItem("gameInfo");
+    const storedGameInfo = sessionStorage.getItem("gameInfo");
     let gameInfo: { playerId: string; lobbyId: string; color: Color } | null =
       null;
     if (storedGameInfo != null) {
@@ -75,7 +75,7 @@
           navigateAfterReconnect();
         } else {
           console.debug("Lobby does not exist anymore, redirect to start page");
-          localStorage.removeItem("gameInfo");
+          sessionStorage.removeItem("gameInfo");
           gotoReplace("/");
         }
       });

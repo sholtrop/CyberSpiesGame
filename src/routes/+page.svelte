@@ -34,7 +34,7 @@
       console.debug({ lobby, color });
       playerColorStore.set(color);
       lobbyStore.set(lobby);
-      localStorage.setItem(
+      sessionStorage.setItem(
         "gameInfo",
         JSON.stringify({
           playerId: $playerStore!.id,
