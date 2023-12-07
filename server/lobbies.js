@@ -250,6 +250,7 @@ class Lobby {
         break;
 
       case "virusScan":
+        this.#startVirusScan();
         break;
     }
   }
@@ -343,6 +344,10 @@ class Lobby {
       else if (buttonNumber === 2) breach.buttonsPressed.firewallbutton2 = true;
     }
     this.synchronize();
+  }
+
+  #startVirusScan() {
+    io.to(this.id).emit("virusScan");
   }
 
   #startFirewallBreach(impostorColor) {

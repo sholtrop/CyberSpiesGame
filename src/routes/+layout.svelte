@@ -131,6 +131,7 @@
 
     lobbyStore.subscribe((lobby) => {
       if (lobby == null) return;
+
       switch (lobby.status.state) {
         case "meetingCalled":
           if ($playerStore?.status !== "foundDead") gotoReplace("/meetingcall");
@@ -139,6 +140,16 @@
         case "gameEnded":
           gotoReplace("/gameover");
           break;
+
+        case "started":
+        // if (lobby.activeEffects.virusScan != null) {
+        //   if (
+        //     $page.route.id !== "/dontmove" &&
+        //     $playerStore?.status === "alive" &&
+        //     $playerStore.currentlyDoing.activity === "nothing"
+        //   )
+        //     gotoReplace("/dontmove");
+        // }
 
         // TODO: add case for sabotage
       }

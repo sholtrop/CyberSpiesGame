@@ -10,7 +10,7 @@
     showNotificationBar,
   } from "$lib/stores";
   import { gotoReplace } from "$lib/util";
-  import { emitGameAction } from "$lib/websocket";
+  import { emitGameAction, getSocketIO } from "$lib/websocket";
   import { onMount } from "svelte";
   import { press, swipe } from "svelte-gestures";
   import {
@@ -27,8 +27,17 @@
   let impostorScreen = false;
 
   onMount(() => {
+    const io = getSocketIO();
     if ($lobbyStore == null || $playerStore == null) gotoReplace(`/`);
-    scrollUp();
+    io.on("virusScan", () => {
+      if (
+        $playerStore?.role.name === "crew" &&
+        $playerStore?.status === "alive" &&
+        $playerStore.currentlyDoing.activity === "nothing"
+      ) {
+        gotoReplace("/dontmove");
+      }
+    });
   });
 
   function scrollDown() {
@@ -184,7 +193,13 @@
 
             <div class="flex flex-col">
               <div class="flex space-x-2 items-center">
-                <SmallButton disabled={$playerStore.role.sabotageCooldown > 0}
+                <SmallButton
+                  on:click={() =>
+                    emitGameAction({
+                      action: "launchSabotage",
+                      sabotage: { kind: "virusScan" },
+                    })}
+                  disabled={$playerStore.role.sabotageCooldown > 0}
                   >Virus Scan</SmallButton
                 >
                 <div class="text-gray-300 text-xs">
