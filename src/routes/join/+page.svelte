@@ -65,7 +65,7 @@
 <div class="min-h-screen flex flex-col justify-between items-center">
   {#if deviceSupported}
     <Title />
-    <div class="w-full flex flex-col items-center">
+    <div class="w-full flex flex-col items-center text-center">
       <NameInput bind:playerName />
       <p class:invisible={error === ""} class="text-red-500">{error}&nbsp;</p>
     </div>

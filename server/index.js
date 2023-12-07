@@ -77,7 +77,7 @@ io.on("connection", (client) => {
         playerLobby?.addReady(currentPlayer.color);
         break;
       case "vote":
-        playerLobby?.addVote(currentPlayer.color, info.playerColor);
+        playerLobby?.addVote(currentPlayer.color, info.vote);
         break;
       case "reportDeadBody":
         playerLobby?.startMeetingCall(

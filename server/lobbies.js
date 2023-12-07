@@ -136,7 +136,6 @@ class Lobby {
       if (player.status === "alive") votes[player.color] = "noVote";
       return votes;
     }, {});
-
     this.status = {
       state: "meeting",
       type: this.status.type,
@@ -162,8 +161,8 @@ class Lobby {
     }, 1000);
   }
 
-  killVotedOutPlayer() {
-    const target = this.players[playerColor];
+  killVotedOutPlayer(targetColor) {
+    const target = this.players[targetColor];
     if (target != null) {
       target.status = "foundDead";
       this.synchronize();
@@ -171,7 +170,7 @@ class Lobby {
     } else {
       return [
         false,
-        `Player with color ${playerColor} was not found in lobby ${this.id}`,
+        `Player with color ${targetColor} was not found in lobby ${this.id}`,
       ];
     }
   }
@@ -210,13 +209,11 @@ class Lobby {
   // Add the vote of player with `color`. The `vote` is the color of the player
   // that the voter wants to eliminate, or `null` if the voters wants to skip.
   addVote(voterColor, vote) {
-    const { state } = this.status;
-    if (state !== "meeting")
+    if (this.status.state !== "meeting")
       throw Error(
         `${voterColor} tried to cast a vote in lobby ${this.id}, but the lobby is not in a meeting. State was: ${state}`
       );
-    const { votes } = this.status;
-    votes[voterColor] = vote;
+    this.status.votes[voterColor] = vote;
     this.synchronize();
   }
 
@@ -386,6 +383,7 @@ class Lobby {
 
     // At least half voted to skip, thus no one is voted out
     if (nSkipVotes >= Math.ceil(nTotalVotes / 2)) {
+      console.log("Vote result: Skip");
       return null;
     }
     // Else, tally the votes
@@ -413,6 +411,9 @@ class Lobby {
     if (highestVotePlayers.length === 1) {
       votedOutPlayer = highestVotePlayers[0];
     }
+    console.log(
+      "Vote result: " + votedOutPlayer == null ? "no one (tie)" : votedOutPlayer
+    );
     return votedOutPlayer;
   }
 
