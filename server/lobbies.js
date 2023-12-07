@@ -152,7 +152,9 @@ class Lobby {
     const cancel = setInterval(() => {
       this.status.countDown -= 1;
       this.synchronizeCountDown();
-      const nVotes = Object.values(this.status.votes).length;
+      const nVotes = Object.values(this.status.votes).filter(
+        (v) => v !== "noVote"
+      ).length;
       if (this.status.countDown === 0 || nVotes === this.status.nVoters) {
         clearInterval(cancel);
         this.#stopVote();
