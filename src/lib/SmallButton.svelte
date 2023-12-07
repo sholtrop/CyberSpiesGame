@@ -11,6 +11,6 @@
 >
   <slot />
   {#if dev}
-    <br /><span class="text-xs text-gray-400">Dev mode: Always enabled</span>
+    <br /><span class="text-xs text-gray-400">Dev mode: No cooldown</span>
   {/if}</button
 >

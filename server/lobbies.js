@@ -38,10 +38,7 @@ class Lobby {
   // Emit the current lobby status to all players in the lobby
   synchronize() {
     if (this._destroyed) return;
-    const lobbyState = { ...this };
-    Object.keys(lobbyState).forEach((key) =>
-      key.startsWith("_") ? delete lobbyState[key] : ""
-    );
+    const lobbyState = this.serialize();
     io.to(this.id).emit("lobbyUpdate", { lobby: lobbyState });
   }
 
@@ -277,7 +274,7 @@ class Lobby {
     }, randInt(3, 8) * 1000);
   }
 
-  reconnectPlayer(color, id) {
+  reconnectPlayer(color, id, client) {
     if (this.players[color].id !== id) {
       console.error(`Player ${color} tried to reconnect but id did not match`);
       return;
@@ -291,6 +288,12 @@ class Lobby {
         `Lobby ${this.id} no longer scheduled for deletion because player reconnected`
       );
     }
+    client.emit("reconnected", {
+      success: true,
+      lobby: this.serialize(),
+      color,
+    });
+
     this.synchronize();
     return this.players[color];
   }
@@ -580,6 +583,15 @@ class Lobby {
       clearInterval(this._impostorCdInterval);
     if (this._lobbyDeleteTimeout != null)
       clearInterval(this._lobbyDeleteTimeout);
+  }
+
+  // Return lobby without any private properties (starting with _)
+  serialize() {
+    const lobbyState = { ...this };
+    Object.keys(lobbyState).forEach((key) =>
+      key.startsWith("_") ? delete lobbyState[key] : ""
+    );
+    return lobbyState;
   }
 
   // Cancel all intervals and make sure synchronize events do not reach a client. To be used before lobby is deleted.

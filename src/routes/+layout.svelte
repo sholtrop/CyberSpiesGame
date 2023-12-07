@@ -16,9 +16,10 @@
   import { page } from "$app/stores";
   import type { Color } from "$lib/types";
   import { gotoReplace } from "$lib/util";
+  import type { Socket } from "socket.io-client";
 
   let showDevPanel = false;
-  const socket = getSocketIO();
+  let socket: Socket;
 
   // Use the current lobbyState to determine which page the player should navigate to after reconnecting
   function navigateAfterReconnect() {
@@ -68,6 +69,7 @@
     if (gameInfo) {
       socket.once("reconnected", ({ success, lobby, color }) => {
         if (success) {
+          console.debug("Reconnecting to lobby");
           playerColorStore.set(color);
           lobbyStore.set(lobby);
           navigateAfterReconnect();
@@ -86,6 +88,8 @@
   }
 
   onMount(() => {
+    socket = getSocketIO();
+
     // The 'lobbyUpdate' event sends the entire state of the lobby to all players
     socket.on("lobbyUpdate", ({ lobby }) => {
       console.log("Lobby was updated", { lobby });

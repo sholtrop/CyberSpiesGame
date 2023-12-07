@@ -31,7 +31,7 @@
     const urlCode = $page.url.searchParams.get("code");
     if (urlCode === null) gotoReplace("/");
     else joinCode = urlCode;
-    creator = $page.url.searchParams.get("creator");
+    creator = $page.url.searchParams.get("creator")!;
 
     socket = getSocketIO();
     socket.on("error", ({ error: err }) => (error = err));

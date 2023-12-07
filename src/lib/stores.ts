@@ -27,10 +27,6 @@ export const playerStore: Readable<Player | null> = derived(
   }
 );
 
-lobbyStore.subscribe((lobby) => {
-  if (lobby == null) console.log("LOBBY IS NOW NULL");
-});
-
 export const notificationStore: Readable<string | null> = derived(
   lobbyStore,
   (lobby) => {

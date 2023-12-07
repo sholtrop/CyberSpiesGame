@@ -5,12 +5,18 @@
   import type { Color } from "./types";
   import { gotoReplace } from "./util";
   import { KILL_COOLDOWN_SECS, SABO_COOLDOWN_SECS } from "../../server/consts";
+  import type { Socket } from "socket.io-client";
+  import { onMount } from "svelte";
 
-  const io = getSocketIO();
+  let io: Socket;
   let playerColor: Color;
-  if ($playerStore) {
-    playerColor = $playerStore.color;
-  }
+
+  onMount(() => {
+    io = getSocketIO();
+    if ($playerStore) {
+      playerColor = $playerStore.color;
+    }
+  });
 
   function changeTasks() {
     io.emit("devChangeTasks");

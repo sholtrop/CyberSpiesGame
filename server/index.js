@@ -131,14 +131,10 @@ io.on("connection", (client) => {
       return;
     }
     playerLobby = lobby;
-    currentPlayer = playerLobby.reconnectPlayer(color, playerId);
     client.join(lobby.id);
+    currentPlayer = playerLobby.reconnectPlayer(color, playerId, client);
+
     console.debug(`Client reconnected ${currentPlayer.name}`);
-    client.emit("reconnected", {
-      success: true,
-      lobby,
-      color: currentPlayer.color,
-    });
 
     console.debug(`Player ${currentPlayer.name} reconnected successfully`);
   });
