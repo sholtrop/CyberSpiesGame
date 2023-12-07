@@ -10,15 +10,14 @@ const useHTTPS = process.env.NODE_ENV === "production";
 let credentials;
 if (useHTTPS) {
   const privateKey = fs.readFileSync(
-    path.resolve(__dirname, "path/to/private-key.pem"),
+    "/etc/letsencrypt/live/mms.sholtrop.dev/privkey.pem",
     "utf8"
   );
   const certificate = fs.readFileSync(
-    path.resolve(__dirname, "path/to/certificate.pem"),
+    "/etc/letsencrypt/live/mms.sholtrop.dev/fullchain.pem",
     "utf8"
   );
-  const ca = fs.readFileSync(path.resolve(__dirname, "path/to/ca.pem"), "utf8");
-  credentials = { key: privateKey, cert: certificate, ca: ca };
+  credentials = { key: privateKey, cert: certificate };
 }
 
 // Create the server based on the chosen module
