@@ -6,12 +6,14 @@ import { env } from "$env/dynamic/public";
 let socket: socketIO.Socket | null = null;
 
 export function getSocketIO(): socketIO.Socket {
-  const SERVER = env.PUBLIC_SERVER || `${window.location.hostname}:3000`;
-  console.log({ SERVER });
   if (socket == null) {
-    socket = socketIO.connect(SERVER).on("connect", () => {
-      console.debug(`Connected to socketIO`);
-    });
+    const SERVER = env.PUBLIC_SERVER || `localhost:3000`;
+    console.log({ SERVER });
+    socket = socketIO
+      .connect(SERVER, { secure: env.PUBLIC_SERVER != null })
+      .on("connect", () => {
+        console.debug(`Connected to socketIO`);
+      });
     console.debug("Created new socket");
   }
   return socket;

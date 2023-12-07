@@ -1,4 +1,4 @@
-import { io } from "./socketio.js";
+import { io, server } from "./socketio.js";
 import { createLobby, getLobby, joinLobby } from "./lobbies.js";
 import { playerNameValid } from "./player.js";
 
@@ -178,4 +178,4 @@ io.on("connection", (client) => {
 const port = 3000;
 console.debug(`Listening on ${port}`);
 
-io.listen(port);
+server.listen(port);
