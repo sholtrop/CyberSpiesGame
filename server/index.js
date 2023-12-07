@@ -114,7 +114,7 @@ io.on("connection", (client) => {
         playerLobby?.synchronize();
         break;
       case "launchSabotage":
-        playerLobby.launchSabotage(currentPlayer.color, info);
+        playerLobby.launchSabotage(currentPlayer.color, info.sabotage);
         break;
     }
   });

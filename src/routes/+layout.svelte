@@ -8,11 +8,11 @@
     notificationStore,
     playerColorStore,
     playerStore,
+    showNotificationBar,
   } from "$lib/stores";
   import { getSocketIO } from "$lib/websocket";
   import { onMount } from "svelte";
   import "../app.postcss";
-  import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import type { Color } from "$lib/types";
   import { gotoReplace } from "$lib/util";
@@ -100,7 +100,7 @@
           lobby.status.countDown = count;
           return lobby;
         }
-        return null;
+        return lobby;
       });
     });
 
@@ -117,15 +117,15 @@
             }
           }
 
-          if (firewall != null && lobby.activeEffects.firwallBreach != null) {
-            lobby.activeEffects.firwallBreach.countDown = firewall;
+          if (firewall != null && lobby.activeEffects.firewallBreach != null) {
+            lobby.activeEffects.firewallBreach.countDown = firewall;
           }
         }
         return lobby;
       });
     });
 
-    const unsubscribeLobby = lobbyStore.subscribe((lobby) => {
+    lobbyStore.subscribe((lobby) => {
       if (lobby == null) return;
       switch (lobby.status.state) {
         case "meetingCalled":
@@ -140,7 +140,7 @@
       }
     });
 
-    const unsubscribePlayer = playerStore.subscribe((player) => {
+    playerStore.subscribe((player) => {
       let gameState = $lobbyStore?.status.state;
       if (player == null) return;
       switch (player.status) {
@@ -154,24 +154,27 @@
       }
     });
 
-    function unsubscribe() {
-      unsubscribeLobby();
-      unsubscribePlayer();
-    }
     if ($page.route.id !== "/join" && $page.route.id !== "/") tryReconnect();
-    return unsubscribe;
   });
 
   // These pages dont get a notification bar
-  const noNotiBarPages = ["/", "/setuprooms", "/lobby", "/role", "/join"];
+  const noNotiBarPages = [
+    "/",
+    "/setuprooms",
+    "/lobby",
+    "/role",
+    "/join",
+    "/gameover",
+  ];
 
   $: displayNotificationBar =
-    noNotiBarPages.find((page) => $page.route.id == page) == null;
+    noNotiBarPages.find((page) => $page.route.id == page) == null &&
+    $showNotificationBar;
 </script>
 
 <div
   id="main-panel"
-  class="min-h-screen bg-black items-center flex flex-col text-white font-mono px-2 select-none"
+  class="min-h-screen bg-black items-center flex flex-col text-white font-mono px-2 select-none relative"
 >
   {#if displayNotificationBar}
     <NotificationBar notificationMessage={$notificationStore}></NotificationBar>

@@ -60,8 +60,10 @@
   {#if deviceSupported}
     <Title />
 
-    <div class="pb-20 space-y-20 flex flex-col items-center justify-center">
-      <div>
+    <div
+      class="pb-20 space-y-20 flex flex-col items-center justify-center w-screen"
+    >
+      <div class="w-full flex flex-col items-center">
         <NameInput bind:playerName />
         <p class:invisible={error === ""} class="text-red-500">{error}&nbsp;</p>
       </div>

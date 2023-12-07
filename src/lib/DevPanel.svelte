@@ -63,7 +63,11 @@
       $playerStore?.role.name !== "undecided"
         ? io.emit("devSetLobby", {
             lobby: {
-              status: { state: "gameEnded", victors: $playerStore?.role },
+              status: {
+                state: "gameEnded",
+                victors: $playerStore?.role,
+                reason: "Dev triggered",
+              },
             },
           })
         : alert("Role is 'undecided', cannot trigger victory"),
@@ -199,14 +203,13 @@
 
       <div>
         Active effects:
-        <span class="font-semibold"
-          >{($lobbyStore?.activeEffects.length ?? 0) > 0
-            ? $lobbyStore?.activeEffects.reduce(
-                (list, effect) => (list += `${effect.effect}, `),
-                ""
-              )
-            : "none"}</span
-        >
+        <span class="font-semibold">
+          {#each Object.entries($lobbyStore?.activeEffects ?? {}) as [effect, info]}
+            {#if info != null}
+              {effect}
+            {/if}
+          {/each}
+        </span>
       </div>
     </div>
   </div>

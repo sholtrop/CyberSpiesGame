@@ -32,10 +32,12 @@ class Lobby {
     this.activeEffects = { ...ACTIVE_EFFECTS_BASE };
     this._lobbyDeleteTimeout = null;
     this._impostorCdInterval = null;
+    this._destroyed = false;
   }
 
   // Emit the current lobby status to all players in the lobby
   synchronize() {
+    if (this._destroyed) return;
     const lobbyState = { ...this };
     Object.keys(lobbyState).forEach((key) =>
       key.startsWith("_") ? delete lobbyState[key] : ""
@@ -46,11 +48,13 @@ class Lobby {
   // A light-weight synchronize that synchronizes ONLY the current countdown.
   // If the current lobby status does not have a countdown, this does nothing.
   synchronizeCountDown() {
+    if (this._destroyed) return;
     if (this.status.countDown != null)
       io.to(this.id).emit("countDown", { count: this.status.countDown });
   }
 
   synchronizeCooldowns() {
+    if (this._destroyed) return;
     const cooldowns = this.#getImpostors().reduce((cds, impostor) => {
       cds[impostor.color] = {
         killCooldown: impostor.role.killCooldown,
@@ -239,9 +243,10 @@ class Lobby {
   launchSabotage(impostorColor, sabotage) {
     // Does NOT check whether sabo is off cooldown to ease testing
     const { kind, target } = sabotage;
+    console.log({ kind, target, sabotage, impostorColor });
     switch (kind) {
       case "firewallBreach":
-        this.#startFirewallBreach();
+        this.#startFirewallBreach(impostorColor);
         break;
 
       case "hackPlayer":
@@ -314,6 +319,7 @@ class Lobby {
           (p) => p.connection === "connected"
         ).length;
         if (nConnectedPlayers === 0) {
+          lobbies[this.id].destroy();
           delete lobbies[this.id];
           console.log(`Deleted lobby ${this.id}`);
         }
@@ -347,9 +353,6 @@ class Lobby {
     this.players[impostorColor].role.sabotageCooldown = FIREWALL_COOLDOWN;
 
     this.synchronize();
-    this._firewallFixInterval = setInterval(() => {
-      this.activeEffects.firewallBreach.countDown -= 1;
-    }, 1000);
   }
 
   // Returns the color the player that should be voted out, or `null` if no player is voted out.
@@ -447,7 +450,7 @@ class Lobby {
   }
 
   // Determine whether the game in its current state should end, and who the victors are.
-  // If the game should end, returns ["impostors", reason] or ["crew", reason], else returns [null].
+  // If the game should end, returns ["impostor", reason] or ["crew", reason], else returns [null].
   // Does NOT check for sabotage victories, as these are triggered instantly when the sabotage completes.
   #determineVictors() {
     // Tasks completed - Crew win
@@ -475,12 +478,13 @@ class Lobby {
     );
 
     if (crewLeft === impostorsLeft)
-      return ["impostors", "Cyber criminals are no longer in the majority"];
+      return ["impostor", "Cyber criminals are no longer in the majority"];
     return [null];
   }
 
-  // Instantly end the game, with a victory for `victors` ("crew" or "impostors")
+  // Instantly end the game, with a victory for `victors` ("crew" or "impostor")
   #endGame(victors, reason) {
+    this.#removeIntervals();
     this.status = { state: "gameEnded", victors, reason };
     this.synchronize();
   }
@@ -541,7 +545,7 @@ class Lobby {
       const gamePaused = this.status.state !== "started";
 
       for (const player of impostors) {
-        if (player.role.killCooldown > 0) {
+        if (player.role.killCooldown > 0 && !gamePaused) {
           player.role.killCooldown -= 1;
           sync = true;
         }
@@ -550,28 +554,38 @@ class Lobby {
           player.role.sabotageCooldown -= 1;
           sync = true;
         }
-
-        if (this.activeEffects.firewallBreach != null && !gamePaused) {
-          const { buttonsPressed } = this.activeEffects.firewallBreach;
-          if (
-            buttonsPressed.firewallbutton1 &&
-            buttonsPressed.firewallbutton2
-          ) {
-            this.#endFirewallBreach();
-          } else {
-            this.activeEffects.firewallBreach.countDown -= 1;
-            if (this.activeEffects.firewallBreach.countDown === 0) {
-              this.#endGame(
-                "impostors",
-                "The Firewall was not repaired in time"
-              );
-            }
-            sync = true;
+      }
+      if (
+        this.activeEffects.firewallBreach != null &&
+        !gamePaused &&
+        this.activeEffects.firewallBreach.countDown > 0
+      ) {
+        const { buttonsPressed } = this.activeEffects.firewallBreach;
+        if (buttonsPressed.firewallbutton1 && buttonsPressed.firewallbutton2) {
+          this.#endFirewallBreach();
+        } else {
+          this.activeEffects.firewallBreach.countDown -= 1;
+          if (this.activeEffects.firewallBreach.countDown === 0) {
+            this.#endGame("impostor", "The Firewall was not repaired in time");
           }
+          sync = true;
         }
       }
       if (sync) this.synchronizeCooldowns();
     }, 1000);
+  }
+
+  #removeIntervals() {
+    if (this._impostorCdInterval != null)
+      clearInterval(this._impostorCdInterval);
+    if (this._lobbyDeleteTimeout != null)
+      clearInterval(this._lobbyDeleteTimeout);
+  }
+
+  // Cancel all intervals and make sure synchronize events do not reach a client. To be used before lobby is deleted.
+  destroy() {
+    this._destroyed = true;
+    this.#removeIntervals();
   }
 }
 

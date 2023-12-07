@@ -3,7 +3,12 @@
   import SmallButton from "$lib/SmallButton.svelte";
   import TaskBar from "$lib/TaskBar.svelte";
   import { COLORS } from "$lib/consts";
-  import { lobbyStore, playerColorStore, playerStore } from "$lib/stores";
+  import {
+    lobbyStore,
+    playerColorStore,
+    playerStore,
+    showNotificationBar,
+  } from "$lib/stores";
   import { gotoReplace } from "$lib/util";
   import { emitGameAction } from "$lib/websocket";
   import { onMount } from "svelte";
@@ -18,21 +23,28 @@
   } from "../../../server/consts";
 
   let mainDiv: HTMLDivElement;
-  let spyDiv: HTMLDivElement;
+  let impostorDiv: HTMLDivElement;
+  let impostorScreen = false;
+
   onMount(() => {
     if ($lobbyStore == null || $playerStore == null) gotoReplace(`/`);
     scrollUp();
   });
 
   function scrollDown() {
+    $showNotificationBar = false;
+    impostorScreen = true;
     mainDiv.scroll({ top: mainDiv.scrollHeight, behavior: "smooth" });
   }
 
   function scrollUp() {
+    $showNotificationBar = true;
+    impostorScreen = false;
     mainDiv.scroll({ top: 0, behavior: "smooth" });
   }
 
   function swipeHandler(event: any) {
+    if ($playerStore?.role.name !== "impostor") return;
     if (event.detail.direction === "top") scrollDown();
     if (event.detail.direction === "bottom") scrollUp();
   }
@@ -50,9 +62,12 @@
     use:swipe={{ timeframe: 300, minSwipeDistance: 100 }}
     on:swipe={swipeHandler}
     class="mainDiv overflow-y-hidden"
-    style="height: calc(100vh - 2.5rem)"
+    style="height: calc(100vh - {impostorScreen ? 0 : 3.5}rem)"
   >
-    <div class="h-full w-screen flex flex-col justify-between items-center">
+    <div
+      class="w-screen flex flex-col justify-between items-center"
+      style="height: calc(100vh - 3.5rem)"
+    >
       <div class="w-full px-5">
         <div class="my-4">
           <TaskBar taskProgress={$lobbyStore.taskProgression.displayed} />
@@ -80,11 +95,10 @@
 
     {#if $playerStore.role.name === "impostor"}
       <div
-        bind:this={spyDiv}
-        class="px-10 flex flex-col justify-between"
-        style="height: calc(100vh - 2.5rem)"
+        bind:this={impostorDiv}
+        class="px-10 flex flex-col justify-between h-screen"
       >
-        <div class="h-24 mt-2">
+        <div class="h-24 mt-2 text-sm">
           <p class="font-bold text-2xl">Realtime Status</p>
           <!-- Alive players -->
           {#each Object.values($lobbyStore.players) as { color, name, status, currentlyDoing }}
@@ -109,7 +123,7 @@
           <div class="w-full border-b border-gray-600 my-2" />
           {#each Object.values($lobbyStore.players) as { color, name, status }}
             {#if color !== $playerColorStore && status !== "alive"}
-              <div class="flex items-baseline space-x-1.5">
+              <div class="flex items-baseline space-x-1.5 text-gray-400">
                 <div class={COLORS[color] + " w-3 h-3"} />
                 <div>
                   {name} - {status}
@@ -130,7 +144,15 @@
             <!-- TODO: grey out buttons when cd is up -->
             <div class="flex flex-col">
               <div class="flex space-x-2 items-center">
-                <SmallButton disabled={$playerStore.role.sabotageCooldown > 0}
+                <SmallButton
+                  on:click={() =>
+                    emitGameAction({
+                      action: "launchSabotage",
+                      sabotage: {
+                        kind: "firewallBreach",
+                      },
+                    })}
+                  disabled={$playerStore.role.sabotageCooldown > 0}
                   >Firewall Breach</SmallButton
                 >
                 <div class="text-gray-300 text-xs">
@@ -184,7 +206,7 @@
               ? ` in ${$playerStore?.role.killCooldown}`
               : ""}
           </p>
-          <div class="self-center mb-4 mt-2 flex flex-col items-center">
+          <div class="self-center mb-2 mt-2 flex flex-col items-center">
             <ScanButton
               on:scanned={(contents) => console.log("Scanned", contents)}
             />

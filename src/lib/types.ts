@@ -79,7 +79,7 @@ export type NfcActivities = {
 // `null` means the effect is not active
 export type ActiveEffects = {
   hacked: { affectedPlayers: Color[] } | null;
-  firwallBreach: {
+  firewallBreach: {
     buttonsPressed: {
       firewallbutton1: boolean;
       firewallbutton2: boolean;

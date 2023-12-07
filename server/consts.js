@@ -90,7 +90,7 @@ export const HACK_COOLDOWN = 15;
 export const VIRUS_SCAN_FAILED_PUNISH_SECS = 25;
 export const VIRUS_SCAN_COOLDOWN = 30;
 
-export const FIREWALL_FIX_TIME = 80;
+export const FIREWALL_FIX_TIME = 120;
 export const FIREWALL_COOLDOWN = 60;
 
 export const ACTIVE_EFFECTS_BASE = {

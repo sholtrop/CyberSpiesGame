@@ -3,7 +3,8 @@
 </script>
 
 <div
-  class="w-screen bg-green-900 text-green-50 h-10 flex flex-col justify-center items-center"
+  class="w-screen bg-green-900 text-green-50 h-14 px-2 font-bold
+  text-sm flex flex-col justify-center items-center"
 >
   <p>
     {#if notificationMessage !== null}
