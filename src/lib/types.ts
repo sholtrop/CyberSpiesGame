@@ -28,6 +28,7 @@ export type Lobby = {
     | {
         state: "voteResultAnnounced";
         votedOutPlayer: string | null;
+        votes: { [K in Color]: Vote };
         countDown: number;
       }
     | { state: "gameEnded"; victors: "impostor" | "crew"; reason: string };

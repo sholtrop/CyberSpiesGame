@@ -441,6 +441,7 @@ class Lobby {
       state: "voteResultAnnounced",
       votedOutPlayer,
       countDown: VOTE_RESULT_DISPLAY_SECS,
+      votes: this.status.votes,
     };
     this.synchronize();
     const counter = setInterval(() => {
