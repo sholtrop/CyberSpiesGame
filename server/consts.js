@@ -81,6 +81,7 @@ export const EMERGENCY_MEETINGS_PER_PLAYER = 1;
 
 export const KILL_COOLDOWN_SECS = 20;
 
+// The initial cooldown for a sabotage after a new round starts
 export const SABO_COOLDOWN_SECS = 20;
 
 export const HACKED_SECS = 12;
@@ -91,3 +92,9 @@ export const VIRUS_SCAN_COOLDOWN = 30;
 
 export const FIREWALL_FIX_TIME = 80;
 export const FIREWALL_COOLDOWN = 60;
+
+export const ACTIVE_EFFECTS_BASE = {
+  hacked: null,
+  firewallBreach: null,
+  virusScan: null,
+};

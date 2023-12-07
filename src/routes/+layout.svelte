@@ -104,7 +104,7 @@
       });
     });
 
-    socket.on("cooldownUpdate", ({ cooldowns }) => {
+    socket.on("cooldownUpdate", ({ cooldowns, firewall }) => {
       console.log("cd update");
       lobbyStore.update((lobby) => {
         if (lobby != null) {
@@ -115,6 +115,10 @@
               player.role.killCooldown = cooldown.killCooldown;
               player.role.sabotageCooldown = cooldown.sabotageCooldown;
             }
+          }
+
+          if (firewall != null && lobby.activeEffects.firwallBreach != null) {
+            lobby.activeEffects.firwallBreach.countDown = firewall;
           }
         }
         return lobby;

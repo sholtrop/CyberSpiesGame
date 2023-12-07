@@ -1,5 +1,8 @@
 import { nanoid } from "nanoid";
 import {
+  ACTIVE_EFFECTS_BASE,
+  FIREWALL_COOLDOWN,
+  FIREWALL_FIX_TIME,
   KILL_COOLDOWN_SECS,
   MAX_PLAYERS,
   MEETING_BUTTON_CD,
@@ -26,7 +29,7 @@ class Lobby {
     this.status = status;
     this.taskProgression = { real: 0, displayed: 0 };
     this.activities = null;
-    this.activeEffects = [];
+    this.activeEffects = { ...ACTIVE_EFFECTS_BASE };
     this._lobbyDeleteTimeout = null;
     this._impostorCdInterval = null;
   }
@@ -55,7 +58,12 @@ class Lobby {
       };
       return cds;
     }, {});
-    io.to(this.id).emit("cooldownUpdate", { cooldowns });
+    let firewall = null;
+    if (this.activeEffects.firewallBreach != null) {
+      firewall = this.activeEffects.firewallBreach.countDown;
+    }
+
+    io.to(this.id).emit("cooldownUpdate", { cooldowns, firewall });
   }
 
   // Start the game for this lobby. Will decide a role for each player and show
@@ -228,14 +236,30 @@ class Lobby {
     this.synchronize();
   }
 
+  launchSabotage(impostorColor, sabotage) {
+    // Does NOT check whether sabo is off cooldown to ease testing
+    const { kind, target } = sabotage;
+    switch (kind) {
+      case "firewallBreach":
+        this.#startFirewallBreach();
+        break;
+
+      case "hackPlayer":
+        break;
+
+      case "virusScan":
+        break;
+    }
+  }
+
   // Increase the taskbar with the completion of a single task
   // If the display value for the task bar is updated, it will happen after a random delay
   increaseTaskBar() {
     this.taskProgression.real += SINGLE_TASK_PROGRESSION_AMOUNT;
 
     // If this is the last task, end the game
-    const victors = this.#determineVictors();
-    if (victors != null) return this.#endGame(victors);
+    const [victors, reason] = this.#determineVictors();
+    if (victors != null) return this.#endGame(victors, reason);
     this.synchronize();
 
     // Update the displayed value after a random delay
@@ -302,6 +326,32 @@ class Lobby {
     }
   }
 
+  // `buttonNumber` is 1 or 2
+  pressFirewallButton(buttonNumber) {
+    const breach = this.activeEffects.firewallBreach;
+    if (breach != null) {
+      if (buttonNumber === 1) breach.buttonsPressed.firewallbutton1 = true;
+      else if (buttonNumber === 2) breach.buttonsPressed.firewallbutton2 = true;
+    }
+    this.synchronize();
+  }
+
+  #startFirewallBreach(impostorColor) {
+    this.activeEffects.firewallBreach = {
+      buttonsPressed: {
+        firewallbutton1: false,
+        firewallbutton2: false,
+      },
+      countDown: FIREWALL_FIX_TIME,
+    };
+    this.players[impostorColor].role.sabotageCooldown = FIREWALL_COOLDOWN;
+
+    this.synchronize();
+    this._firewallFixInterval = setInterval(() => {
+      this.activeEffects.firewallBreach.countDown -= 1;
+    }, 1000);
+  }
+
   // Returns the color the player that should be voted out, or `null` if no player is voted out.
   // No player is voted out if at least half voted to skip, or if there is a tie.
   #determineVoteResult() {
@@ -359,8 +409,8 @@ class Lobby {
     const votedOutPlayer = this.#determineVoteResult();
     if (votedOutPlayer != null) this.killPlayer(votedOutPlayer);
 
-    const victors = this.#determineVictors();
-    if (victors != null) this.#endGame();
+    const [victors, reason] = this.#determineVictors();
+    if (victors != null) this.#endGame(victors, reason);
 
     this.status = {
       state: "voteResultAnnounced",
@@ -397,12 +447,12 @@ class Lobby {
   }
 
   // Determine whether the game in its current state should end, and who the victors are.
-  // If the game should end, returns "impostors" or "crew", else returns `null`.
+  // If the game should end, returns ["impostors", reason] or ["crew", reason], else returns [null].
   // Does NOT check for sabotage victories, as these are triggered instantly when the sabotage completes.
   #determineVictors() {
     // Tasks completed - Crew win
     if (this.taskProgression.real >= TASK_PROGRESSION_VICTORY_AMOUNT)
-      return "crew";
+      return ["crew", "All tasks were completed"];
 
     // Impostors all dead - Crew win
     const impostorsLeft = Object.values(this.players).reduce(
@@ -412,7 +462,8 @@ class Lobby {
       },
       0
     );
-    if (impostorsLeft === 0) return "crew";
+    if (impostorsLeft === 0)
+      return ["crew", "All secret agents were eliminated"];
 
     // Equal impostors and crew - Impostors win
     const crewLeft = Object.values(this.players).reduce(
@@ -423,13 +474,19 @@ class Lobby {
       0
     );
 
-    if (crewLeft === impostorsLeft) return "impostors";
-    return null;
+    if (crewLeft === impostorsLeft)
+      return ["impostors", "Cyber criminals are no longer in the majority"];
+    return [null];
   }
 
   // Instantly end the game, with a victory for `victors` ("crew" or "impostors")
-  #endGame(victors) {
-    this.status = { state: "gameEnded", victors };
+  #endGame(victors, reason) {
+    this.status = { state: "gameEnded", victors, reason };
+    this.synchronize();
+  }
+
+  #endFirewallBreach() {
+    this.activeEffects.firewallBreach = null;
     this.synchronize();
   }
 
@@ -464,6 +521,7 @@ class Lobby {
     );
   }
 
+  // Starts the timer that handles impostor kill & sabotage cooldown, and the firewall breached timer
   #setImpostorCooldowns() {
     const impostors = this.#getImpostors();
     for (const player of impostors) {
@@ -475,15 +533,41 @@ class Lobby {
       clearInterval(this._impostorCdInterval);
 
     this._impostorCdInterval = setInterval(() => {
-      let sync = false; // Only sync if a timer actually changed
+      // Only sync if a timer actually changed
+      let sync = false;
+
+      // Sabotage cooldown / Firewall breach do not tick down when game is paused,
+      // e.g. because of a meeting
+      const gamePaused = this.status.state !== "started";
+
       for (const player of impostors) {
         if (player.role.killCooldown > 0) {
           player.role.killCooldown -= 1;
           sync = true;
         }
-        if (player.role.sabotageCooldown > 0) {
+
+        if (player.role.sabotageCooldown > 0 && !gamePaused) {
           player.role.sabotageCooldown -= 1;
           sync = true;
+        }
+
+        if (this.activeEffects.firewallBreach != null && !gamePaused) {
+          const { buttonsPressed } = this.activeEffects.firewallBreach;
+          if (
+            buttonsPressed.firewallbutton1 &&
+            buttonsPressed.firewallbutton2
+          ) {
+            this.#endFirewallBreach();
+          } else {
+            this.activeEffects.firewallBreach.countDown -= 1;
+            if (this.activeEffects.firewallBreach.countDown === 0) {
+              this.#endGame(
+                "impostors",
+                "The Firewall was not repaired in time"
+              );
+            }
+            sync = true;
+          }
         }
       }
       if (sync) this.synchronizeCooldowns();

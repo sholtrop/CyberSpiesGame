@@ -65,7 +65,7 @@
               on:press={() => pressHandler(task.number)}
             >
               <span class:line-through={task.status === "completed"}
-                >{task.description}}</span
+                >{task.description}</span
               >
             </li>
           {/each}
@@ -130,13 +130,15 @@
             <!-- TODO: grey out buttons when cd is up -->
             <div class="flex flex-col">
               <div class="flex space-x-2 items-center">
-                <SmallButton>Firewall Breach</SmallButton>
-                <div class="text-gray-400 text-sm">
+                <SmallButton disabled={$playerStore.role.sabotageCooldown > 0}
+                  >Firewall Breach</SmallButton
+                >
+                <div class="text-gray-300 text-xs">
                   {FIREWALL_COOLDOWN}s cooldown
                 </div>
               </div>
-              <span class="text-gray-300 text-sm"
-                >Will force players to go to {$lobbyStore.activities[
+              <span class="text-gray-400 text-sm"
+                >Forces players to go to {$lobbyStore.activities[
                   "firewallbutton1"
                 ].room} and {$lobbyStore.activities["firewallbutton2"].room} to fix
                 it within {FIREWALL_FIX_TIME} seconds</span
@@ -145,24 +147,29 @@
 
             <div class="flex flex-col">
               <div class="flex space-x-2 items-center">
-                <SmallButton>Hack Player</SmallButton>
-                <div class="text-gray-400 text-sm">
+                <SmallButton disabled={$playerStore.role.sabotageCooldown > 0}
+                  >Hack Player</SmallButton
+                >
+                <div class="text-gray-300 text-xs">
                   {HACK_COOLDOWN}s cooldown
                 </div>
               </div>
-              <span class="text-gray-300 text-sm"
-                >The player you hack can not scan anything for {HACKED_SECS} seconds</span
+              <span class="text-gray-400 text-sm"
+                >Hacked players can not scan anything for {HACKED_SECS} seconds.
+                Interrupts any task they were doing.</span
               >
             </div>
 
             <div class="flex flex-col">
               <div class="flex space-x-2 items-center">
-                <SmallButton>Virus Scan</SmallButton>
-                <div class="text-gray-400 text-sm">
+                <SmallButton disabled={$playerStore.role.sabotageCooldown > 0}
+                  >Virus Scan</SmallButton
+                >
+                <div class="text-gray-300 text-xs">
                   {VIRUS_SCAN_COOLDOWN}s cooldown
                 </div>
               </div>
-              <span class="text-gray-300 text-sm"
+              <span class="text-gray-400 text-sm"
                 >Force all players doing 'Nothing' to stand still. <span
                   class="font-bold">Careful:</span
                 >
@@ -175,12 +182,15 @@
           <p>
             Ready to kill{$playerStore?.role.killCooldown
               ? ` in ${$playerStore?.role.killCooldown}`
-              : ""}.
+              : ""}
           </p>
-          <div class="self-center mb-4 mt-2">
+          <div class="self-center mb-4 mt-2 flex flex-col items-center">
             <ScanButton
               on:scanned={(contents) => console.log("Scanned", contents)}
             />
+            <span class="text-gray-400 text-xs"
+              >You can also use the normal scan button to kill</span
+            >
           </div>
         </div>
       </div>

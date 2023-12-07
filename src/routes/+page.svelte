@@ -44,7 +44,7 @@
       );
 
       if (!dev) document.getElementById("main-panel")!.requestFullscreen();
-      gotoReplace(`/setuprooms?id=${lobby.id}`);
+      gotoReplace(`/setuprooms`);
     });
 
     // From `onMount` we can return a cleanup function that Svelte runs whenever a component unmounts (disappears).

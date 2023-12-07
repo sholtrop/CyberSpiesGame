@@ -93,8 +93,8 @@ io.on("connection", (client) => {
         currentPlayer?.startTask(info.taskNumber);
         playerLobby?.synchronize();
         break;
-      case "startSabotageFix":
-        currentPlayer?.startSabotageFix();
+      case "startFirewallFix":
+        currentPlayer?.startFirewallFix();
         playerLobby?.synchronize();
         break;
       case "taskCompleted":
@@ -108,10 +108,13 @@ io.on("connection", (client) => {
         }
         playerLobby?.synchronize();
         break;
-      case "sabotageFixCompleted":
-        currentPlayer?.finishSabotageFix();
-        // TODO: cancel everyone else's sabotage fix
+      case "pressFirewallButton":
+        currentPlayer?.finishFirewallFix();
+        // TODO: cancel everyone else's firewall fix
         playerLobby?.synchronize();
+        break;
+      case "launchSabotage":
+        playerLobby.launchSabotage(currentPlayer.color, info);
         break;
     }
   });

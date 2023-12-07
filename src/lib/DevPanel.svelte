@@ -57,8 +57,8 @@
         : alert("Cannot kill/report a player as you're not in a lobby"),
     "Start sabotage fix": () =>
       $lobbyStore != null
-        ? emitGameAction({ action: "startSabotageFix" })
-        : alert("Cannot fix sabotage as you're not in a lobby"),
+        ? emitGameAction({ action: "startFirewallFix" })
+        : alert("Cannot fix firewall as you're not in a lobby"),
     "Trigger victory": () =>
       $playerStore?.role.name !== "undecided"
         ? io.emit("devSetLobby", {

@@ -84,14 +84,14 @@ export class Player {
     this.currentlyDoing = { activity: "nothing" };
   }
 
-  startSabotageFix() {
+  startFirewallFix() {
     // Already doing something else
     if (this.currentlyDoing.activity !== "nothing") return;
-    this.currentlyDoing = { activity: "fixSabotage" };
+    this.currentlyDoing = { activity: "fixFirewall" };
   }
 
-  finishSabotageFix() {
-    if (this.currentlyDoing.activity !== "fixSabotage") return;
+  finishFirewallFix() {
+    if (this.currentlyDoing.activity !== "fixFirewall") return;
     this.currentlyDoing = { activity: "nothing" };
   }
 }
