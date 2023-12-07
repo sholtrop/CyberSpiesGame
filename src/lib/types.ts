@@ -86,9 +86,6 @@ export type ActiveEffects = {
     };
     countDown: number;
   } | null;
-  virusScan: {
-    failedPlayers: Color[];
-  };
 };
 
 // Each player has one of these colors assigned to them

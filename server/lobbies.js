@@ -466,24 +466,17 @@ class Lobby {
       return ["crew", "All tasks were completed"];
 
     // Impostors all dead - Crew win
-    const impostorsLeft = Object.values(this.players).reduce(
-      ({ role, status }, n) => {
-        if (role.name === "impostor" && status === "alive") return n + 1;
-        else return n;
-      },
-      0
-    );
+    const impostorsLeft = Object.values(this.players).filter(
+      ({ role, status }) => role.name === "impostor" && status === "alive"
+    ).length;
+
     if (impostorsLeft === 0)
       return ["crew", "All secret agents were eliminated"];
 
     // Equal impostors and crew - Impostors win
-    const crewLeft = Object.values(this.players).reduce(
-      ({ role, status }, n) => {
-        if (role.name === "crew" && status === "alive") return n + 1;
-        else return n;
-      },
-      0
-    );
+    const crewLeft = Object.values(this.players).filter(
+      ({ role, status }) => role.name === "crew" && status === "alive"
+    ).length;
 
     if (crewLeft === impostorsLeft)
       return ["impostor", "Cyber criminals are no longer in the majority"];
