@@ -260,9 +260,8 @@ class Lobby {
   increaseTaskBar() {
     this.taskProgression.real += SINGLE_TASK_PROGRESSION_AMOUNT;
 
-    // If this is the last task, end the game
-    const [victors, reason] = this.#determineVictors();
-    if (victors != null) return this.#endGame(victors, reason);
+    if (this.taskProgression.real >= TASK_PROGRESSION_VICTORY_AMOUNT)
+      return this.#endGame("crew", "All tasks completed");
     this.synchronize();
 
     // Update the displayed value after a random delay
@@ -418,13 +417,17 @@ class Lobby {
 
   #stopVote() {
     const votedOutPlayer = this.#determineVoteResult();
-    if (votedOutPlayer != null) this.killVotedOutPlayer(votedOutPlayer);
+    if (votedOutPlayer != null) {
+      this.killVotedOutPlayer(votedOutPlayer);
+      const [victors, reason] = this.#determineVictors();
+      if (victors != null) {
+        this.#endGame(victors, reason);
+        return;
+      }
+    }
     for (const player of Object.values(this.players)) {
       if (player.status === "dead") player.status = "foundDead";
     }
-
-    const [victors, reason] = this.#determineVictors();
-    if (victors != null) this.#endGame(victors, reason);
 
     this.status = {
       state: "voteResultAnnounced",
@@ -464,10 +467,6 @@ class Lobby {
   // If the game should end, returns ["impostor", reason] or ["crew", reason], else returns [null].
   // Does NOT check for sabotage victories, as these are triggered instantly when the sabotage completes.
   #determineVictors() {
-    // Tasks completed - Crew win
-    if (this.taskProgression.real >= TASK_PROGRESSION_VICTORY_AMOUNT)
-      return ["crew", "All tasks were completed"];
-
     // Impostors all dead - Crew win
     const impostorsLeft = Object.values(this.players).filter(
       ({ role, status }) => role.name === "impostor" && status === "alive"
