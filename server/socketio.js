@@ -1,8 +1,8 @@
-const { Server } = require("socket.io");
-const http = require("http");
-const https = require("https");
-const fs = require("fs");
-const path = require("path");
+import { Server } from "socket.io";
+import http from "http";
+import https from "https";
+import fs from "fs";
+import path from "path";
 
 // HTTPS needed for NFC scanner
 const useHTTPS = process.env.NODE_ENV === "production";
