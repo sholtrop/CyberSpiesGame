@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+<slot></slot>
+=======
 <!-- TODO: add elements common to all minigames, like the back-button
 -->
 
@@ -7,3 +10,4 @@
   >
 </div>
 <slot />
+>>>>>>> master
