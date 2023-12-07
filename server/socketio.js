@@ -9,6 +9,7 @@ const useHTTPS = process.env.NODE_ENV === "production";
 
 let credentials;
 if (useHTTPS) {
+  console.log("Using HTTPS");
   const privateKey = fs.readFileSync(
     "/etc/letsencrypt/live/mms.sholtrop.dev/privkey.pem",
     "utf8"

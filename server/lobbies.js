@@ -133,7 +133,7 @@ class Lobby {
         `Cannot start a meeting: No meeting was called beforehand. Lobby status was ${state}`
       );
     const votes = Object.values(this.players).reduce((votes, player) => {
-      votes[player.color] = "noVote";
+      if (player.status === "alive") votes[player.color] = "noVote";
       return votes;
     }, {});
 
