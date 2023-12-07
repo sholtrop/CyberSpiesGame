@@ -180,6 +180,11 @@ class Lobby {
     const target = this.players[targetColor];
     if (target != null) {
       target.status = "dead";
+      const [victors, reason] = this.#determineVictors();
+      if (victors != null) {
+        this.#endGame(victors, reason);
+        return;
+      }
       this.players[killerColor].role.killCooldown = KILL_COOLDOWN_SECS;
       this.synchronize();
       return [true];
