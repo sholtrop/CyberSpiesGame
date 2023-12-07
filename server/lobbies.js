@@ -418,7 +418,10 @@ class Lobby {
 
   #stopVote() {
     const votedOutPlayer = this.#determineVoteResult();
-    if (votedOutPlayer != null) this.killPlayer(votedOutPlayer);
+    if (votedOutPlayer != null) this.killVotedOutPlayer(votedOutPlayer);
+    for (const player of Object.values(this.players)) {
+      if (player.status === "dead") player.status = "foundDead";
+    }
 
     const [victors, reason] = this.#determineVictors();
     if (victors != null) this.#endGame(victors, reason);
