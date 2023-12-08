@@ -7,7 +7,7 @@ let socket: socketIO.Socket | null = null;
 
 export function getSocketIO(): socketIO.Socket {
   if (socket == null) {
-    const SERVER = env.PUBLIC_SERVER || `localhost:3000`;
+    const SERVER = env.PUBLIC_SERVER!; // || `localhost:3000`;
     console.log({ SERVER });
     socket = socketIO
       .connect(SERVER, { secure: env.PUBLIC_SERVER != null })
