@@ -1,91 +1,181 @@
-import { Server } from "socket.io";
-import http from "http";
-import { createLobby, joinLobby, removePlayer } from "./lobbies.js";
+import { io, server } from "./socketio.js";
+import { createLobby, getLobby, joinLobby } from "./lobbies.js";
+import { playerNameValid } from "./player.js";
 
-const server = http.createServer();
+io.on("connection", (client) => {
+  console.debug(`Client connected`);
+  // Player does not have a name until they choose one and create/join a lobby
+  let currentPlayer = null;
+  let playerLobby = null;
 
-const io = new Server(server, { cors: "*" });
+  client.on("createLobby", ({ name }) => {
+    const [nameValid, error] = playerNameValid(name);
+    if (!nameValid) {
+      client.emit("error", { error });
+      return;
+    }
+    const { lobby, player } = createLobby(name);
+    currentPlayer = player;
+    playerLobby = lobby;
+    client.join(playerLobby.id);
+    client.join(player.id);
+    client.emit("joinedLobby", { lobby, color: player.color, id: player.id });
+    console.debug(`${player.name} created lobby ${playerLobby.id}`);
+  });
 
-function playerNameValid(name) {
-  if (name.length < 3)
-    return [false, `Name ${name} is too short. Minimum of 3 characters`];
-  if (name.length > 16)
-    return [false, `Name ${name} is too long. Maximum of 16 characters`];
-  if (!/^[a-zA-Z0-9]+$/.test(name))
-    return [
-      false,
-      `Name ${name} contains invalid characters. Only use alphanumeric characters.`,
-    ];
-  return [true, ``];
-}
+  client.on("setActivities", ({ activities }) => {
+    if (currentPlayer == null || playerLobby == null) {
+      console.error(`Cannot set activities as one of these is null`, {
+        currentPlayer,
+        playerLobby,
+      });
+      return;
+    }
+    playerLobby.setActivities(activities);
+  });
 
-io.on(
-  "connection",
+  client.on("joinLobby", ({ name, lobbyId }) => {
+    const [nameValid, error] = playerNameValid(name);
+    if (!nameValid) {
+      client.emit("error", { error });
+      return;
+    }
+    const [joinSuccess, joinResult] = joinLobby(lobbyId, name);
+    if (!joinSuccess) {
+      // If join didn't work `joinResult` contains an error message
+      client.emit("error", { error: joinResult });
+      return;
+    }
+    const { lobby, player } = joinResult;
+    playerLobby = lobby;
+    currentPlayer = player;
+    // Let the lobby know a new player joined
+    lobby.synchronize();
+    client.join(lobby.id);
+    client.emit("joinedLobby", { lobby, color: player.color });
 
-  (client) => {
-    console.debug(`Client connected`);
-    // Player does not have a name until they choose one and create/join a lobby
-    let playerName = null;
-    let playerLobbyId = null;
+    console.debug(`${name} joined lobby ${lobby.id}`);
+  });
 
-    client.on("createLobby", ({ name }) => {
-      const [nameValid, error] = playerNameValid(name);
-      if (!nameValid) {
-        client.emit("error", error);
-        return;
+  client.on("gameAction", ({ action, ...info }) => {
+    console.debug("gameAction", { action, ...info });
+    switch (action) {
+      case "callMeeting":
+        if (currentPlayer?.emergencyMeetingsLeft > 0) {
+          currentPlayer.emergencyMeetingsLeft -= 1;
+          playerLobby?.startMeetingCall("emergency", currentPlayer?.color);
+        } else {
+          console.error(
+            `Player ${currentPlayer.name} has no emergency meetings left but tried to call one`
+          );
+        }
+        break;
+      case "enterMeeting":
+        playerLobby?.addPlayerToMeeting(currentPlayer?.color);
+        break;
+      case "playerReady":
+        playerLobby?.addReady(currentPlayer.color);
+        break;
+      case "vote":
+        playerLobby?.addVote(currentPlayer.color, info.vote);
+        break;
+      case "reportDeadBody":
+        playerLobby?.startMeetingCall(
+          "bodyFound",
+          currentPlayer?.color,
+          info.bodyColor
+        );
+        break;
+      case "killPlayer":
+        playerLobby?.killPlayer(info.targetColor, currentPlayer.color);
+        break;
+      case "startTask":
+        currentPlayer?.startTask(info.taskNumber);
+        playerLobby?.synchronize();
+        break;
+      case "startFirewallFix":
+        currentPlayer?.startFirewallFix();
+        playerLobby?.synchronize();
+        break;
+      case "taskCompleted":
+        currentPlayer?.finishTask(info.taskNumber);
+        if (currentPlayer?.role.name === "crew") playerLobby?.increaseTaskBar();
+
+        // Give player new tasks if they've completed all of them
+        if (currentPlayer?.tasks.every((t) => t.status === "completed")) {
+          console.debug("Give new tasks");
+          currentPlayer?.assignTasks(playerLobby?.activities);
+        }
+        playerLobby?.synchronize();
+        break;
+      case "pressFirewallButton":
+        currentPlayer?.finishFirewallFix();
+        // TODO: cancel everyone else's firewall fix
+        playerLobby?.synchronize();
+        break;
+      case "launchSabotage":
+        playerLobby.launchSabotage(currentPlayer.color, info.sabotage);
+        break;
+    }
+  });
+
+  client.on("startGame", () => {
+    if (playerLobby != null) playerLobby.startGame();
+  });
+
+  client.on("reconnect", ({ color, playerId, lobbyId }) => {
+    const lobby = getLobby(lobbyId);
+    if (!lobby) {
+      console.debug(`Lobby ${lobbyId} does not exist anymore, can't reconnect`);
+      client.emit("reconnected", { success: false });
+      return;
+    }
+    playerLobby = lobby;
+    client.join(lobby.id);
+    currentPlayer = playerLobby.reconnectPlayer(color, playerId, client);
+
+    console.debug(`Client reconnected ${currentPlayer.name}`);
+
+    console.debug(`Player ${currentPlayer.name} reconnected successfully`);
+  });
+
+  client.on("disconnect", () => {
+    console.debug(
+      `Client disconnected ${currentPlayer ? currentPlayer.name : ""}`
+    );
+    playerLobby?.disconnectPlayer(currentPlayer?.color);
+  });
+
+  client.on("devSetLobby", ({ lobby }) => {
+    if (playerLobby == null) {
+      console.error(`Cannot set a lobby; must join a lobby first`);
+      return;
+    }
+    console.debug(`DEV: lobby`);
+    for (const key of Object.keys(playerLobby)) {
+      if (lobby[key] !== undefined) {
+        playerLobby[key] = lobby[key];
+
+        console.debug(
+          `DEV: Changed lobby.${key} to ${JSON.stringify(lobby[key])}`
+        );
       }
-      const lobby = createLobby(name);
-      playerName = name;
-      playerLobbyId = lobby.id;
-      client.join(playerLobbyId);
-      client.emit("joinedLobby", { lobby });
+    }
+    playerLobby.synchronize();
+  });
 
-      console.debug(`${playerName} created lobby ${playerLobbyId}`);
-    });
+  client.on("devChangeTasks", () => {
+    currentPlayer?.assignTasks();
+    playerLobby?.synchronize();
+  });
 
-    client.on("joinLobby", ({ name, lobbyId }) => {
-      const [nameValid, error] = playerNameValid(name);
-      if (!nameValid) {
-        client.emit("error", error);
-        return;
-      }
-      const [joinSuccess, joinResult] = joinLobby(lobbyId, name);
-      if (!joinSuccess) {
-        // If join didn't work `joinResult` contains an error message
-        client.emit("error", joinResult);
-        return;
-      }
-      const lobby = joinResult;
-      playerLobbyId = lobby.id;
-      playerName = name;
-      // Let the lobby know a new player joined
-      client.to(playerLobbyId).emit("lobbyUpdate", { lobby });
-      client.join(playerLobbyId);
-      client.emit("joinedLobby", { lobby });
-
-      console.debug(`${name} joined lobby ${lobbyId}`);
-    });
-
-    client.on("nfcScanned", (nfcTag) => {
-      console.debug(`NFC tag has been scanned with number: ${nfcTag.number}`);
-    });
-
-    client.on("playerKilled", (data) => {
-      client.broadcast(`playerKilled`, { playerName: `lochyin` });
-    });
-
-    client.on("disconnect", () => {
-      console.debug(`Client disconnected`);
-      if (playerLobbyId != null) {
-        const lobby = removePlayer(playerLobbyId, playerName);
-        if (lobby != null)
-          client.to(playerLobbyId).emit("lobbyUpdate", { lobby });
-      }
-    });
-  }
-);
+  client.on("restartLobby", () => {
+    // TODO
+    throw Error("not implemented");
+  });
+});
 
 const port = 3000;
 console.debug(`Listening on ${port}`);
 
-io.listen(port);
+server.listen(port);

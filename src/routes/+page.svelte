@@ -5,34 +5,46 @@
   import MainButton from "$lib/MainButton.svelte";
   import Title from "$lib/Title.svelte";
   import NameInput from "$lib/NameInput.svelte";
-  import { deviceIsSupported } from "$lib/util";
+  import { deviceIsSupported, gotoReplace } from "$lib/util";
   import type { Socket } from "socket.io-client";
-  import { lobbyStore } from "$lib/lobbyStore";
+  import { lobbyStore, playerColorStore, playerStore } from "$lib/stores";
+  import { dev } from "$app/environment";
+
   let deviceSupported: boolean;
 
   let playerName = "";
-  let showError = false;
+  let error = "";
   let socket: Socket;
-
-  function emitPlayerName() {}
 
   function createLobby() {
     if (playerName) {
       socket.emit("createLobby", { name: playerName });
     } else {
-      showError = true;
+      error = "Please enter a name";
     }
   }
 
   onMount(() => {
     deviceSupported = deviceIsSupported();
+    if (!deviceIsSupported) return;
     socket = getSocketIO();
     // TODO: Display the error to the user somehow
-    socket.on("error", console.error);
-    socket.on("joinedLobby", ({ lobby }) => {
-      console.debug({ lobby });
+    socket.on("error", ({ error: err }) => (error = err));
+    socket.on("joinedLobby", ({ lobby, color }) => {
+      console.debug({ lobby, color });
+      playerColorStore.set(color);
       lobbyStore.set(lobby);
-      goto(`/lobby?id=${lobby.id}`, { replaceState: true });
+      sessionStorage.setItem(
+        "gameInfo",
+        JSON.stringify({
+          playerId: $playerStore!.id,
+          lobbyId: $lobbyStore!.id,
+          color: $playerColorStore!,
+        })
+      );
+
+      if (!dev) document.getElementById("main-panel")!.requestFullscreen();
+      gotoReplace(`/setuprooms`);
     });
 
     // From `onMount` we can return a cleanup function that Svelte runs whenever a component unmounts (disappears).
@@ -44,11 +56,17 @@
   });
 </script>
 
-<div class="h-full flex flex-col justify-between items-center">
+<div class="flex flex-col items-center justify-between flex-1">
   {#if deviceSupported}
     <Title />
-    <NameInput bind:playerName bind:showError />
-    <div class="mb-10">
+
+    <div
+      class="pb-20 space-y-20 flex flex-col items-center justify-center w-screen"
+    >
+      <div class="w-full flex flex-col items-center text-center">
+        <NameInput bind:playerName />
+        <p class:invisible={error === ""} class="text-red-500">{error}&nbsp;</p>
+      </div>
       <MainButton on:click={() => createLobby()}>Create Lobby</MainButton>
     </div>
   {:else}
