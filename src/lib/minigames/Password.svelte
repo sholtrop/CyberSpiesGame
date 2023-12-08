@@ -186,9 +186,6 @@
       {/each}
     {/if}
   </div>
-  <!-- {#if historylength > 0}
-    <br />
-  {/if} -->
   <div class="grid grid-cols-4 gap-4">
     {#each Array(4) as _, i}
       <div

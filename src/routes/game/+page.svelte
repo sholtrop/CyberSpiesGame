@@ -74,7 +74,9 @@
     const [type, info] = contents.split(":");
     if (type === "meeting") gotoReplace("/meetingbutton");
     else if (type === "task") {
-      emitGameAction({ action: "startTask", taskNumber: Number(info) });
+      const number = Number(info);
+      if (!$playerStore?.tasks.find((task) => task.number === number)) return;
+      emitGameAction({ action: "startTask", taskNumber: number });
       gotoReplace("/minigame/" + Number(info));
     } else if (type === "player") {
       const color = info as Color;
