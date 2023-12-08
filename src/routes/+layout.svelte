@@ -164,8 +164,9 @@
       $page.route.id !== "/" &&
       !$page.route.id?.includes("minigame") &&
       $page.route.id !== "/testNfc"
-    )
-      tryReconnect();
+    ) {
+      // tryReconnect();
+    }
   });
 
   // These pages dont get a notification bar
