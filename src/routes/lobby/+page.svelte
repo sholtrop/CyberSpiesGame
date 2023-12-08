@@ -103,7 +103,7 @@
                 <h2 class="font-bold text-lg">Players:</h2>
                 <div class="grid grid-rows-4 grid-cols-3 gap-x-3 gap-y-1">
                   {#each Object.values($lobbyStore.players) as { name, color }}
-                    <div class="flex items-baseline space-x-1.5 w-24">
+                    <div class="flex items-baseline space-x-1.5">
                       <div class={COLORS[color] + " w-3 h-3"} />
                       <div>{name}</div>
                       <div
