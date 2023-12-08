@@ -150,7 +150,6 @@
             >
           </p>
           <div class="flex flex-col space-y-6 mt-2">
-            <!-- TODO: grey out buttons when cd is up -->
             <div class="flex flex-col">
               <div class="flex space-x-2 items-center">
                 <SmallButton

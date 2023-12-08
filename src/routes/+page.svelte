@@ -28,7 +28,6 @@
     deviceSupported = deviceIsSupported();
     if (!deviceIsSupported) return;
     socket = getSocketIO();
-    // TODO: Display the error to the user somehow
     socket.on("error", ({ error: err }) => (error = err));
     socket.on("joinedLobby", ({ lobby, color }) => {
       console.debug({ lobby, color });

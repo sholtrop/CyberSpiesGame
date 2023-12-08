@@ -107,7 +107,7 @@ class Lobby {
     // - Tasks are cancelled and left uncompleted
     // - Killing is not possible
     // - Hacks are cleared
-    // - Sabotages are paused?
+    // - Sabotages are paused
     // - New hacks/sabotages cannot be performed
     this.synchronize();
   }

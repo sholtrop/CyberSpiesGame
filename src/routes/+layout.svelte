@@ -140,18 +140,6 @@
         case "gameEnded":
           gotoReplace("/gameover");
           break;
-
-        case "started":
-        // if (lobby.activeEffects.virusScan != null) {
-        //   if (
-        //     $page.route.id !== "/dontmove" &&
-        //     $playerStore?.status === "alive" &&
-        //     $playerStore.currentlyDoing.activity === "nothing"
-        //   )
-        //     gotoReplace("/dontmove");
-        // }
-
-        // TODO: add case for sabotage
       }
     });
 

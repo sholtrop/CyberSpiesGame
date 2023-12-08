@@ -39,7 +39,6 @@ export const NFC_ACTIVITIES = [
 
 // Position in the array is the id of the task.
 export const TASKS = [
-  // TODO: descriptions
   {
     name: "simonsays",
     makeDescription: (activities) =>

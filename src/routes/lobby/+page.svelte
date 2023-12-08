@@ -13,6 +13,8 @@
   import { swipe } from "svelte-gestures";
   import { emitGameAction, getSocketIO } from "$lib/websocket";
   import { gotoReplace } from "$lib/util";
+  import GameExplanation from "$lib/GameExplanation.svelte";
+  import CyberCriminalExplanation from "$lib/CyberCriminalExplanation.svelte";
 
   const N_PAGES = 4;
 
@@ -118,9 +120,9 @@
             </div>
           </div>
         {:else if infoPage === 1}
-          TODO: General game explanation
+          <GameExplanation />
         {:else if infoPage === 2}
-          TODO: Cyber criminal role explanation
+          <CyberCriminalExplanation />
         {:else if infoPage === 3}
           <AgentRoleExplanation />
         {/if}
