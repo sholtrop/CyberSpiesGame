@@ -339,12 +339,15 @@ class Lobby {
     }
   }
 
-  // `buttonNumber` is 1 or 2
+  // `buttonNumber` is 0 or 1
   pressFirewallButton(buttonNumber) {
     const breach = this.activeEffects.firewallBreach;
     if (breach != null) {
-      if (buttonNumber === 1) breach.buttonsPressed.firewallbutton1 = true;
-      else if (buttonNumber === 2) breach.buttonsPressed.firewallbutton2 = true;
+      if (buttonNumber === 0) breach.buttonsPressed.firewallbutton1 = true;
+      else if (buttonNumber === 1) breach.buttonsPressed.firewallbutton2 = true;
+    }
+    if (breach.buttonsPressed.firewallbutton1 && breach.buttonsPressed.firewallbutton2) {
+      this.#endFirewallBreach();
     }
     this.synchronize();
   }
@@ -364,6 +367,10 @@ class Lobby {
     this.players[impostorColor].role.sabotageCooldown = FIREWALL_COOLDOWN;
 
     this.synchronize();
+  }
+
+  #endFirewallBreach() {
+    this.activeEffects.firewallBreach = null;
   }
 
   // Returns the color the player that should be voted out, or `null` if no player is voted out.
