@@ -17,6 +17,7 @@
     cancelScan = cancel;
 
     const scanResult = await scanPromise;
+    devNotiStore.set("Scan result in: " + scanResult);
     // Only emit if we didnt cancel in the meantime
     if (scanResult != null && scanning) {
       dispatch("scanned", { result: scanResult });

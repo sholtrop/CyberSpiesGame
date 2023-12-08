@@ -1,6 +1,6 @@
 import { dev } from "$app/environment";
 import { goto } from "$app/navigation";
-import { lobbyStore } from "./stores";
+import { devNotiStore, lobbyStore } from "./stores";
 
 // Return an array of `amount` numbers of which AT LEAST two sum up to 100
 export function makeNumberListWith100Sum(amount: number): number[] {
@@ -62,9 +62,10 @@ export function scanNfc(
       let message = null;
       const ndef = new NDEFReader();
       await ndef.scan();
-      console.debug(`NFC Scanner activated`);
+      devNotiStore.set("Scanner on");
       // return new Promise((resolve, reject) => {
       ndef.onreadingerror = (err) => {
+        devNotiStore.set(err.toString());
         console.error(`Cannot read data from the NFC tag: ${err}`);
         return null;
       };
