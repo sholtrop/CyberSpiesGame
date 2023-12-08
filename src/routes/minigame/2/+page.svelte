@@ -1,5 +1,5 @@
-<script lang="ts">
-  import SimonSays from "$lib/minigames/SimonSays.svelte";
+<script>
+  import Password from "$lib/minigames/Password.svelte";
 </script>
 
-<SimonSays />
+<Password />

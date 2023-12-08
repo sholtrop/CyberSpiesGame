@@ -1,13 +1,17 @@
-<script lang="ts">
-  import SumToHundred from "$lib/minigames/SumToHundred.svelte";
-  import SimonSays from "$lib/minigames/SimonSays.svelte";
-  import Wiretap from "$lib/minigames/Wiretap.svelte";
-  import Mining from "$lib/minigames/Mining.svelte";
-  import Password from "$lib/minigames/Password.svelte";
-  import Firewall from "$lib/minigames/Firewall.svelte"
-  import DeleteEvidence from "$lib/minigames/DeleteEvidence.svelte"
-  import { makeNumberListWith100Sum } from "$lib/util";
+<script>
+  import { goto } from "$app/navigation";
+  import MainButton from "$lib/MainButton.svelte";
 </script>
 
-
-<Mining />
+<div class="grid grid-cols-2 gap-4 mt-4 px-1">
+  <MainButton on:click={() => goto("/minigame/0")}>0 Simon says</MainButton>
+  <MainButton on:click={() => goto("/minigame/1")}>1 Wiretap</MainButton>
+  <MainButton on:click={() => goto("/minigame/2")}
+    >2 Password cracking</MainButton
+  >
+  <MainButton on:click={() => goto("/minigame/3")}>3 Mining</MainButton>
+  <MainButton on:click={() => goto("/minigame/4")}>4 Virus</MainButton>
+  <MainButton on:click={() => goto("/minigame/5")}>5 Sum to hundred</MainButton>
+  <MainButton on:click={() => goto("/minigame/6")}>6 Delete evidence</MainButton
+  >
+</div>

@@ -3,7 +3,7 @@ export const MAX_PLAYERS = 5;
 
 export const N_IMPOSTORS = 1;
 
-export const MEETING_TIME = 60; 
+export const MEETING_TIME = 60;
 
 export const VOTE_RESULT_DISPLAY_SECS = 10;
 
@@ -33,6 +33,7 @@ export const NFC_ACTIVITIES = [
   "passwordcrack",
   "bitcoinmine",
   "killthevirus",
+  "sumtohundred",
   "firewallbutton1",
   "firewallbutton2",
 ];
@@ -62,7 +63,17 @@ export const TASKS = [
   {
     name: "killthevirus",
     makeDescription: (activities) =>
-      `Get rid of the virus in ${activities.killthevirus.room}`,
+      `Get rid of the viruses in ${activities.killthevirus.room}`,
+  },
+  {
+    name: "sumtohundred",
+    makeDescription: (activities) =>
+      `Help the computer with its calculations in ${activities.sumtohundred.room}`,
+  },
+  {
+    name: "destroyevidence",
+    makeDescription: (activities) =>
+      `Destroy the evidence in ${activities.destroyevidence.room}`,
   },
 ];
 

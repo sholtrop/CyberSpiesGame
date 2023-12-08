@@ -1,5 +1,5 @@
-<script lang="ts">
-  import SumToHundred from "$lib/minigames/SumToHundred.svelte";
+<script>
+  import Wiretap from "$lib/minigames/Wiretap.svelte";
 </script>
 
-<SumToHundred />
+<Wiretap />

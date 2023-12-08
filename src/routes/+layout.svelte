@@ -150,16 +150,20 @@
         case "foundDead":
           if (gameState !== "gameEnded") gotoReplace("/dead");
           break;
-          
+
         case "dead":
           if (gameState !== "meetingCalled" && gameState !== "gameEnded")
             gotoReplace("/killed");
           break;
-
       }
     });
 
-    if ($page.route.id !== "/join" && $page.route.id !== "/") tryReconnect();
+    if (
+      $page.route.id !== "/join" &&
+      $page.route.id !== "/" &&
+      !$page.route.id?.includes("minigame")
+    )
+      tryReconnect();
   });
 
   // These pages dont get a notification bar
