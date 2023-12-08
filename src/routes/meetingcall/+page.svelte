@@ -46,6 +46,6 @@
     <div>Go to the meeting room now and scan the tag.</div>
   </div>
   <div class="self-center mb-10">
-    <ScanButton on:scanned={({ detail }) => handleScan(detail)} />
+    <ScanButton on:scanned={({ detail }) => handleScan(detail.result)} />
   </div>
 </div>

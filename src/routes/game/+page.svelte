@@ -130,7 +130,7 @@
         </ul>
       </div>
       <div class="self-center mb-10">
-        <ScanButton on:scanned={({ detail }) => handleScanned(detail)} />
+        <ScanButton on:scanned={({ detail }) => handleScanned(detail.result)} />
       </div>
     </div>
 
@@ -253,7 +253,9 @@
               : ""}
           </p>
           <div class="self-center mb-2 mt-2 flex flex-col items-center">
-            <ScanButton on:scanned={({ detail }) => handleScanned(detail)} />
+            <ScanButton
+              on:scanned={({ detail }) => handleScanned(detail.result)}
+            />
             <span class="text-gray-400 text-xs"
               >You can also use the normal scan button to kill</span
             >
