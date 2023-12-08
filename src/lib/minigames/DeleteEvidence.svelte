@@ -1,7 +1,10 @@
 <script lang="ts">
     import file from "$lib/minigames/images/file.png";
     import trash from "$lib/minigames/images/trash.png";
+    import { gotoReplace } from "$lib/util";
+    import { emitGameAction } from "$lib/websocket";
     import { onMount } from "svelte";
+    import { TASKS } from "../../../server/consts";
     let width : number;
     let height : number;
     let spritewidth = 100;
@@ -15,8 +18,12 @@
     let leftdif = 0;
     let topdif = 0;
 
+    onMount(() => {
+        emitGameAction({action: "startTask", taskNumber: TASKS.findIndex(({name}) => name === "destroyevidence")});
+    });
+
     function gewonnen(){
-        setTimeout(()=>alert("gewonnen"), 300);
+        setTimeout(()=>gotoReplace("/minigamedone"), 300);
     }
 
     function initializeParameters(){

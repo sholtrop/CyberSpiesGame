@@ -1,6 +1,10 @@
 <script lang="ts">
   import Header from "$lib/Header.svelte";
   import MainButton from "$lib/MainButton.svelte";
+    import { gotoReplace } from "$lib/util";
+    import { emitGameAction } from "$lib/websocket";
+    import { onMount } from "svelte";
+    import { TASKS } from "../../../server/consts";
 
   const N_WINS_REQUIRED = 4;
 
@@ -22,6 +26,10 @@
   let nextclick = 0;
   let started = false;
 
+  onMount(() => {
+    emitGameAction({action: "startTask", taskNumber: TASKS.findIndex(({name}) => name === "simonsays")});
+  });
+
   function handleClick(index: number) {
     if (index === sequence[nextclick]) {
       if (nextclick < level) {
@@ -29,8 +37,8 @@
       }
       if (nextclick === level) {
         if (level === sequence.length) {
-          setTimeout(() => alert("gewonnen"), 300);
           reset();
+          setTimeout(() => gotoReplace("/minigamedone"), 300);
         } else {
           level += 1;
           nextclick = 0;

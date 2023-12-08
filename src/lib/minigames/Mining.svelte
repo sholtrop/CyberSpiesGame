@@ -8,6 +8,10 @@
     import mining5 from "$lib/minigames/images/mining5.png"
     import mining6 from "$lib/minigames/images/mining6.png"
     import mining7 from "$lib/minigames/images/mining7.png"
+    import { gotoReplace } from "$lib/util";
+    import { emitGameAction } from "$lib/websocket";
+    import { onMount } from "svelte";
+    import { TASKS } from "../../../server/consts";
 
     let stagesUp = [mining0, mining3, mining5, mining7];
     let stagesDown = [mining1, mining2, mining4, mining6];
@@ -18,8 +22,12 @@
     let done = false;
     let waitingtime = 500;
 
-    function gewonnen() {
-        alert("gewonnen")
+    onMount(() => {
+        emitGameAction({action: "startTask", taskNumber: TASKS.findIndex(({name}) => name === "bitcoinmine")});
+    });
+
+    function gewonnen(){
+        setTimeout(()=>gotoReplace("/minigamedone"), 300);
     }
 
     function processTap() {
