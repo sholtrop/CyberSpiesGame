@@ -15,7 +15,7 @@
   import { gotoReplace } from "$lib/util";
   import GameExplanation from "$lib/GameExplanation.svelte";
   import CyberCriminalExplanation from "$lib/CyberCriminalExplanation.svelte";
-  import { env } from "$env/dynamic/private";
+  import { env } from "$env/dynamic/public";
 
   const N_PAGES = 4;
 
