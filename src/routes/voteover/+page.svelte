@@ -18,6 +18,8 @@
     });
   }
 
+  $: if ($lobbyStore?.status.state === "started") gotoReplace("/game");
+
   function gotoGame() {
     setTimeout(() => {
       if (browser) {
