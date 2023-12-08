@@ -2,6 +2,7 @@ import { Server } from "socket.io";
 import http from "http";
 import https from "https";
 import fs from "fs";
+import express from 'express';
 
 // HTTPS needed for NFC scanner
 const useHTTPS = process.env.NODE_ENV === "production";
@@ -17,10 +18,16 @@ if (useHTTPS) {
   credentials = { key: privateKey, cert: certificate };
 }
 
+
+export const app = express();
+
+app.use(express.static('../build'))
+
+
 // Create the server based on the chosen module
 export const server = useHTTPS
-  ? https.createServer(credentials)
-  : http.createServer();
+  ? https.createServer(credentials, app)
+  : http.createServer(app);
 
 // Pass the server to Socket.IO
 export const io = new Server(server, { cors: "*" });
