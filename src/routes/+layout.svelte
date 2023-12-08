@@ -159,13 +159,15 @@
       let gameState = $lobbyStore?.status.state;
       if (player == null) return;
       switch (player.status) {
+        case "foundDead":
+          if (gameState !== "gameEnded") gotoReplace("/dead");
+          break;
+          
         case "dead":
           if (gameState !== "meetingCalled" && gameState !== "gameEnded")
             gotoReplace("/killed");
           break;
 
-        case "foundDead":
-          if (gameState !== "gameEnded") gotoReplace("/dead");
       }
     });
 
