@@ -147,13 +147,15 @@
       let gameState = $lobbyStore?.status.state;
       if (player == null) return;
       switch (player.status) {
+        case "foundDead":
+          if (gameState !== "gameEnded") gotoReplace("/dead");
+          break;
+          
         case "dead":
           if (gameState !== "meetingCalled" && gameState !== "gameEnded")
             gotoReplace("/killed");
           break;
 
-        case "foundDead":
-          if (gameState !== "gameEnded") gotoReplace("/dead");
       }
     });
 
@@ -178,7 +180,7 @@
 
 <div
   id="main-panel"
-  class="min-h-screen bg-black items-center flex flex-col text-white font-mono px-2 select-none relative"
+  class="h-screen bg-black items-center flex flex-col text-white font-mono px-2 select-none relative"
 >
   {#if displayNotificationBar}
     <NotificationBar notificationMessage={$notificationStore}></NotificationBar>

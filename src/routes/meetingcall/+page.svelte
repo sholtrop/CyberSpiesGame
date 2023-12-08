@@ -16,16 +16,18 @@
       else meetingCall = "A body has been found!";
     }
 
-    return lobbyStore.subscribe((lobby) => {
+    const unsubLobby = lobbyStore.subscribe((lobby) => {
       if (lobby == null) return;
 
       if (
-        lobby.status.state == "meetingCalled" &&
+        lobby.status.state === "meetingCalled" &&
         lobby.status.presentPlayers[$playerStore!.color]
       ) {
         gotoReplace("/awaitMeeting");
       } else if (lobby.status.state == "meeting") gotoReplace("/vote");
     });
+
+    return unsubLobby;
   });
 
   function handleScan(contents: string) {
