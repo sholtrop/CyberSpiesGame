@@ -5,6 +5,7 @@
   import { lobbyStore, playerStore } from "$lib/stores";
   import type { Color, Lobby } from "$lib/types";
   import { gotoReplace, scanNfc } from "$lib/util";
+  import { emitGameAction } from "$lib/websocket";
   import { onMount } from "svelte";
 
   let meetingCall: string;
@@ -31,10 +32,11 @@
   });
 
   function handleScan(contents: string) {
-    console.log(
-      contents,
-      "TODO: check if scanned tag was the meeting tag. If so, report to backend"
-    );
+    const [type, _] = contents.split(":");
+
+    if (type === "meeting") {
+      emitGameAction({ action: "enterMeeting" });
+    }
   }
 </script>
 

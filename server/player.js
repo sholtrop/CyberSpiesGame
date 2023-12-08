@@ -90,7 +90,7 @@ export class Player {
     this.currentlyDoing = { activity: "fixFirewall" };
   }
 
-  finishFirewallFix() {
+  finishFirewallFix(number) {
     if (this.currentlyDoing.activity !== "fixFirewall") return;
     this.currentlyDoing = { activity: "nothing" };
   }

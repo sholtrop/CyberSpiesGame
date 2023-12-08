@@ -21,6 +21,8 @@
     TASKS,
     VIRUS_SCAN_COOLDOWN,
   } from "../../../server/consts";
+  import { Socket, io } from "socket.io-client";
+  import type { Color } from "$lib/types";
 
   let mainDiv: HTMLDivElement;
   let impostorDiv: HTMLDivElement;
@@ -63,6 +65,36 @@
       emitGameAction({ action: "taskCompleted", taskNumber: task });
     }
   }
+
+  function handleScanned(contents: string) {
+    console.log("Scanned", contents);
+    const [type, info] = contents.split(":");
+    if (type === "meeting") gotoReplace("/meetingbutton");
+    else if (type === "task") {
+      emitGameAction({ action: "startTask", taskNumber: Number(info) });
+    } else if (type === "player") {
+      const color = info as Color;
+      if ($lobbyStore?.players[color].status === "dead")
+        emitGameAction({ action: "reportDeadBody", bodyColor: color });
+      else if (
+        $lobbyStore?.players[color].status === "alive" &&
+        $playerStore?.role.name === "impostor" &&
+        $playerStore.role.killCooldown === 0
+      )
+        emitGameAction({ action: "killPlayer", targetColor: color });
+    } else if (type === "firewall") {
+      const number = Number(info);
+      if ($playerStore?.currentlyDoing.activity === "fixFirewall")
+        emitGameAction({ action: "finishFirewallFix", number });
+      else if (
+        $playerStore?.currentlyDoing.activity === "nothing" &&
+        $lobbyStore?.activeEffects.firewallBreach != null
+      )
+        emitGameAction({ action: "startFirewallFix", number });
+    } else if (type === "wiretap") {
+      console.error("Not implemented");
+    }
+  }
 </script>
 
 {#if $lobbyStore != null && $playerStore != null}
@@ -96,9 +128,7 @@
         </ul>
       </div>
       <div class="self-center mb-10">
-        <ScanButton
-          on:scanned={(contents) => console.log("Scanned", contents)}
-        />
+        <ScanButton on:scanned={({ detail }) => handleScanned(detail)} />
       </div>
     </div>
 
@@ -221,9 +251,7 @@
               : ""}
           </p>
           <div class="self-center mb-2 mt-2 flex flex-col items-center">
-            <ScanButton
-              on:scanned={(contents) => console.log("Scanned", contents)}
-            />
+            <ScanButton on:scanned={({ detail }) => handleScanned(detail)} />
             <span class="text-gray-400 text-xs"
               >You can also use the normal scan button to kill</span
             >
