@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "vite dev",
-    "start": "PUBLIC_SERVER=https://mms.sholtrop.dev:3000 vite dev",
-    "build": "vite build",
+    "start": "PUBLIC_SERVER=https://mms.sholtrop.dev vite dev",
+    "build": "PUBLIC_SERVER=https://mms.sholtrop.dev vite build",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
