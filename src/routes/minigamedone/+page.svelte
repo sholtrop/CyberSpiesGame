@@ -24,8 +24,8 @@
   <div>
     <ScanButton
       on:scanned={({ detail }) => {
-        console.log("Scanned", detail);
-        completeTask(detail);
+        console.log("Scanned", detail.result);
+        completeTask(detail.result);
       }}
     />
   </div>
