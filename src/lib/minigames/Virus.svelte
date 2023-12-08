@@ -1,6 +1,10 @@
 <script lang="ts">
     import message from "$lib/minigames/images/message.png";
     import virus from "$lib/minigames/images/virus.png"
+    import { gotoReplace } from "$lib/util";
+    import { emitGameAction } from "$lib/websocket";
+    import { onMount } from "svelte";
+    import { TASKS } from "../../../server/consts";
 
     let top = 500;
     let left = 1000;
@@ -25,9 +29,13 @@
     let winscore = 5;
     let stopAnimation = false;
 
+    onMount(() => {
+        emitGameAction({action: "startTask", taskNumber: TASKS.findIndex(({name}) => name === "killthevirus")});
+    });
+
     function gewonnen(){
         stopAnimation = true;
-        alert("gewonnen");
+        setTimeout(()=>gotoReplace("/minigamedone"), 300);
     }
     function clickMessage(){
         if (stopAnimation) {

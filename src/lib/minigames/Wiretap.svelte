@@ -3,6 +3,10 @@
     import wiretap from "$lib/minigames/images/wiretap.png"
     import pocket from "$lib/minigames/images/wiretap_pocket.png"
     import justpocket from "$lib/minigames/images/justpocket.png"
+    import { gotoReplace } from "$lib/util";
+    import { onMount } from "svelte";
+    import { emitGameAction } from "$lib/websocket";
+    import { TASKS } from "../../../server/consts";
 
     let windowWidth : number;
     let windowHeight : number;
@@ -15,10 +19,14 @@
     let topdif = 0;
     let moving = false;
     let win = false;
+
+    onMount(() => {
+        emitGameAction({action: "startTask", taskNumber: TASKS.findIndex(({name}) => name === "wiretap")});
+    });
     
     function gewonnen(){
         win = true;
-        setTimeout(()=>alert("gewonnen"), 1000);
+        setTimeout(()=>gotoReplace("/minigamedone"), 300);
     }
 
     function setImageParams(){
