@@ -61,9 +61,13 @@
       $lobbyStore != null
         ? (screen = "scanPlayerScreen")
         : alert("Cannot kill/report a player as you're not in a lobby"),
-    "Start sabotage fix": () =>
+    "Start sabotage fix 0": () =>
       $lobbyStore != null
-        ? emitGameAction({ action: "startFirewallFix" })
+        ? emitGameAction({ action: "startFirewallFix", number: 0})
+        : alert("Cannot fix firewall as you're not in the lobby"),
+    "Start sabotage fix 1": () =>
+      $lobbyStore != null
+        ? emitGameAction({ action: "startFirewallFix", number: 1 })
         : alert("Cannot fix firewall as you're not in a lobby"),
     "Trigger victory": () =>
       $playerStore?.role.name !== "undecided"
