@@ -4,6 +4,7 @@
   import TaskBar from "$lib/TaskBar.svelte";
   import { COLORS } from "$lib/consts";
   import {
+    devNotiStore,
     lobbyStore,
     notificationStore,
     playerColorStore,
@@ -68,7 +69,7 @@
   }
 
   function handleScanned(contents: string) {
-    $notificationStore = "Scanned contents " + contents;
+    devNotiStore.set("Scanned contents " + contents);
     console.log("Scanned", contents);
     const [type, info] = contents.split(":");
     if (type === "meeting") gotoReplace("/meetingbutton");

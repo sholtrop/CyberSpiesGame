@@ -20,7 +20,7 @@
     devNotiStore.set("Scan result in: " + scanResult);
     // Only emit if we didnt cancel in the meantime
     if (scanResult != null) {
-      devNotiStore.set("Dispatching scan result");
+      devNotiStore.set("Dispatching scan result " + scanResult);
       dispatch("scanned", { result: scanResult });
       msg = scanResult ?? "Scanned nothing";
     }
