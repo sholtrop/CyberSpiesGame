@@ -16,5 +16,8 @@
 </script>
 
 <div>
-  <p>You got killed.</p>
+  <p class="text-xl">You got killed.</p>
+  <p>Sit or lie on the floor until a meeting is called</p>
+  <p>You do not need to do tasks anymore</p>
+  <p>You must stay quiet</p>
 </div>
