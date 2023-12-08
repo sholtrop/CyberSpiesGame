@@ -74,6 +74,7 @@
     if (type === "meeting") gotoReplace("/meetingbutton");
     else if (type === "task") {
       emitGameAction({ action: "startTask", taskNumber: Number(info) });
+      gotoReplace("/minigame/" + Number(info));
     } else if (type === "player") {
       const color = info as Color;
       if ($lobbyStore?.players[color].status === "dead")

@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { gotoReplace } from "$lib/util";
-    import { emitGameAction } from "$lib/websocket";
-    import { onMount } from "svelte";
-    import { TASKS } from "../../../server/consts";
+  import { gotoReplace } from "$lib/util";
+  import { emitGameAction } from "$lib/websocket";
+  import { onMount } from "svelte";
+  import { TASKS } from "../../../server/consts";
 
   let input = ["_", "_", "_", "_"];
   let numericalinput = [0, 0, 0, 0];
@@ -30,9 +30,9 @@
   let current = 0;
   let waiting = false;
 
-  onMount(() => {
-    emitGameAction({action: "startTask", taskNumber: TASKS.findIndex(({name}) => name === "passwordcrack")});
-  });
+  // onMount(() => {
+  //   emitGameAction({action: "startTask", taskNumber: TASKS.findIndex(({name}) => name === "passwordcrack")});
+  // });
 
   // function gewonnen() {
   //   alert("gewonnen");
@@ -42,8 +42,8 @@
   //   }, 1000);
   // }
 
-  function gewonnen(){
-        setTimeout(()=>gotoReplace("/minigamedone"), 300);
+  function gewonnen() {
+    setTimeout(() => gotoReplace("/minigamedone"), 300);
   }
 
   function resetGame() {

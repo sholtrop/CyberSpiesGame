@@ -1,17 +1,17 @@
 <script lang="ts">
   import Header from "$lib/Header.svelte";
   import { gotoReplace, makeNumberListWith100Sum } from "$lib/util";
-    import { emitGameAction } from "$lib/websocket";
+  import { emitGameAction } from "$lib/websocket";
   import { createEventDispatcher, onMount } from "svelte";
-    import { TASKS } from "../../../server/consts";
+  import { TASKS } from "../../../server/consts";
 
   // How many times the minigame has to be repeated before completing
   export let nRepeats = 3;
   export let numbersInMinigame = 12;
 
-  onMount(() => {
-    emitGameAction({action: "startTask", taskNumber: TASKS.findIndex(({name}) => name === "sumtohundred")});
-  });
+  // onMount(() => {
+  //   emitGameAction({action: "startTask", taskNumber: TASKS.findIndex(({name}) => name === "sumtohundred")});
+  // });
 
   const dispatch = createEventDispatcher();
 
@@ -42,7 +42,7 @@
       wins += 1;
       if (wins === nRepeats) {
         dispatch(`taskComplete`);
-        setTimeout(()=>gotoReplace("/minigamedone"), 300);
+        setTimeout(() => gotoReplace("/minigamedone"), 300);
       } else {
         resetNumbers();
         firstSelectedNumber = null;
