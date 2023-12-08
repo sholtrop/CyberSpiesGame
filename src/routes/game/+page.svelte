@@ -5,6 +5,7 @@
   import { COLORS } from "$lib/consts";
   import {
     lobbyStore,
+    notificationStore,
     playerColorStore,
     playerStore,
     showNotificationBar,
@@ -67,6 +68,7 @@
   }
 
   function handleScanned(contents: string) {
+    $notificationStore = "Scanned contents";
     console.log("Scanned", contents);
     const [type, info] = contents.split(":");
     if (type === "meeting") gotoReplace("/meetingbutton");
