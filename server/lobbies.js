@@ -508,10 +508,6 @@ class Lobby {
     this.synchronize();
   }
 
-  #endFirewallBreach() {
-    this.activeEffects.firewallBreach = null;
-    this.synchronize();
-  }
 
   #assignRolesRandomly() {
     // First make everyone crew
