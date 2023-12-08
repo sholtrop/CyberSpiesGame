@@ -46,7 +46,7 @@ This is an overview of the NFC tags that are used in the game. To have an NFC ta
 | -------------- | ----------------- | --------------------- | -------------------------------------------------------------------------------------------- |
 | Player Blue    | `"player:blue"`   | 2 (one per shoulder)  |                                                                                              |
 | Player Red     | `"player:red"`    | 2 (one per shoulder)  |                                                                                              |
-| Player White   | `"player:white"`  | 2 (one per shoulder)  |                                                                                              |
+| Player Pink   | `"player:pink"`  | 2 (one per shoulder)  |                                                                                              |
 | Player Green   | `"player:green"`  | 2 (one per shoulder)  |                                                                                              |
 | Player Yellow  | `"player:yellow"` | 2 (one per shoulder)  |                                                                                              |
 | Task `n`       | `"task:n"`        | 7 (one for each task) | Where `n` is the number of task, ranging from 0 to 6.                                        |
