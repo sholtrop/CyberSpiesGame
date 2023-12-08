@@ -27,11 +27,15 @@ app.get('/:x', (req, res) => {
   // Extract the value of :x from the request parameters
   const x = req.params.x;
 
+  let filename = x;
   // Construct the filename by appending '.html' to :x
-  const filename = `${x}.html`;
+  if (!filename.includes('.'))
+    filename = `${x}.html`;
+
+  console.log({ filename })
 
   // Send the specified HTML file
-  res.sendFile("../build/" + filename);
+  res.sendFile("/home/ubuntu/amogus_irl/build/" + filename);
 });
 
 
