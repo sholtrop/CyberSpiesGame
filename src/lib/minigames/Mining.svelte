@@ -9,10 +9,12 @@
     import mining6 from "$lib/minigames/images/mining6.png"
     import mining7 from "$lib/minigames/images/mining7.png"
 
-    let stages = [mining0, mining1, mining2, mining3, mining4, mining5, mining6, mining7];
+    let stagesUp = [mining0, mining3, mining5, mining7];
+    let stagesDown = [mining1, mining2, mining4, mining6];
     let currentstage = 0;
     let taps = 0;
     let inactive = false;
+    let hammerdown = false;
     let done = false;
     let waitingtime = 500;
 
@@ -21,7 +23,7 @@
     }
 
     function processTap() {
-        if (taps < currentstage){
+        if (taps < currentstage + 1){
             taps += 1;
         }
         else{
@@ -29,11 +31,10 @@
             currentstage += 1;
             waitingtime += 75;
         }
-        if (currentstage == 6){
+        if (currentstage == 3){
             done = true;
             waitingtime = 500;
             setTimeout(() => {
-                currentstage += 1;
                 setTimeout(() => {
                     inactive = false;
                     gewonnen();
@@ -46,9 +47,11 @@
         if (inactive){
             return;
         }
-        if(currentstage < 6){
+        if(currentstage < 3){
             processTap();
             inactive=true;
+            hammerdown = true;
+            setTimeout(() => {hammerdown = false;}, 200);
             setTimeout(() => {
                 inactive = false;
             }, waitingtime);
@@ -70,9 +73,10 @@
     .image {
         max-width: 95svw;
         max-height: 100svh;   
+        user-select: none;
     }
     .inactive {
-        opacity: 0.8;
+        opacity: 1;
     }
 </style>
 
@@ -83,7 +87,8 @@
 <body>
 
 <div>
-    <img src={stages[currentstage]} alt="mining" class="image" class:inactive={inactive&&!done}>
+    <img src={hammerdown? stagesDown[currentstage] : stagesUp[currentstage]} 
+            alt="mining" class="image" class:inactive={inactive&&!done}>
 </div>
 
 

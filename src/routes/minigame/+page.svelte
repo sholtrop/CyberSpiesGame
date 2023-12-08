@@ -5,8 +5,9 @@
   import Mining from "$lib/minigames/Mining.svelte";
   import Password from "$lib/minigames/Password.svelte";
   import Firewall from "$lib/minigames/Firewall.svelte"
+  import DeleteEvidence from "$lib/minigames/DeleteEvidence.svelte"
   import { makeNumberListWith100Sum } from "$lib/util";
 </script>
 
 
-<Firewall />
+<Mining />
