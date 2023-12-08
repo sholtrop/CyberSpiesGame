@@ -175,7 +175,7 @@ io.on("connection", (client) => {
   });
 });
 
-const port = 3000;
+const port = process.env.NODE_ENV === 'production' ? 443 : 3000;
 console.debug(`Listening on ${port}`);
 
 server.listen(port);
