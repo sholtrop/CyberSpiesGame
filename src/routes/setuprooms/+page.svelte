@@ -25,6 +25,8 @@
     { id: 8, name: "killthevirus", room: dev ? "Snellius 312" : "" },
     { id: 9, name: "firewallbutton1", room: dev ? "Snellius 313" : "" },
     { id: 10, name: "firewallbutton2", room: dev ? "Snellius 314" : "" },
+    { id: 11, name: "sumtohundred", room: dev ? "Snellius 401" : "" },
+    { id: 12, name: "destroyevidence", room: dev ? "Snellius 402" : "" },
   ];
   let error: string | null = null;
   let form: HTMLFormElement;

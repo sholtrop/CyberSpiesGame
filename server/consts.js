@@ -33,12 +33,12 @@ export const NFC_ACTIVITIES = [
   "passwordcrack",
   "bitcoinmine",
   "killthevirus",
-  "sumtohundred",
   "firewallbutton1",
   "firewallbutton2",
+  "sumtohundred",
+  "destroyevidence",
 ];
 
-// Position in the array is the id of the task.
 export const TASKS = [
   {
     name: "simonsays",
@@ -106,5 +106,4 @@ export const FIREWALL_COOLDOWN = 60;
 export const ACTIVE_EFFECTS_BASE = {
   hacked: null,
   firewallBreach: null,
-  virusScan: null,
 };
