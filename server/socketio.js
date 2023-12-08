@@ -21,7 +21,19 @@ if (useHTTPS) {
 
 export const app = express();
 
-app.use(express.static('../build'))
+// app.use(express.static('../build'))
+
+app.get('/:x', (req, res) => {
+  // Extract the value of :x from the request parameters
+  const x = req.params.x;
+
+  // Construct the filename by appending '.html' to :x
+  const filename = `${x}.html`;
+
+  // Send the specified HTML file
+  res.sendFile("../build/" + filename);
+});
+
 
 app.get('/:x', (req, res) => {
   // Extract the value of :x from the request parameters

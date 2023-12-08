@@ -15,6 +15,7 @@
   import { gotoReplace } from "$lib/util";
   import GameExplanation from "$lib/GameExplanation.svelte";
   import CyberCriminalExplanation from "$lib/CyberCriminalExplanation.svelte";
+  import { env } from "$env/dynamic/private";
 
   const N_PAGES = 4;
 
@@ -51,7 +52,7 @@
 
   function getRoomLink(): string {
     let link =
-      window.location.origin +
+      env.PUBLIC_SERVER +
       `/join?code=${$lobbyStore?.id}&creator=${$lobbyStore?.creator}`;
     return link;
   }
