@@ -12,7 +12,7 @@ export const COLORS = {
   blue: "bg-blue-600",
   purple: "bg-purple-700",
   white: "bg-white",
-  pink: " bg-pink-400",
+  pink: "bg-red-200",
 } as { [key: string]: string };
 
 // Pressing ctrl and this key will open/close the dev panel
