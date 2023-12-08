@@ -50,4 +50,7 @@ This is an overview of the NFC tags that are used in the game. To have an NFC ta
 | Player Green   | `"player:green"`  | 2 (one per shoulder)  |                                                                                              |
 | Player Yellow  | `"player:yellow"` | 2 (one per shoulder)  |                                                                                              |
 | Task `n`       | `"task:n"`        | 7 (one for each task) | Where `n` is the number of task, ranging from 0 to 6.                                        |
-| Meeting button | `"meeting:button` | 1                     | Players must scan this to confirm attendance at a meeting, and to start an emergency meeting |
+| Meeting button | `"meeting:button"` | 1                     | Players must scan this to confirm attendance at a meeting, and to start an emergency meeting |
+| Firewall fix | `"firewall:{0,1}"` | 1                     | Players must scan both of these to fix a firewall breach emergency |
+| Wiretap| `"wiretap:{0,1,2}"` | 1                     | For the place wiretap task, players must scan all these tags|
+
