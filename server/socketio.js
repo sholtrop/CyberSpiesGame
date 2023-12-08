@@ -23,6 +23,17 @@ export const app = express();
 
 app.use(express.static('../build'))
 
+app.get('/:x', (req, res) => {
+  // Extract the value of :x from the request parameters
+  const x = req.params.x;
+
+  // Construct the filename by appending '.html' to :x
+  const filename = `${x}.html`;
+
+  // Send the specified HTML file
+  res.sendFile("/home/ubuntu/amogus_irl/build/" + filename);
+});
+
 
 // Create the server based on the chosen module
 export const server = useHTTPS
