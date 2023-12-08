@@ -2,6 +2,7 @@
 
     import wiretap from "$lib/minigames/images/wiretap.png"
     import pocket from "$lib/minigames/images/wiretap_pocket.png"
+    import justpocket from "$lib/minigames/images/justpocket.png"
 
     let windowWidth : number;
     let windowHeight : number;
@@ -13,7 +14,13 @@
     let top = 100;
     let topdif = 0;
     let moving = false;
+    let win = false;
     
+    function gewonnen(){
+        win = true;
+        setTimeout(()=>alert("gewonnen"), 1000);
+    }
+
     function setImageParams(){
         wiretapWidth = 0.2*imagewidth;
         left = (windowWidth - wiretapWidth) / 2;
@@ -23,9 +30,9 @@
     function checkPocket() {
         if ((left > 0.24*imagewidth) 
             && (left < 0.76*imagewidth + wiretapWidth)
-            && (top > 0.66*imagewidth)
+            && (top > 0.5*imagewidth)
             && (top < 1.13*imagewidth + 2.3*wiretapWidth)){
-                alert("gewonnen")
+                gewonnen();
             }
     }
 
@@ -92,6 +99,10 @@
 <section role="none" on:touchstart={onStart} style="left: {left}px; top: {top}px;" class="draggable">
 	<img src={wiretap} alt="wiretap" style="TOP:{top};LEFT:{left}px;" width="{wiretapWidth}px">
 </section>
+
+{#if win}
+<img src={justpocket} alt="pocket" class="pocket">
+{/if}
 
 </body>
 

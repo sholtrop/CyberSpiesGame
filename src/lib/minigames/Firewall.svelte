@@ -19,7 +19,7 @@
     let virusspeeds : number[] = [];
     let totalmessages = 0;
     let totalviruses = 0;
-    const pvirus = 0.2;
+    const pvirus = 0.3;
     let uselanes = 3;
     let score = 0;
     let winscore = 5;
