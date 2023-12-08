@@ -190,7 +190,7 @@
 
 <div
   id="main-panel"
-  class="min-h-screen bg-black items-center flex flex-col text-white font-mono px-2 select-none relative"
+  class="h-screen bg-black items-center flex flex-col text-white font-mono px-2 select-none relative"
 >
   {#if displayNotificationBar}
     <NotificationBar notificationMessage={$notificationStore}></NotificationBar>

@@ -5,15 +5,35 @@
     import { lobbyStore } from "$lib/stores";
     import { COLORS } from "$lib/consts";
     import { emitGameAction } from "$lib/websocket";
-    import { MEETING_TIME } from "../../../server/consts";
-    import type { Vote } from "$lib/types";
+    import { MEETING_TIME, PLAYER_COLORS } from "../../../server/consts";
+    import type { Color, Vote } from "$lib/types";
+    import { gotoReplace } from "$lib/util";
 
-  let taskProgress = 50;
+  let taskProgress = $lobbyStore?.taskProgression.displayed;
   let playerPick: Vote;
   let voted = false;
   let resultsShown = false;
   let voteTime = 5; // voting duration
   let timer = voteTime;
+  let voteCount = 0;
+  let maxVotes = ($lobbyStore && $lobbyStore.status.state === "meeting") ? $lobbyStore.status.nVoters : -1;
+  let voters: Color[] = [];
+
+  let tempCount = 0;
+  $: if ($lobbyStore && $lobbyStore.status.state === "meeting") {
+    Object.entries($lobbyStore.status.votes).forEach(([key, value]) => {
+      if ($lobbyStore && $lobbyStore.status.state == "meeting" && $lobbyStore.status.votes[key as any] !== "noVote" && !voters.includes(key as any)) {
+        voters.push(key as any);
+        voteCount++;
+      }
+    });
+  } 
+
+  $: if ($lobbyStore && $lobbyStore.status.state === "meeting") console.log(typeof $lobbyStore?.status.votes);  
+
+  $: if ($lobbyStore && $lobbyStore.status.state === "voteResultAnnounced") {
+    gotoReplace("/voteover");
+  }
 
   const players = [
     { name: "Lochyin", color: "green", status: "alive" },
@@ -113,7 +133,7 @@
                 data-vote={player.color}
               >
                 {player.name} {$lobbyStore.status.caller === player.color ? " (Caller)" : ""}
-                {resultsShown ? ": " + votes[player.name] : (player.color in $lobbyStore.status.votes ? " (Voted)" : "" )}
+                {resultsShown ? ": " + votes[player.name] : (voters.includes(player.color) ? " (Voted)" : "" )}
               </button>
             {/if}
           {/each}
@@ -136,7 +156,7 @@
         class="border px-6 py-4 mb-10 text-lg border-green-600 {voted ||
         resultsShown
           ? 'bg-gray-500'
-          : ''}">Vote {Object.keys($lobbyStore.status.nVoters).length}/{$lobbyStore.status.nVoters}</button
+          : ''}">Vote {voteCount}/{$lobbyStore.status.nVoters}</button
       >
     </div>
   </div>

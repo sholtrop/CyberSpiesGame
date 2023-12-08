@@ -1,7 +1,7 @@
 <script lang="ts">
   import { dev } from "$app/environment";
   import MainButton from "$lib/MainButton.svelte";
-  import { lobbyStore } from "$lib/stores";
+  import { lobbyStore, playerStore } from "$lib/stores";
   import { emitGameAction } from "$lib/websocket";
 
   function callMeeting() {
@@ -26,5 +26,6 @@
         {/if}
       </MainButton>
     </div>
+    <p>you have {$playerStore?.emergencyMeetingsLeft} meeting(s) left.</p>
   </div>
 {/if}
