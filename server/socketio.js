@@ -21,35 +21,28 @@ if (useHTTPS) {
 
 export const app = express();
 
-// app.use(express.static('../build'))
+app.use((req, res, next) => {
+  console.log({ url: req.url })
+  if (req.url !== '/' && !req.url.includes('.'))
+    req.url = req.url + '.html'
+  next();
 
-app.get('/:x', (req, res) => {
-  // Extract the value of :x from the request parameters
-  const x = req.params.x;
+}, express.static('../build'))
 
-  let filename = x;
-  // Construct the filename by appending '.html' to :x
-  if (!filename.includes('.'))
-    filename = `${x}.html`;
+// app.get('/:x', (req, res) => {
+//   // Extract the value of :x from the request parameters
+//   const x = req.params.x;
 
-  console.log({ filename })
+//   let filename = x;
+//   // Construct the filename by appending '.html' to :x
+//   if (!filename.includes('.'))
+//     filename = `${x}.html`;
 
-  // Send the specified HTML file
-  res.sendFile("/home/ubuntu/amogus_irl/build/" + filename);
-});
+//   console.log({ filename })
 
-
-app.get('/:x', (req, res) => {
-  // Extract the value of :x from the request parameters
-  const x = req.params.x;
-
-  // Construct the filename by appending '.html' to :x
-  const filename = `${x}.html`;
-
-  // Send the specified HTML file
-  res.sendFile("/home/ubuntu/amogus_irl/build/" + filename);
-});
-
+//   // Send the specified HTML file
+//   res.sendFile("/home/sjors/development/svelte/amogus_irl/build/" + filename);
+// });
 
 // Create the server based on the chosen module
 export const server = useHTTPS
