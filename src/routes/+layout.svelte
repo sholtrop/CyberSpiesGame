@@ -162,7 +162,8 @@
     if (
       $page.route.id !== "/join" &&
       $page.route.id !== "/" &&
-      !$page.route.id?.includes("minigame")
+      !$page.route.id?.includes("minigame") &&
+      $page.route.id !== "/testNfc"
     )
       tryReconnect();
   });
