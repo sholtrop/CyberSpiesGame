@@ -68,7 +68,7 @@
   }
 
   function handleScanned(contents: string) {
-    $notificationStore = "Scanned contents";
+    $notificationStore = "Scanned contents " + contents;
     console.log("Scanned", contents);
     const [type, info] = contents.split(":");
     if (type === "meeting") gotoReplace("/meetingbutton");
