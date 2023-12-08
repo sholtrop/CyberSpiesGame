@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
   import { scanNfc } from "./util";
+  import { devNotiStore, notificationStore } from "./stores";
 
   const dispatch = createEventDispatcher();
   const SCAN_TIMEOUT = 8;
@@ -10,6 +11,7 @@
   let cancelScan: (() => void) | null = null;
 
   async function scan() {
+    devNotiStore.set("Scanning");
     scanning = true;
     const [cancel, scanPromise] = scanNfc({ timeOutSecs: SCAN_TIMEOUT });
     cancelScan = cancel;

@@ -6,6 +6,7 @@
   import {
     lobbyStore,
     notificationStore,
+    devNotiStore,
     playerColorStore,
     playerStore,
     showNotificationBar,
@@ -187,7 +188,7 @@
   class="h-screen bg-black items-center flex flex-col text-white font-mono px-2 select-none relative"
 >
   {#if displayNotificationBar}
-    <NotificationBar notificationMessage={$notificationStore}></NotificationBar>
+    <NotificationBar notificationMessage={$devNotiStore}></NotificationBar>
   {/if}
   <slot class="flex-1" />
   {#if dev && showDevPanel}

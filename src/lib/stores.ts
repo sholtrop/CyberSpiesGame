@@ -40,4 +40,6 @@ export const notificationStore: Readable<string | null> = derived(
   }
 );
 
+export const devNotiStore = writable(null as null | string);
+
 export const showNotificationBar = writable(true);
