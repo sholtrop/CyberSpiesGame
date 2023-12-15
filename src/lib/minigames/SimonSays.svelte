@@ -23,14 +23,15 @@
   let mistake = false;
   let sequence = Array(N_WINS_REQUIRED);
   let level = 0;
-  let nextclick = 0;
-  let started = false;
+  let nextclick = 0; // index to mark how many buttons the user has copied
+  let started = false; // whether start button is pressed, block input if false
 
   // onMount(() => {
   //   emitGameAction({action: "startTask", taskNumber: TASKS.findIndex(({name}) => name === "simonsays")});
   // });
 
   function handleClick(index: number) {
+    // called when button is pressed
     if (index === sequence[nextclick]) {
       if (nextclick < level) {
         nextclick += 1;
@@ -64,6 +65,8 @@
   }
 
   function lightUpNext(index: number, total: number) {
+    // function to light up next button in sequence, 
+    // recursive part of function showsequence
     if (index >= total) {
       return;
     }
@@ -74,6 +77,7 @@
     }, 900);
   }
   function showSequence(total: number) {
+    // lights up the first "total" buttons of sequence
     if (total > sequence.length) {
       return;
     }
@@ -81,6 +85,7 @@
   }
 
   function reset() {
+    // reset parameters and create new sequence
     level = 1;
     nextclick = 0;
     for (var i = 0; i < sequence.length; i++) {

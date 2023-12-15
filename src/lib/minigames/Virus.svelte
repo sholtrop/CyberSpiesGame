@@ -7,7 +7,6 @@
     import { TASKS } from "../../../server/consts";
 
     let top = 500;
-    let left = 1000;
     let width: number;
     let height: number;
     $: lanewidth = Math.floor(width / 4);
@@ -16,17 +15,16 @@
     let beginy: number;
     let spritewidth = 70;
 
-    let lanes = [false, false, false, false]; /* four lanes with items */
-    let messages: number[][] = [];
-    let viruses: number[][] = []; // for each virus/message save [x, y]
+    let lanes = [false, false, false, false]; // four "lanes" with items
+    let messages: number[][] = []; // for each virus/message save [x, y]
+    let viruses: number[][] = [];
     let messagespeeds: number[] = [];
     let virusspeeds: number[] = [];
-    let totalmessages = 0;
+    let totalmessages = 0; // number of messages/viruses on screen
     let totalviruses = 0;
-    const pvirus = 0.3;
-    let uselanes = 3;
+    const pvirus = 0.3; // prbability of virus appearing
+    let maxitems = 3; // max nr of items (messages + viruses) on screen
     let score = 0;
-    let winscore = 5;
     let stopAnimation = false;
 
     // onMount(() => {
@@ -46,6 +44,8 @@
         }
     }
     function clickVirus(index: number) {
+        // if virus is clicked, update score and delete virus from screen
+        // check if game is ended
         if (stopAnimation) {
             return;
         }
@@ -58,6 +58,9 @@
     }
 
     function pickLane() {
+        // Each message/virus appears at the top of the page in one of four
+        // partitions of the screen, or "lane". Each lane can only contain
+        // one item at a time. This function picks a random free lane
         let freelanes = 0;
         let chosenlane = 0;
         for (const lane of lanes) {
@@ -80,13 +83,15 @@
     }
 
     function pickSpeed() {
-        // speed between 0.1 and 0.5
+        // Pick random speed between 0.1 and 0.5
         let speed = 0.1;
         let speedvar = 0.1 * Math.floor(Math.random() * 4);
         return speed + speedvar;
     }
 
     function addMessage() {
+        // Add message. Pick a random speed, a random lane and a random location
+        // within that lane.
         let speed = pickSpeed();
         let lane = pickLane();
         if (lane < 0) return;
@@ -104,6 +109,8 @@
     }
 
     function addVirus() {
+        // Add virus. Pick a random speed, a random lane and a random location
+        // within that lane.
         let speed = pickSpeed();
         let lane = pickLane();
         if (lane < 0) return;
@@ -121,6 +128,7 @@
     }
 
     function deleteMessage(index: number) {
+        // delete message, update parameters
         let lane = Math.floor(messages[index][0] / lanewidth);
         messages.splice(index, 1);
         messagespeeds.splice(index, 1);
@@ -131,6 +139,7 @@
     }
 
     function deleteVirus(index: number) {
+        // delete virus, update parameters
         let lane = Math.floor(viruses[index][0] / lanewidth);
         viruses.splice(index, 1);
         virusspeeds.splice(index, 1);
@@ -141,7 +150,9 @@
     }
 
     function newItems() {
-        if (totalmessages + totalviruses < uselanes) {
+        // if a new item can be added, this function picks what item type
+        // is added and returns true. Returns false if there are no items added.
+        if (totalmessages + totalviruses < maxitems) {
             let random = Math.random();
             if (random < pvirus) {
                 addVirus();
@@ -154,6 +165,7 @@
     }
 
     function startAnimation(timeStamp: DOMHighResTimeStamp) {
+        // set parameters and start animation
         start = timeStamp;
         previous = timeStamp;
         height = window.innerHeight;
@@ -164,6 +176,12 @@
     }
 
     function animate(timeStamp: DOMHighResTimeStamp) {
+        // recursive function used for animating. For each frame the function
+        // is called. The function updates the locations of the messages and
+        // viruses according to the time elapsed since the last function call.
+        // Delete items that are out of frame.
+        // Add new item after 1 s since
+        // last item was added
         if (stopAnimation) {
             return;
         }

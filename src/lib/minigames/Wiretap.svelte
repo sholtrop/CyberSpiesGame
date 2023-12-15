@@ -24,12 +24,13 @@
     //     emitGameAction({action: "startTask", taskNumber: TASKS.findIndex(({name}) => name === "wiretap")});
     // });
 
-    function gewonnen() {
+    function gamecomplete() {
         win = true;
         setTimeout(() => gotoReplace("/minigamedone"), 300);
     }
 
     function setImageParams() {
+        // set image parameters according to screen size
         wiretapWidth = 0.2 * imagewidth;
         left = (windowWidth - wiretapWidth) / 2;
         top = 0.1 * imagewidth;
@@ -37,22 +38,25 @@
     }
 
     function checkPocket() {
+        // check if wiretap is in pocket
         if (
             left > 0.24 * imagewidth &&
             left < 0.76 * imagewidth + wiretapWidth &&
             top > 0.5 * imagewidth &&
             top < 1.13 * imagewidth + 2.3 * wiretapWidth
         ) {
-            gewonnen();
+            gamecomplete();
         }
     }
 
     function onStart(event) {
+        // called when wiretap is touched at beginning of touch event
         moving = true;
         leftdif = event.touches[0].clientX - left;
         topdif = event.touches[0].clientY - top;
     }
     function onMove(event) {
+        // update location of wiretap during touch/drag
         if (moving) {
             if (event.touches[0].clientX - leftdif < 0) {
                 left = 0;
@@ -77,6 +81,7 @@
         }
     }
     function onEnd() {
+        // called at end of touch event
         moving = false;
         checkPocket();
     }

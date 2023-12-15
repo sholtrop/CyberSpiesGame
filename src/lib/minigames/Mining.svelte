@@ -30,6 +30,7 @@
     }
 
     function processTap() {
+        // update parameters when screen is tapped
         if (taps < currentstage + 1) {
             taps += 1;
         } else {
@@ -50,6 +51,7 @@
     }
 
     function onTouch(event) {
+        // called when screen is tapped
         if (inactive) {
             return;
         }
@@ -58,10 +60,8 @@
             inactive = true;
             hammerdown = true;
             setTimeout(() => {
-                hammerdown = false;
-            }, 200);
-            setTimeout(() => {
                 inactive = false;
+                hammerdown = false;
             }, waitingtime);
         } else {
             currentstage = 0;

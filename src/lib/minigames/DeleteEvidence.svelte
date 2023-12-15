@@ -8,13 +8,12 @@
     let width: number;
     let height: number;
     let spritewidth = 100;
-    let files: number[][] = [];
+    let files: number[][] = []; // x and y locations of each file icon
     let showfile = [true, true, true, true, true, true, true, true, true];
     let filesleft = 9;
-    let trashbin: number[] = [];
-    let nrfiles = 0;
+    let trashbin: number[] = []; // x and y location of trash icon
     let moving = false;
-    let currentmove: number;
+    let currentmove: number; // index of icon being moved (if moving == true)
     let leftdif = 0;
     let topdif = 0;
 
@@ -27,6 +26,7 @@
     }
 
     function initializeParameters() {
+        // spacing is determined on the screen height and width
         width = window.innerWidth;
         height = window.innerHeight;
         let usablex = 0.8 * width - spritewidth;
@@ -47,12 +47,11 @@
             Math.floor((2 * usablex) / 2 + offsetx),
             Math.floor((3 * usabley) / 3 + offsety),
         ];
-        console.log("parameters initted");
-        console.log(files[0]);
         files = files.slice();
     }
 
     function onStart(event, index) {
+        // called at beginning of touch event,
         moving = true;
         leftdif = event.touches[0].clientX - files[index][0];
         topdif = event.touches[0].clientY - files[index][1];
@@ -60,6 +59,7 @@
     }
 
     function onMove(event) {
+        // update location of dragged icon
         if (moving) {
             if (event.touches[0].clientX - leftdif < 0) {
                 files[currentmove][0] = 0;
@@ -85,11 +85,13 @@
     }
 
     function onEnd() {
+        // called when touch event is stopped
         moving = false;
         checkBin();
     }
 
     function checkBin() {
+        // check if item was dragged into trash bin
         if (
             files[currentmove][0] + 80 > trashbin[0] &&
             files[currentmove][0] - 80 < trashbin[0] &&

@@ -34,19 +34,12 @@
   //   emitGameAction({action: "startTask", taskNumber: TASKS.findIndex(({name}) => name === "passwordcrack")});
   // });
 
-  // function gewonnen() {
-  //   alert("gewonnen");
-  //   setTimeout(() => {
-  //     resetGame();
-  //     resetInput();
-  //   }, 1000);
-  // }
-
   function gewonnen() {
     setTimeout(() => gotoReplace("/minigamedone"), 300);
   }
 
   function resetGame() {
+    // called at beginning of game to set parameters
     resetSequence();
     inputhistory.length = 0;
     righthistory.length = 0;
@@ -55,6 +48,7 @@
   }
 
   function resetSequence() {
+    // create secret code with four unique numbers
     let num: number;
     let unique = true;
     for (var i = 0; i < sequence.length; ) {
@@ -77,6 +71,8 @@
   }
 
   function scroll() {
+    // scroll down when new attempt is added
+    // to make sure the last attempt is shown
     setTimeout(() => {
       (document.getElementById("scrollback") as HTMLElement).scrollTop = (
         document.getElementById("scrollback") as HTMLElement
@@ -93,6 +89,7 @@
   }
 
   function resetInput() {
+    // add current attempt to input history and reset "right" and "almost"
     updateHistory();
     waiting = false;
     for (let num = 0; num < 4; num++) {
@@ -106,6 +103,7 @@
   }
 
   function processInput() {
+    // called after code is entered, fills "right" and "almost"
     current = 0;
     waiting = true;
     let success = true;
@@ -128,6 +126,7 @@
   }
 
   function clickbutton(index: number) {
+    // called when button is pressed: numerical, backspace or enter code (ok)
     if (waiting) {
       resetInput();
     }
