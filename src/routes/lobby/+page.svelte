@@ -8,7 +8,7 @@
   import InviteLink from "$lib/InviteLink.svelte";
   import type { Socket } from "socket.io-client";
   import { COLORS, MINIMUM_N_PLAYERS } from "$lib/consts";
-  import { dev } from "$app/environment";
+  import { dev } from "$lib/consts";
   import AgentRoleExplanation from "$lib/AgentRoleExplanation.svelte";
   import { swipe } from "svelte-gestures";
   import { emitGameAction, getSocketIO } from "$lib/websocket";
@@ -52,7 +52,7 @@
 
   function getRoomLink(): string {
     let link =
-      env.PUBLIC_SERVER +
+      window.location.origin +
       `/join?code=${$lobbyStore?.id}&creator=${$lobbyStore?.creator}`;
     return link;
   }

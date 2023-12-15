@@ -22,3 +22,6 @@ export const DEV_PANEL_KEY = ".";
 export const VIRUS_SCAN_TIME = 10;
 
 export const VIRUS_FAIL_TIME = 25;
+
+// Hard-coded for now
+export const dev = true;

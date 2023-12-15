@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vite dev",
     "start": "PUBLIC_SERVER=https://mms.sholtrop.dev vite dev",
-    "build": "PUBLIC_SERVER=http://localhost:3000 vite build",
+    "build": "PUBLIC_APPENV=dev vite build",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { dev } from "$app/environment";
+  import { dev } from "$lib/consts";
   import MainButton from "$lib/MainButton.svelte";
   import { lobbyStore, playerStore } from "$lib/stores";
   import { gotoReplace } from "$lib/util";

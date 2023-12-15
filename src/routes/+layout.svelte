@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { dev } from "$app/environment";
+  import { dev } from "$lib/consts";
   import DevPanel from "$lib/DevPanel.svelte";
   import NotificationBar from "$lib/NotificationBar.svelte";
   import { DEV_PANEL_KEY } from "$lib/consts";

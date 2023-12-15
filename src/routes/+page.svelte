@@ -8,7 +8,7 @@
   import { deviceIsSupported, gotoReplace } from "$lib/util";
   import type { Socket } from "socket.io-client";
   import { lobbyStore, playerColorStore, playerStore } from "$lib/stores";
-  import { dev } from "$app/environment";
+  import { dev } from "$lib/consts";
 
   let deviceSupported: boolean;
 
@@ -42,7 +42,7 @@
         })
       );
 
-      if (!dev) document.getElementById("main-panel")!.requestFullscreen();
+      document.getElementById("main-panel")!.requestFullscreen();
       gotoReplace(`/setuprooms`);
     });
 

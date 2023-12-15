@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { dev } from "$app/environment";
+  import { dev } from "$lib/consts";
 
   export let disabled = false;
 </script>

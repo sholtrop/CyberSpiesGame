@@ -55,6 +55,8 @@ ngrok http 3000
 
 This will publish port 3000 to a link that Ngrok manages. Ngrok serves this link over HTTPS. You can access this link on a mobile device to test out the app. You can also mix and match mobile-device-players and browser-tab-players this way.
 
+IMPORTANT: If you mix mobile and desktop, you cannot use the join-link of one to join the other. I.e., scanning the desktop browser's lobby QR code with your phone will _not_ work. You must instead enter the lobby's join code into the URL manually.
+
 If you happen to have NFC tags and would like to use them, the next section explains what data you should put on your NFC tags.
 
 ### NFC Tags

@@ -1,4 +1,4 @@
-import { dev } from "$app/environment";
+import { dev } from "$lib/consts";
 import { goto } from "$app/navigation";
 import { devNotiStore, lobbyStore } from "./stores";
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { dev } from "$app/environment";
+  import { dev } from "$lib/consts";
   import { VIRUS_FAIL_TIME, VIRUS_SCAN_TIME } from "$lib/consts";
   import { gotoReplace } from "$lib/util";
   import { onMount } from "svelte";

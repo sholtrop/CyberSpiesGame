@@ -1,13 +1,15 @@
 import * as socketIO from "socket.io-client";
 import type { GameAction } from "./types";
-import { dev } from "$app/environment";
 import { env } from "$env/dynamic/public";
 
 let socket: socketIO.Socket | null = null;
 
 export function getSocketIO(): socketIO.Socket {
   if (socket == null) {
-    const SERVER = env.PUBLIC_SERVER!; // || `localhost:3000`;
+    const SERVER =
+      window.location.hostname === "localhost"
+        ? "http://localhost:3000"
+        : `${window.location.hostname}`;
     console.log({ SERVER });
     socket = socketIO
       .connect(SERVER, { secure: env.PUBLIC_SERVER != null })

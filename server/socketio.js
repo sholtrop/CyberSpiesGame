@@ -3,6 +3,7 @@ import http from "http";
 import https from "https";
 import fs from "fs";
 import express from "express";
+import { url } from "inspector";
 
 // HTTPS needed for NFC scanner
 const useHTTPS = process.env.NODE_ENV === "production";
@@ -21,7 +22,12 @@ if (useHTTPS) {
 export const app = express();
 
 app.use((req, res, next) => {
-  if (req.url !== "/" && !req.url.includes(".")) req.url = req.url + ".html";
+  if (req.url !== "/" && !req.url.includes(".")) {
+    if (req.url.includes("?")) {
+      const [url, query] = req.url.split("?");
+      req.url = url + ".html?" + query;
+    } else req.url = req.url + ".html";
+  }
   next();
 }, express.static("../build"));
 
