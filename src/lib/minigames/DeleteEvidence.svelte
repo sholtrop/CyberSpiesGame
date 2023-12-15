@@ -31,8 +31,8 @@
         height = window.innerHeight;
         let usablex = 0.8 * width - spritewidth;
         let offsetx = 0.1 * width;
-        let usabley = 0.8 * height - spritewidth;
-        let offsety = 0.1 * height;
+        let usabley = 0.6 * height - spritewidth;
+        let offsety = 0.2 * height;
         let x: number;
         let y: number;
         for (var i = 0; i < 3; i++) {
@@ -97,6 +97,8 @@
             files[currentmove][1] - 80 < trashbin[1]
         ) {
             showfile[currentmove] = false;
+            files[currentmove][0] = 0;
+            files[currentmove][1] = 0;
             filesleft--;
             console.log(filesleft);
         }
