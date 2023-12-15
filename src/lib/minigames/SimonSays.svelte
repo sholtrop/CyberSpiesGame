@@ -52,7 +52,6 @@
       nextclick = 0;
       setTimeout(() => {
         mistake = false;
-        showSequence(level);
       }, 1500);
     }
 
@@ -112,6 +111,7 @@
       on:click={() => {
         reset();
         started = true;
+        mistake = false;
         showSequence(level);
       }}>{started ? "Restart" : "Start"}</MainButton
     >

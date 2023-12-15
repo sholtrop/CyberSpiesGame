@@ -18,6 +18,7 @@
     let topdif = 0;
     let moving = false;
     let win = false;
+    let showWiretap = false;
 
     // onMount(() => {
     //     emitGameAction({action: "startTask", taskNumber: TASKS.findIndex(({name}) => name === "wiretap")});
@@ -32,6 +33,7 @@
         wiretapWidth = 0.2 * imagewidth;
         left = (windowWidth - wiretapWidth) / 2;
         top = 0.1 * imagewidth;
+        showWiretap = true;
     }
 
     function checkPocket() {
@@ -97,6 +99,7 @@
         />
     </div>
 
+    {#if showWiretap}
     <section
         role="none"
         on:touchstart={onStart}
@@ -110,9 +113,6 @@
             width="{wiretapWidth}px"
         />
     </section>
-
-    {#if win}
-        <img src={justpocket} alt="pocket" class="pocket" />
     {/if}
 </body>
 

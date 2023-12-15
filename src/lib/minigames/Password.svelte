@@ -4,7 +4,7 @@
   import { onMount } from "svelte";
   import { TASKS } from "../../../server/consts";
 
-  let input = ["_", "_", "_", "_"];
+  let emptyscreen = ["_", "_", "_", "_"];
   let numericalinput = [0, 0, 0, 0];
   let buttonlit = [
     false,
@@ -95,7 +95,6 @@
   function resetInput() {
     updateHistory();
     waiting = false;
-    input = ["_", "_", "_", "_"];
     for (let num = 0; num < 4; num++) {
       right[num] = false;
       almost[num] = false;
@@ -125,6 +124,7 @@
     if (success) {
       gewonnen();
     }
+    resetInput();
   }
 
   function clickbutton(index: number) {
@@ -135,15 +135,13 @@
       /* backspace*/
       if (current > 0) {
         current -= 1;
-        input[current] = "_";
       }
       return;
     }
     if (index == 11) {
-      /* clear all*/
-      while (current > 0) {
-        current -= 1;
-        input[current] = "_";
+      /* ok*/
+      if (current == 4) {
+      processInput();
       }
       return;
     }
@@ -154,12 +152,8 @@
     }, 300);
 
     if (current < 4) {
-      input[current] = String(index);
       numericalinput[current] = index;
       current += 1;
-    }
-    if (current == 4) {
-      setTimeout(() => processInput(), 100);
     }
     return;
   }
@@ -194,7 +188,7 @@
         class:screen-right={right[i]}
         class:screen-almost={almost[i]}
       >
-        {input[i]}
+        {i<current?numericalinput[i]:emptyscreen[i]}
       </div>
     {/each}
   </div>
@@ -208,7 +202,7 @@
       >
     {/each}
     <button class="btn" id="backspace" on:click={() => clickbutton(11)}
-      >CA</button
+      >OK</button
     >
     <button
       class="btn"

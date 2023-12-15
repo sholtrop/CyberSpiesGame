@@ -31,7 +31,7 @@
         height = window.innerHeight;
         let usablex = 0.8 * width - spritewidth;
         let offsetx = 0.1 * width;
-        let usabley = 0.6 * height - spritewidth;
+        let usabley = 0.7 * height - spritewidth;
         let offsety = 0.2 * height;
         let x: number;
         let y: number;

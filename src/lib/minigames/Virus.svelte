@@ -141,7 +141,7 @@
     }
 
     function newItems() {
-        if (totalmessages + totalviruses <= uselanes) {
+        if (totalmessages + totalviruses < uselanes) {
             let random = Math.random();
             if (random < pvirus) {
                 addVirus();
