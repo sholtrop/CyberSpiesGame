@@ -8,8 +8,8 @@ Criminals scan physical QR codes with their phones which will give them a task t
 Secret agents try to eliminate all of the criminals. One way of doing so is by scanning the NFC tag on the players shoulder, which will kill them. Other than this, secret agents have special powers which they can access by swiping up on their mobile phone, which will reveal their secret screen. For example, a secret agent can sabotage a firewall, which the criminals need to spend time fixing lest they lose the game.
 
 This video shows the app in basic action:
-![video](https://github.com/user-attachments/assets/0f3115a1-9475-4833-9a47-51877e552c0e)
 
+https://github.com/user-attachments/assets/a975eab2-3396-454d-a130-041852d0b623
 
 The rules for playing are currently not set in stone. The way we have found it most effective is:
 - Players are not allowed to run.
