@@ -1,6 +1,24 @@
+## Introduction
+
+CyberSpies is an Among Us-style mobile game to be played in real-life with multiple people, mainly through NFC tag scanning. You will need to self-host this application, have a suitable location with isolated rooms, and have some physical material to play it. 
+
+The game itself involves criminals (crew) and secret agents (impostors). 
+Criminals scan physical QR codes with their phones which will give them a task to complete. Tasks are minigames and completing enough of them will win criminals the game. 
+
+Secret agents try to eliminate all of the criminals. One way of doing so is by scanning the NFC tag on the players shoulder, which will kill them. Other than this, secret agents have special powers which they can access by swiping up on their mobile phone, which will reveal their secret screen. For example, a secret agent can sabotage a firewall, which the criminals need to spend time fixing lest they lose the game.
+
+This video shows the app in basic action:
+![video](https://github.com/user-attachments/assets/0f3115a1-9475-4833-9a47-51877e552c0e)
+
+
+The rules for playing are currently not set in stone. The way we have found it most effective is:
+- Players are not allowed to run.
+- If a player wants to scan your shoulder's NFC tag, you should let them.
+
 ## Installing and running
 
 You need NodeJS v16.14.2. The easiest way to install NodeJS versions is through [Node Version Manager](https://github.com/nvm-sh/nvm) (`nvm`). Install `nvm` through its official install script:
+
 
 ```bash
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
@@ -59,9 +77,22 @@ IMPORTANT: If you mix mobile and desktop, you cannot use the join-link of one to
 
 If you happen to have NFC tags and would like to use them, the next section explains what data you should put on your NFC tags.
 
-### NFC Tags
+## Physical material
+You will need 23 NFC tags, of which:
+- 10 are for the max. 5 players (one on each shoulder)
+- 7 are for the tasks
+- 1 is for the meeting button
+- 2 are for the special firewall fix scenario
+- 3 are for the wiretap tasks
 
-This is an overview of the NFC tags that are used in the game. To have an NFC tag play a certain role, it must contain the associated tag contents in string format.
+To attach NFC tags to clothing, we made custom badges like this:
+
+![tag](https://github.com/user-attachments/assets/68668b85-a294-48d8-94e1-ca05a01653a3)
+
+The other NFC tags need to be placed in locations that are easily described (such as a room with a number) and isolated from each other. 
+
+### NFC Tags overview 
+NFC tags play a role in the game based on their string-format contents:
 
 | Role           | Tag contents        | Amount                | Description                                                                                  |
 | -------------- | ------------------- | --------------------- | -------------------------------------------------------------------------------------------- |
